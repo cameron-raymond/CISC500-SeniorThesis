@@ -1,8 +1,9 @@
 # Secrets #
 cred.py
 
-# Data #
+# Folders #
 data/
+thesisEnv
 
 # Compiled source #
 ###################
