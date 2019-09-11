@@ -18,24 +18,23 @@ ACCESS_SECRET   = login['ACCESS_SECRET']
 def get_all_tweets(api,screen_name):
 	#Twitter only allows access to a users most recent 3240 tweets with this method
 	#authorize twitter, initialize tweepy
-	num_tweets	= 4000
+	num_tweets	= 3000
 	print("--- Return Tweets for {} ---".format(screen_name))
 	tweets 		= tweepy.Cursor(api.user_timeline,screen_name=screen_name,count=num_tweets,include_rts=False,tweet_mode='extended')
 	timeline_df = pd.DataFrame(columns=COLS)
 	print("--- Clean Data ---")
 	for tweet in tweets.items():
 		if tweet.lang == 'en':
-			tweet_df = clean_tweet(tweet)
+			tweet_df 	= clean_tweet(tweet)
 			timeline_df = timeline_df.append(tweet_df, ignore_index=True)
-
 	return timeline_df
 		
 def clean_tweet(tweet_obj):
 	cleaned_tweet 	= []
 	tweet			= tweet_obj._json
-	raw_text		= emoji.demojize(tweet['text'])
+	raw_text		= emoji.demojize(tweet['full_text'])
 	cleaned_text 	= p.clean(raw_text)
-	cleaned_tweet 	+= [tweet['id'], tweet['created_at'],tweet['source'], tweet['text'],cleaned_text, tweet['lang'],tweet['favorite_count'], tweet['retweet_count']]
+	cleaned_tweet 	+= [tweet['id'], tweet['created_at'],tweet['source'], tweet['full_text'],cleaned_text, tweet['lang'],tweet['favorite_count'], tweet['retweet_count']]
 	hashtags = ", ".join([hashtag_item['text'] for hashtag_item in tweet['entities']['hashtags']])
 	cleaned_tweet.append(hashtags) #append the hashtags
 	cleaned_tweet.append(tweet['user']['screen_name'])
