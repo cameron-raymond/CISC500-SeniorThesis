@@ -1,6 +1,9 @@
 # Secrets #
 cred.py
 
+# Data #
+data/
+
 # Compiled source #
 ###################
 *.com

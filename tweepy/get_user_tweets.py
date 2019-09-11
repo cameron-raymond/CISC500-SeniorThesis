@@ -1,9 +1,13 @@
+import os
 import tweepy
 import cred
+from tweet_config import COLS
+import pandas as pd
+import preprocessor as p
+import re #regular expression
 import json
 import csv
 
-print(cred.login)
 CONSUMER_KEY    = cred.login['CONSUMER_KEY']
 CONSUMER_SECRET = cred.login['CONSUMER_SECRET']
 ACCESS_KEY      = cred.login['ACCESS_KEY']
@@ -13,49 +17,47 @@ def get_all_tweets(screen_name):
 	#Twitter only allows access to a users most recent 3240 tweets with this method
 	
 	#authorize twitter, initialize tweepy
-	auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+	auth 		= tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 	auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-	api = tweepy.API(auth)
-	
-	#initialize a list to hold all the tweepy Tweets
-	alltweets = []	
-	
-	#make initial request for most recent tweets (200 is the maximum allowed count)
-	new_tweets = api.user_timeline(screen_name = screen_name,count=200)
-	
-	#save most recent tweets
-	alltweets.extend(new_tweets)
-	
-	#save the id of the oldest tweet less one
-	oldest = alltweets[-1].id - 1
-	
-	#keep grabbing tweets until there are no tweets left to grab
-	while len(new_tweets) > 0:
-		print("getting tweets before {}".format(oldest))
-		
-		#all subsiquent requests use the max_id param to prevent duplicates
-		new_tweets = api.user_timeline(screen_name = screen_name,count=200,max_id=oldest)
-		
-		#save most recent tweets
-		alltweets.extend(new_tweets)
-		
-		#update the id of the oldest tweet less one
-		oldest = alltweets[-1].id - 1
-		
-		print("...{} tweets downloaded so far".format(len(alltweets)))
-	
-	#transform the tweepy tweets into a 2D array that will populate the csv	
-	outtweets = [[tweet.id_str, tweet.created_at, tweet.text.encode("utf-8")] for tweet in alltweets]
-	
-	#write the csv	
-	with open('{}_tweets.csv'.format(screen_name), 'wb') as f:
-		writer = csv.writer(f)
-		writer.writerow(["id","created_at","text"])
-		writer.writerows(outtweets)
-	
-	pass
+	api 		= tweepy.API(auth)
+	num_tweets	= 200
+	tweets 		= api.user_timeline(screen_name=screen_name,count=3000)
+	timeline_df = pd.DataFrame(columns=COLS)
+	for tweet in tweets:
+		if (not tweet.retweeted) and ('RT @' not in tweet.text):
+			tweet_df = clean_tweet(tweet)
+			timeline_df = timeline_df.append(tweet_df, ignore_index=True)
 
+	return timeline_df
+		
+		
+def clean_tweet(tweet_obj):
+	cleaned_tweet 	= []
+	tweet			= tweet_obj._json
+	cleaned_text 	= p.clean(tweet['text'])
+	cleaned_tweet 	+= [tweet['id'], tweet['created_at'],tweet['source'], tweet['text'],cleaned_text, tweet['lang'],tweet['favorite_count'], tweet['retweet_count']]
+	hashtags = ", ".join([hashtag_item['text'] for hashtag_item in tweet['entities']['hashtags']])
+	cleaned_tweet.append(hashtags) #append the hashtags
+	cleaned_tweet.append(tweet['user']['screen_name'])
+	single_tweet_df = pd.DataFrame([cleaned_tweet], columns=COLS)
+	return single_tweet_df
+
+def write_to_file(file_path,new_data):
+	data_frame = new_data
+	# print(data_frame.to_string())
+	# if os.path.exists(file_path):
+	# 	data_frame = pd.read_csv(file_path,header=0)
+	# 	data_frame.append(new_data)
+	
+	csvFile = open(file_path, 'a' ,encoding='utf-8')
+	data_frame.to_csv(csvFile, mode='a', columns=COLS, index=False, encoding="utf-8")
 
 if __name__ == '__main__':
+	lib_tweets = "../data/liberal_party_data.csv"
+	trudeau_tweets = "../data/trudeau_data.csv"
 	#pass in the username of the account you want to download
-	get_all_tweets("liberal_party")
+	lib_df = get_all_tweets("liberal_party")
+	trudeau_df = get_all_tweets("JustinTrudeau")
+	write_to_file(lib_tweets,lib_df)
+	write_to_file(trudeau_tweets,trudeau_df)
+
