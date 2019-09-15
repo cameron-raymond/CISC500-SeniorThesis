@@ -1,3 +1,5 @@
+#!/usr/bin/python
+import sys
 import os
 import tweepy
 import emoji
@@ -36,7 +38,9 @@ def clean_tweet(tweet_obj):
 	cleaned_text 	= p.clean(raw_text)
 	cleaned_tweet 	+= [tweet['id'], tweet['created_at'],tweet['source'], tweet['full_text'],cleaned_text,tweet['favorite_count'], tweet['retweet_count']]
 	hashtags = ", ".join([hashtag_item['text'] for hashtag_item in tweet['entities']['hashtags']])
-	cleaned_tweet.append(hashtags) #append the hashtags
+	cleaned_tweet.append(hashtags) #append hashtags 
+	mentions = ", ".join([mention['screen_name'] for mention in tweet['entities']['user_mentions']])
+	cleaned_tweet.append(mentions) #append mentions
 	cleaned_tweet.append(tweet['user']['screen_name'])
 	single_tweet_df = pd.DataFrame([cleaned_tweet], columns=COLS)
 	return single_tweet_df
@@ -46,21 +50,32 @@ def write_to_file(file_path,new_data):
 	csvFile = open(file_path, 'a' ,encoding='utf-8')
 	data_frame.to_csv(csvFile, mode='a', columns=COLS, index=False, encoding="utf-8")
 
-if __name__ == '__main__':
-	lib_tweets		= "../data/liberal_party_data.csv"
-	trudeau_tweets 	= "../data/trudeau_data.csv"
-	try:
-		os.remove(lib_tweets)
-		os.remove(trudeau_tweets)
-	except:
-		pass
+def get_tweets(screen_name):
 	print("--- Authorize Twitter; Initialize Tweepy ---")
 	auth 		= tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 	auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 	api 		= tweepy.API(auth)
-	#pass in the username of the account you want to download
-	lib_df = get_all_tweets(api,"liberal_party")
-	trudeau_df = get_all_tweets(api,"JustinTrudeau")
-	write_to_file(lib_tweets,lib_df)
-	write_to_file(trudeau_tweets,trudeau_df)
+	file_path = "../data/{}_data.csv".format(screen_name)
+	try:
+		os.remove(file_path)
+	except:
+		pass
+	tweets_df = get_all_tweets(api,screen_name)
+	write_to_file(file_path,tweets_df)
+	print("--- done for {} ---".format(screen_name))
+
+if __name__ == '__main__':
+	usernames = sys.argv[1:]
+	for username in usernames:
+		get_tweets(username)
+	# get_tweets("liberal_party")
+	# get_tweets("JustinTrudeau")
+	# get_tweets("CPC_HQ")
+	# get_tweets("AndrewScheer")
+	# get_tweets("NDP")
+	# get_tweets("theJagmeetSingh")
+	# get_tweets("ElizabethMay")
+	# get_tweets("CanadianGreens")
+	# get_tweets("MaximeBernier")
+	# get_tweets("peoplespca")
 
