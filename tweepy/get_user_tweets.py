@@ -16,8 +16,12 @@ CONSUMER_KEY    = login['CONSUMER_KEY']
 CONSUMER_SECRET = login['CONSUMER_SECRET']
 ACCESS_KEY      = login['ACCESS_KEY']
 ACCESS_SECRET   = login['ACCESS_SECRET']
+print("--- Authorize Twitter; Initialize Tweepy ---")
+auth 		= tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
+api 		= tweepy.API(auth)
 
-def get_all_tweets(api,screen_name):
+def get_all_tweets(screen_name):
 	#Twitter only allows access to a users most recent 3240 tweets with this method
 	#authorize twitter, initialize tweepy
 	num_tweets	= 3000
@@ -51,16 +55,12 @@ def write_to_file(file_path,new_data):
 	data_frame.to_csv(csvFile, mode='a', columns=COLS, index=False, encoding="utf-8")
 
 def get_tweets(screen_name):
-	print("--- Authorize Twitter; Initialize Tweepy ---")
-	auth 		= tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-	auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-	api 		= tweepy.API(auth)
 	file_path = "../data/{}_data.csv".format(screen_name)
 	try:
 		os.remove(file_path)
 	except:
 		pass
-	tweets_df = get_all_tweets(api,screen_name)
+	tweets_df = get_all_tweets(screen_name)
 	write_to_file(file_path,tweets_df)
 	print("--- done for {} ---".format(screen_name))
 
