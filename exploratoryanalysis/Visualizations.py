@@ -7,7 +7,7 @@ import json
 import seaborn as sns
 import re
 import collections
-from wordcloud import WordCloud
+from wordcloud import WordCloud, STOPWORDS
 
 
 class Visualizations:
@@ -50,6 +50,13 @@ class Visualizations:
 		plt.show()
 
 	def wordcloud(self):
+		text = self.twitter_df['clean_text']
+		wordcloud = WordCloud(width = 3000,height = 2000,background_color = 'black',stopwords = STOPWORDS).generate(str(text))
+		fig = plt.figure(figsize = (40, 30), facecolor = 'k', edgecolor = 'k')
+		plt.imshow(wordcloud, interpolation = 'bilinear')
+		plt.axis('off')
+		plt.tight_layout(pad=0)
+		plt.show()
 		
 
 	
