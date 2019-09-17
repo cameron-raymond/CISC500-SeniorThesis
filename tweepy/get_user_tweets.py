@@ -31,7 +31,7 @@ def clean_tweet(tweet_obj):
 	tweet			= tweet_obj._json
 	raw_text		= emoji.demojize(tweet['full_text'])
 	cleaned_text 	= p.clean(raw_text)
-	cleaned_tweet 	+= [tweet['id'], tweet['created_at'],tweet['source'], tweet['full_text'],cleaned_text,tweet['favorite_count'], tweet['retweet_count']]
+	cleaned_tweet 	+= [tweet['id'],'tweet', tweet['created_at'],tweet['source'], tweet['full_text'],cleaned_text,tweet['favorite_count'], tweet['retweet_count']]
 	hashtags = ", ".join([hashtag_item['text'] for hashtag_item in tweet['entities']['hashtags']])
 	cleaned_tweet.append(hashtags) #append hashtags 
 	mentions = ", ".join([mention['screen_name'] for mention in tweet['entities']['user_mentions']])
