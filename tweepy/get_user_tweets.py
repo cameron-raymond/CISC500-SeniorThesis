@@ -1,27 +1,18 @@
 #!/usr/bin/python
 import sys
 import os
-import tweepy
 import emoji
-from cred import login
-from tweet_config import COLS
+import tweepy
+from tweet_config import COLS, api
 import pandas as pd
 import preprocessor as p
 import re #regular expression
 import json
 import csv
-
 p.set_options(p.OPT.URL,p.OPT.SMILEY)
-CONSUMER_KEY    = login['CONSUMER_KEY']
-CONSUMER_SECRET = login['CONSUMER_SECRET']
-ACCESS_KEY      = login['ACCESS_KEY']
-ACCESS_SECRET   = login['ACCESS_SECRET']
-print("--- Authorize Twitter; Initialize Tweepy ---")
-auth 		= tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-api 		= tweepy.API(auth)
 
-def get_all_tweets(screen_name):
+
+def get_tweets(screen_name):
 	#Twitter only allows access to a users most recent 3240 tweets with this method
 	#authorize twitter, initialize tweepy
 	num_tweets	= 3000
@@ -54,20 +45,20 @@ def write_to_file(file_path,new_data):
 	csvFile = open(file_path, 'a' ,encoding='utf-8')
 	data_frame.to_csv(csvFile, mode='a', columns=COLS, index=False, encoding="utf-8")
 
-def get_tweets(screen_name):
+def put_tweets(screen_name):
 	file_path = "../data/{}_data.csv".format(screen_name)
 	try:
 		os.remove(file_path)
 	except:
 		pass
-	tweets_df = get_all_tweets(screen_name)
+	tweets_df = get_tweets(screen_name)
 	write_to_file(file_path,tweets_df)
 	print("--- done for {} ---".format(screen_name))
 
 if __name__ == '__main__':
 	usernames = sys.argv[1:]
 	for username in usernames:
-		get_tweets(username)
+		put_tweets(username)
 	# get_tweets("liberal_party")
 	# get_tweets("JustinTrudeau")
 	# get_tweets("CPC_HQ")
