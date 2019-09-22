@@ -43,7 +43,7 @@ def clean_tweet(tweet_obj):
 def write_to_file(file_path,new_data):
 	data_frame = new_data
 	csvFile = open(file_path, 'a' ,encoding='utf-8')
-	data_frame.to_csv(csvFile, mode='a', columns=COLS, index=False, encoding="utf-8")
+	data_frame.to_csv(csvFile, mode='a', index=False, encoding="utf-8")
 
 def put_tweets(screen_name):
 	file_path = "../data/{}_data.csv".format(screen_name)
