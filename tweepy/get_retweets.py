@@ -9,7 +9,8 @@ import pandas as pd
 import tweepy
 
 class Retweet_Grabber(object):
-	def __init__(self, screen_name, *args, **kwargs):
+	def __init__(self, screen_name, num_to_collect=74, *args, **kwargs):
+		self.num_to_collect = num_to_collect
 		self.screen_name = screen_name	
 
 	def put_tweets(self):
@@ -25,8 +26,9 @@ class Retweet_Grabber(object):
 
 	def get_user_retweets(self):
 		screen_name = self.screen_name
+		num_to_collect = self.num_to_collect
 		retweet_df = pd.DataFrame(columns=RETWEET_COLS)
-		twitter_df = pd.read_csv("../data/{}_data.csv".format(screen_name)).head(74)
+		twitter_df = pd.read_csv("../data/{}_data.csv".format(screen_name)).head(num_to_collect)
 		for index, row in twitter_df.iterrows():
 			tweet_id = row['id']
 			print("--- Getting retweet {} of {}, ID: {} ---".format(index,twitter_df.shape[0],tweet_id))
@@ -61,6 +63,6 @@ class Retweet_Grabber(object):
 if __name__ == '__main__':
 	usernames = sys.argv[1:]
 	for username in usernames:
-		user = Retweet_Grabber(username)
+		user = Retweet_Grabber(username,60)
 		user.put_tweets()
 
