@@ -8,6 +8,9 @@ import pandas as pd
 
 class Graph(object):
     def __init__(self,usernames):
+        self.num_retweeters = 0
+        self.num_tweets = 0
+        self.num_retweets = 0
         self.usernames = usernames
         self.G = nx.MultiDiGraph()
         self.title = ""
@@ -18,7 +21,7 @@ class Graph(object):
 
     def draw_graph(self):
         G = self.G
-        title = self.title+"graph.png"
+        title = "../visualizations/{}graph.png".format(self.title)
         print("--- Adding colours and labels ---")
         colors = []
         labels = {}
@@ -36,6 +39,8 @@ class Graph(object):
                     colors.append('red')
         
         print("--- Laying out {} nodes and {} edges ---".format(len(G.nodes()),G.number_of_edges()))
+        print("--- {} tweets, {} retweeters, {} retweets ---".format(self.num_tweets,self.num_retweeters,self.num_retweets))
+
         plt.figure(figsize=(30, 30))
         # use graphviz to find radial layout
         pos = graphviz_layout(G, prog="sfdp")
@@ -54,7 +59,7 @@ class Graph(object):
         # plt.show()
 
     def build_graph(self,username):
-        twitter_df = pd.read_csv("../data/{}_data.csv".format(username)).head(40)
+        twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
         retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(twitter_df['id'])] # if we're only taking 20 tweets find all the retweets for those 20
         G = nx.MultiDiGraph()
@@ -71,6 +76,9 @@ class Graph(object):
         G.add_nodes_from(user_nodes)
         for index,row in retweet_df.iterrows():
             G.add_edge(row['original_tweet_id'],row['original_author'])
+        self.num_retweeters += len(user_nodes)
+        self.num_tweets += len(twitter_df)
+        self.num_retweets += len(retweet_df)
         return G
 
     def to_adjecency_matrix(self):
