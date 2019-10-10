@@ -37,10 +37,8 @@ class Graph(object):
                 elif G.node[node]['type'] == 'user':
                     labels[node] = node
                     colors.append('red')
-        
         print("--- Laying out {} nodes and {} edges ---".format(len(G.nodes()),G.number_of_edges()))
         print("--- {} tweets, {} retweeters, {} retweets ---".format(self.num_tweets,self.num_retweeters,self.num_retweets))
-
         plt.figure(figsize=(30, 30))
         # use graphviz to find radial layout
         pos = graphviz_layout(G, prog="sfdp")
@@ -50,16 +48,14 @@ class Graph(object):
                 node_color=colors,
                 with_labels=False,
                 alpha=0.5,
-                node_size=80,
-                arrowsize=10,
-                arrowstyle='fancy')
+                node_size=80)
         nx.draw_networkx_labels(G,pos,labels,font_size=16,font_color='b')
-        # nx.draw_networkx_labels(G,pos,retweet_labels,font_size=8,font_color='g')
-        plt.savefig(title, bbox_inches="tight")
-        # plt.show()
+        # nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
+        # plt.savefig(title, bbox_inches="tight")
+        plt.show()
 
     def build_graph(self,username):
-        twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
+        twitter_df = pd.read_csv("../data/{}_data.csv".format(username)).head(2)
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
         retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(twitter_df['id'])] # if we're only taking 20 tweets find all the retweets for those 20
         G = nx.MultiDiGraph()
@@ -69,7 +65,7 @@ class Graph(object):
         nodes = twitter_df.set_index('id').to_dict('index').items()
         G.add_nodes_from(nodes)
         for index,row in twitter_df.iterrows():
-            G.add_edge(username,row['id'])
+            G.add_edge(username,row['id'],weight=row['favorite_count'])
         # add retweet user nodes (those who retweeted the original tweets) multipl
         user_nodes = retweet_df.drop_duplicates(subset ="original_author") 
         user_nodes = user_nodes.set_index('original_author').to_dict('index').items()
