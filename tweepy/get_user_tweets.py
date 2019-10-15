@@ -29,8 +29,6 @@ def get_tweets(screen_name,most_recent_date=None):
 		print("--- Removing Tweets Before {}---".format(most_recent_date))
 		timeline_df['to_date'] = pd.to_datetime(timeline_df['created_at']).dt.tz_convert(None)
 		timeline_df = timeline_df[timeline_df['to_date'] > most_recent_date]
-		print(timeline_df['to_date'].max())
-		print(timeline_df['to_date'].min())
 		timeline_df.drop('to_date',axis=1)
 	return timeline_df
 		
