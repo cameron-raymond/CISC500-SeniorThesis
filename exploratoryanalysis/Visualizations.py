@@ -17,6 +17,8 @@ sns.set_style('whitegrid')
 
 class Visualizations:
 	def __init__(self, username):
+		self.username = username
+		self.file_path = "../visualizations/exploratory_analysis/"
 		self.twitter_df = None
 		try:
 			self.twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
@@ -67,6 +69,7 @@ class Visualizations:
 		plt.show()
 
 	def plot_common_words(self):
+		title = '{}_Most_Common_Words'.format(self.username)
 		# Initialise the count vectorizer with the English stop words
 		count_vectorizer = CountVectorizer(stop_words='english')
 		# Fit and transform the processed titles
@@ -83,22 +86,26 @@ class Visualizations:
 		x_pos = np.arange(len(words)) 
 		
 		plt.figure(2, figsize=(15, 15/1.6180))
-		plt.subplot(title='10 most common words')
+		plt.subplot(title=title)
 		sns.set_context("notebook", font_scale=1.25, rc={"lines.linewidth": 2.5})
 		sns.barplot(x_pos, counts, palette='husl')
 		plt.xticks(x_pos, words, rotation=90) 
 		plt.xlabel('words')
 		plt.ylabel('counts')
-		plt.show()
+		plt.savefig(self.file_path+title, bbox_inches="tight")
+
+		# plt.show()
 		
 
 	
 
 
 if __name__ == '__main__':
-    username = sys.argv[1]
-    vis_obj = Visualizations(username)
-    vis_obj.plot_common_words()
+	usernames = sys.argv[1:]
+	for username in usernames:
+		vis_obj = Visualizations(username)
+		vis_obj.plot_common_words()
+    
     # # twitter_df.head()
     # # justMentions = len([twitter_df['mentions'].notnull()])
     # hashtags = []
