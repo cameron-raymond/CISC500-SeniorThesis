@@ -8,6 +8,11 @@ import seaborn as sns
 import re
 import collections
 from wordcloud import WordCloud, STOPWORDS
+# Load the library with the CountVectorizer method
+from sklearn.feature_extraction.text import CountVectorizer
+
+sns.set_style('whitegrid')
+
 
 
 class Visualizations:
@@ -60,6 +65,31 @@ class Visualizations:
 		plt.axis('off')
 		plt.tight_layout(pad=0)
 		plt.show()
+
+	def plot_common_words(self):
+		# Initialise the count vectorizer with the English stop words
+		count_vectorizer = CountVectorizer(stop_words='english')
+		# Fit and transform the processed titles
+		count_data = count_vectorizer.fit_transform(self.twitter_df['clean_text'])
+		words = count_vectorizer.get_feature_names()
+		total_counts = np.zeros(len(words))
+		for t in count_data:
+			total_counts+=t.toarray()[0]
+		
+		count_dict = (zip(words, total_counts))
+		count_dict = sorted(count_dict, key=lambda x:x[1], reverse=True)[0:10]
+		words = [w[0] for w in count_dict]
+		counts = np.array([w[1] for w in count_dict],dtype=np.int)
+		x_pos = np.arange(len(words)) 
+		
+		plt.figure(2, figsize=(15, 15/1.6180))
+		plt.subplot(title='10 most common words')
+		sns.set_context("notebook", font_scale=1.25, rc={"lines.linewidth": 2.5})
+		sns.barplot(x_pos, counts, palette='husl')
+		plt.xticks(x_pos, words, rotation=90) 
+		plt.xlabel('words')
+		plt.ylabel('counts')
+		plt.show()
 		
 
 	
@@ -68,7 +98,7 @@ class Visualizations:
 if __name__ == '__main__':
     username = sys.argv[1]
     vis_obj = Visualizations(username)
-    vis_obj.wordcloud()
+    vis_obj.plot_common_words()
     # # twitter_df.head()
     # # justMentions = len([twitter_df['mentions'].notnull()])
     # hashtags = []

@@ -59,7 +59,6 @@ def put_tweets(screen_name):
 	old_timeline 		= None
 	if exists:
 		old_timeline = pd.read_csv(file_path)
-		print("--- Old Timeline Shape: {}---".format(old_timeline.shape))
 		dates = pd.to_datetime(old_timeline['created_at']).dt.tz_convert(None)
 		most_recent_date =dates.max()
 		tweets_df = get_tweets(screen_name,most_recent_date)
