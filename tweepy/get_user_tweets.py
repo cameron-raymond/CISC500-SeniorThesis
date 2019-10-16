@@ -2,15 +2,12 @@
 import sys
 import os
 from datetime import datetime
-import emoji
 import tweepy
 from tweet_config import COLS, api
+from text_cleaning import clean_tweet
 import pandas as pd
-import preprocessor as p
-import re #regular expression
 import json
 import csv
-p.set_options(p.OPT.URL,p.OPT.SMILEY)
 
 
 def get_tweets(screen_name,most_recent_date=None):
@@ -32,19 +29,6 @@ def get_tweets(screen_name,most_recent_date=None):
 		timeline_df.drop('to_date',axis=1)
 	return timeline_df
 		
-def clean_tweet(tweet_obj):
-	cleaned_tweet 	= []
-	tweet			= tweet_obj._json
-	raw_text		= emoji.demojize(tweet['full_text'])
-	cleaned_text 	= p.clean(raw_text)
-	cleaned_tweet 	+= [tweet['id'],'tweet', tweet['created_at'],tweet['source'], tweet['full_text'],cleaned_text,tweet['favorite_count'], tweet['retweet_count']]
-	hashtags = ", ".join([hashtag_item['text'] for hashtag_item in tweet['entities']['hashtags']])
-	cleaned_tweet.append(hashtags) #append hashtags 
-	mentions = ", ".join([mention['screen_name'] for mention in tweet['entities']['user_mentions']])
-	cleaned_tweet.append(mentions) #append mentions
-	cleaned_tweet.append(tweet['user']['screen_name'])
-	single_tweet_df = pd.DataFrame([cleaned_tweet], columns=COLS)
-	return single_tweet_df
 
 def write_to_file(file_path,new_data):
 	data_frame = new_data
