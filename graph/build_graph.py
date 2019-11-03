@@ -27,14 +27,14 @@ class Graph(object):
         labels = {}
         retweet_labels = {}
         for node in G.nodes():
-            attributes = G.node[node]
+            attributes = G.nodes[node]
             if 'type' in attributes:
-                if G.node[node]['type'] == 'retweet':
+                if attributes['type'] == 'retweet':
                     retweet_labels[node] = node
                     colors.append('#79BFD3')
-                elif G.node[node]['type'] == 'tweet':
+                elif attributes['type'] == 'tweet':
                     colors.append('#FFDE03')
-                elif G.node[node]['type'] == 'user':
+                elif attributes['type'] == 'user':
                     labels[node] = node
                     colors.append('red')
         print("--- Laying out {} nodes and {} edges ---".format(len(G.nodes()),G.number_of_edges()))
@@ -55,7 +55,7 @@ class Graph(object):
         plt.show()
 
     def build_graph(self,username):
-        twitter_df = pd.read_csv("../data/{}_data.csv".format(username)).head(2)
+        twitter_df = pd.read_csv("../data/{}_data.csv".format(username)).head(60)
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
         retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(twitter_df['id'])] # if we're only taking 20 tweets find all the retweets for those 20
         G = nx.MultiDiGraph()
