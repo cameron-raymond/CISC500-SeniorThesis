@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from cred import login
 import tweepy
 

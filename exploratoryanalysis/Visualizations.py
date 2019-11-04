@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/local/bin/python3
 import sys
 import pandas as pd
 import numpy as np

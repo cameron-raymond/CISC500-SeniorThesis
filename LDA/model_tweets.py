@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 import pandas as pd
 import nltk
@@ -13,7 +13,7 @@ class LDA(object):
         super().__init__()
         # LDA can only use raw term counts for LDA because it is a probabilistic graphical model
         self.dictionary = corpora.Dictionary(corpus)
-        self.dictionary.filter_extremes(no_below=15, no_above=0.8)
+        self.dictionary.filter_extremes(no_below=15, no_above=0.9)
         self.corpus     = [self.dictionary.doc2bow(doc) for doc in corpus]
         self.num_topics = num_topics
         term_freq_inverse_document_freq = models.TfidfModel(self.corpus)

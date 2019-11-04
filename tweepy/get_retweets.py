@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 import os
 import preprocessor as p
@@ -10,8 +10,20 @@ import tweepy
 
 class Retweet_Grabber(object):
 	def __init__(self, screen_name, num_to_collect=74, *args, **kwargs):
+	
 		self.num_to_collect = num_to_collect
 		self.screen_name = screen_name	
+		retweet_df = self.get_old_retweets	
+		self.tweet_ids = pd.read_csv("../data/{}_data.csv".format(screen_name)).head(num_to_collect)
+		# TODO get old retweet df, get tweet df, remove tweet ids from tweet df if they've already
+		#		been collected	
+
+	def get_old_retweets(self):
+		file_path = "../data/{}_retweets.csv".format(self.screen_name)
+		exists = os.path.exists(file_path)
+		if exists:
+			return pd.read_csv(file_path)
+		return None
 
 	def put_tweets(self):
 		screen_name = self.screen_name
@@ -28,10 +40,9 @@ class Retweet_Grabber(object):
 		screen_name = self.screen_name
 		num_to_collect = self.num_to_collect
 		retweet_df = pd.DataFrame(columns=RETWEET_COLS)
-		twitter_df = pd.read_csv("../data/{}_data.csv".format(screen_name)).head(num_to_collect)
-		for index, row in twitter_df.iterrows():
+		for index, row in self.tweet_ids.iterrows():
 			tweet_id = row['id']
-			print("--- Getting retweet {} of {}, ID: {} ---".format(index,twitter_df.shape[0],tweet_id))
+			print("--- Getting retweet {} of {}, ID: {} ---".format(index, self.tweet_ids.shape[0],tweet_id))
 			retweets = self.get_retweets(tweet_id)
 			retweet_df = retweet_df.append(retweets)
 		retweet_df.drop(retweet_df.loc[retweet_df['original_author']==screen_name].index, inplace=True)

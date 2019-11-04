@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 import os
 from datetime import datetime
@@ -31,13 +31,15 @@ def get_tweets(screen_name,most_recent_date=None):
 		
 
 def write_to_file(file_path,new_data):
+	"""
+		test
+	"""
 	data_frame = new_data
 	csvFile = open(file_path, 'w' ,encoding='utf-8')
 	data_frame.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
 
 def put_tweets(screen_name):
 	file_path = "../data/{}_data.csv".format(screen_name)
-	file_path_new = "../data/{}_TESTdata.csv".format(screen_name)
 	exists = os.path.exists(file_path)
 	most_recent_date 	= None
 	old_timeline 		= None
