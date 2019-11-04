@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 import random
 import pylab
 from matplotlib.pyplot import pause

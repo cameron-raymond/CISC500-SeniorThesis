@@ -1,3 +1,4 @@
+#!/usr/local/bin/python3
 from pyLDAvis import sklearn as sklearn_lda
 import pickle 
 import pyLDAvis
