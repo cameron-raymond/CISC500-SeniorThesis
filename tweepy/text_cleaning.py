@@ -7,6 +7,13 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.stem import WordNetLemmatizer 
 from nltk.corpus import stopwords
 import emoji
+import ssl
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
 nltk.download('wordnet')
 lemmatizer = WordNetLemmatizer()
 p.set_options(p.OPT.URL,p.OPT.SMILEY)

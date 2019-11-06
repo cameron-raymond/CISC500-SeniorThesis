@@ -74,6 +74,7 @@ class Retweet_Grabber(object):
 if __name__ == '__main__':
 	usernames = sys.argv[1:]
 	for username in usernames:
+		print("--- starting data collection for {}".format(username))
 		user = Retweet_Grabber(username,60)
 		user.put_tweets()
 
