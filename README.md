@@ -15,3 +15,14 @@ Graph Theory and Political Engagement on Twitter
 - gensim:               3.8.1
 ### Visualizations
 - matplotlib            2.1.1
+
+
+## Author
+
+* **Cameron Raymond** - *Queen's University. Kingston, ON*
+
+If any further information is needed, feel free to write me an e-mail at c.raymond@queensu.ca.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
