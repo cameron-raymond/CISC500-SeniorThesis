@@ -10,7 +10,7 @@ import json
 import csv
 
 
-def get_tweets(screen_name,most_recent_date=None):
+def get_tweets(screen_name,most_recent_date=None,en_only=True):
 	#Twitter only allows access to a users most recent 3240 tweets with this method
 	#authorize twitter, initialize tweepy
 	num_tweets	= 3000
@@ -19,7 +19,7 @@ def get_tweets(screen_name,most_recent_date=None):
 	timeline_df = pd.DataFrame(columns=COLS)
 	print("--- Clean Data ---")
 	for tweet in tweets.items():
-		if tweet.lang == 'en':
+		if (en_only and tweet.lang == 'en') or not en_only:
 			tweet_df 	= clean_tweet(tweet)
 			timeline_df = timeline_df.append(tweet_df, ignore_index=True)
 	if most_recent_date:
@@ -38,7 +38,7 @@ def write_to_file(file_path,new_data):
 	csvFile = open(file_path, 'w' ,encoding='utf-8')
 	data_frame.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
 
-def put_tweets(screen_name):
+def put_tweets(screen_name,en_only=True):
 	file_path = "../data/{}_data.csv".format(screen_name)
 	exists = os.path.exists(file_path)
 	most_recent_date 	= None
@@ -47,20 +47,20 @@ def put_tweets(screen_name):
 		old_timeline = pd.read_csv(file_path)
 		dates = pd.to_datetime(old_timeline['created_at']).dt.tz_convert(None)
 		most_recent_date =dates.max()
-		tweets_df = get_tweets(screen_name,most_recent_date)
+		tweets_df = get_tweets(screen_name,most_recent_date,en_only)
 		new_tweets = tweets_df.shape[0]
 		tweets_df = tweets_df.append(old_timeline,sort=False)
 		print("--- Combined timeline shape: {}, added {} tweets---".format(tweets_df.shape,new_tweets))
 		write_to_file(file_path,tweets_df)
 	else:
-		tweets_df = get_tweets(screen_name,most_recent_date)
+		tweets_df = get_tweets(screen_name,most_recent_date,en_only)
 		write_to_file(file_path,tweets_df)
 	print("--- done for {} ---".format(screen_name))
 
 if __name__ == '__main__':
 	usernames = sys.argv[1:]
 	for username in usernames:
-		put_tweets(username)
+		put_tweets(username,en_only=False)
 	# get_tweets("liberal_party")
 	# get_tweets("JustinTrudeau")
 	# get_tweets("CPC_HQ")
