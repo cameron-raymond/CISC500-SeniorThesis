@@ -40,3 +40,4 @@ if __name__ == "__main__":
     full_df['tokenized'] = full_df.apply(lambda row: nltk.word_tokenize(row['clean_text']), axis=1)
     text_corpus = full_df['tokenized']
     topic_model = LDA(text_corpus)
+    
