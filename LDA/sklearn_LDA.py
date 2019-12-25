@@ -11,7 +11,7 @@ topic_num = 10
 
 def print_top_words(model, feature_names, n_top_words):
     for topic_idx, topic in enumerate(model.components_):
-        message = "Topic #{}: ".format(topic_idx+1)
+        message = "Topic #{}: ".format(topic_idx)
         message += " ".join([feature_names[i]
                              for i in topic.argsort()[:-n_top_words - 1:-1]])
         print(message)
@@ -24,7 +24,7 @@ def model_document(lda,vectorizer,username):
     """
     file_path = "../data/{}_data.csv".format(username)
     data_frame = pd.read_csv(file_path)
-    clean_text = data_frame["clean_text"]
+    clean_text = data_frame["clean_text"].values.astype('U')
     clean_text = vectorizer.transform(clean_text)
     topic_mixture = np.argmax(lda.transform(clean_text),axis=1)
     data_frame["lda_cluster"] = topic_mixture

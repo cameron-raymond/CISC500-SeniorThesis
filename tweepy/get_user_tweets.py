@@ -9,17 +9,16 @@ import pandas as pd
 import json
 import csv
 
+startDate = datetime(2017, 10, 21, 0, 0, 0)
+endDate =   datetime(2019, 10, 21, 0, 0, 0)
 
 def get_tweets(screen_name,most_recent_date=None,en_only=True):
-	#Twitter only allows access to a users most recent 3240 tweets with this method
-	#authorize twitter, initialize tweepy
-	num_tweets	= 3000
 	print("--- Return Tweets for {} ---".format(screen_name))
-	tweets 		= tweepy.Cursor(api.user_timeline,screen_name=screen_name,count=num_tweets,include_rts=False,tweet_mode='extended')
+	tweets 		= tweepy.Cursor(api.user_timeline,screen_name=screen_name,include_rts=False,tweet_mode='extended')
 	timeline_df = pd.DataFrame(columns=COLS)
 	print("--- Clean Data ---")
 	for tweet in tweets.items():
-		if (en_only and tweet.lang == 'en') or not en_only:
+		if ((en_only and tweet.lang == 'en') or not en_only) and (tweet.created_at < endDate and tweet.created_at > startDate):
 			tweet_df 	= clean_tweet(tweet)
 			timeline_df = timeline_df.append(tweet_df, ignore_index=True)
 	if most_recent_date:
