@@ -60,7 +60,7 @@ def put_tweets(screen_name,en_only=True):
 if __name__ == '__main__':
 	usernames = sys.argv[1:]
 	for username in usernames:
-		put_tweets(username,en_only=False)
+		put_tweets(username,en_only=True)
 	# get_tweets("liberal_party")
 	# get_tweets("JustinTrudeau")
 	# get_tweets("CPC_HQ")
