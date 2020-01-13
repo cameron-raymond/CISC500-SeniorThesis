@@ -33,7 +33,7 @@ class Graph(object):
                     retweet_labels[node] = node
                     colors.append('#79BFD3')
                 elif attributes['type'] == 'tweet':
-                    colors.append('#FFDE03')
+                    colors.append(self.__return_colour(attributes["lda_cluster"]))
                 elif attributes['type'] == 'user':
                     labels[node] = node
                     colors.append('red')
@@ -55,7 +55,7 @@ class Graph(object):
         plt.show()
 
     def build_graph(self,username):
-        twitter_df = pd.read_csv("../data/{}_data.csv".format(username)).head(5)
+        twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
         retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(twitter_df['id'])] # if we're only taking 20 tweets find all the retweets for those 20
         G = nx.MultiDiGraph()
@@ -64,13 +64,13 @@ class Graph(object):
         # add tweet nodes
         nodes = twitter_df.set_index('id').to_dict('index').items()
         G.add_nodes_from(nodes)
-        for index,row in twitter_df.iterrows():
+        for _,row in twitter_df.iterrows():
             G.add_edge(username,row['id'],weight=row['favorite_count'])
         # add retweet user nodes (those who retweeted the original tweets) multipl
         user_nodes = retweet_df.drop_duplicates(subset ="original_author") 
         user_nodes = user_nodes.set_index('original_author').to_dict('index').items()
         G.add_nodes_from(user_nodes)
-        for index,row in retweet_df.iterrows():
+        for _,row in retweet_df.iterrows():
             G.add_edge(row['original_tweet_id'],row['original_author'])
         self.num_retweeters += len(user_nodes)
         self.num_tweets += len(twitter_df)
@@ -87,6 +87,11 @@ class Graph(object):
         density = nx.density(self.G)
         print("The percentage of edges/possible edges is {0:.4f}%: ".format(density*100))
         return density
+
+
+    def __return_colour(self,aNum):
+        colours = ["#00876c","#3d9a70","#64ad73","#89bf77","#afd17c","#d6e184","#fff18f","#fdd576","#fbb862","#f59b56","#ee7d4f","#e35e4e","#d43d51"]
+        return colours[aNum]
         
     def max_degree_tweet(self):
         #TODO
