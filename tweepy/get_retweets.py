@@ -1,4 +1,3 @@
-#!/usr/local/bin/python3
 import sys
 import os
 import preprocessor as p
@@ -12,7 +11,7 @@ class Retweet_Grabber(object):
 	def __init__(self, screen_name, *args, **kwargs):
 		self.screen_name = screen_name	
 		self.file_path =  "../data/{}_retweets.csv".format(screen_name)
-		self.tweet_ids, self.retweet_df = self.get_old_retweets()	
+		self.tweet_ids, self.retweet_df, self.num_tweets = self.get_old_retweets()	
 
 	def get_old_retweets(self):
 		tweet_file_path		= "../data/{}_data.csv".format(self.screen_name)
@@ -20,26 +19,31 @@ class Retweet_Grabber(object):
 		exists = os.path.exists(self.file_path)
 		old_retweets = pd.DataFrame(columns=RETWEET_COLS)
 		if exists:
-			old_retweets = pd.read_csv(self.file_path)			
-			tweet_df = tweet_df[~tweet_df["id"].isin(old_retweets["original_tweet_id"])]
-		return tweet_df,old_retweets
+			old_retweets = pd.read_csv(self.file_path)	
+			tweet_df = tweet_df[(~tweet_df["id"].isin(old_retweets["original_tweet_id"])) & tweet_df["retweet_count"]!=0]
+			print("--- {} retweets already collected, only collecting {} now ---".format(len(old_retweets["original_tweet_id"].unique()),tweet_df.shape[0]))		
+		num_tweets = tweet_df.shape[0]
+		return tweet_df,old_retweets,num_tweets
 
 	def put_tweets(self):
 		screen_name = self.screen_name
 		self.get_user_retweets()
-		write_to_file(self.file_path,self.retweets_df)
+		# assert self. TODO assert so that number of unique "original_tweet_id"s is == to the number of tweets in the df (- the ones that don't have any retweets)
+		write_to_file(self.file_path,self.retweet_df)
 		print("--- done for {} ---".format(screen_name))
 
 	def get_user_retweets(self):
 		screen_name = self.screen_name
-		for index, row in self.tweet_ids.iterrows():
+		index = 1
+		for _, row in self.tweet_ids.iterrows():
 			tweet_id = row['id']
-			print("--- Getting retweet {} of {}, ID: {} ---".format(index, self.tweet_ids.shape[0],tweet_id))
+			print("--- Getting retweet {} of {}, ID: {} ---".format(index, self.num_tweets,tweet_id))
 			retweets = self.get_retweets(tweet_id)
 			self.retweet_df = self.retweet_df.append(retweets)
-			if index % (self.tweet_ids.shape[0]//10) == 0:
+			if index % (self.num_tweets//10) == 0:
 				print("\t> writing tweets")
 				write_to_file(self.file_path,self.retweet_df)
+			index += 1
 		self.retweet_df.drop(self.retweet_df.loc[self.retweet_df['original_author']==screen_name].index, inplace=True)
 	
 

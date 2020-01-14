@@ -1,4 +1,3 @@
-#!/usr/local/bin/python3
 import sys
 import operator
 import networkx as nx

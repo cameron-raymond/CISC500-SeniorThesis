@@ -1,4 +1,3 @@
-#!/usr/local/bin/python3
 from tweet_config import COLS, api
 import preprocessor as p
 import pandas as pd
