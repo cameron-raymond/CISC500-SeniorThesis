@@ -3,6 +3,7 @@ import operator
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout
 import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 import pandas as pd
 
 class Graph(object):
@@ -23,11 +24,11 @@ class Graph(object):
             user_graph = self.build_graph(username)
             self.G = nx.compose(self.G,user_graph)
 
-    def draw_graph(self):
+    def draw_graph(self,save=False):
         G = self.G
-        title = "../visualizations/{}graph.png".format(self.title)
         print("--- Adding colours and labels ---")
         colors = []
+        legend = set()
         labels = {}
         retweet_labels = {}
         for node in G.nodes():
@@ -37,7 +38,9 @@ class Graph(object):
                     retweet_labels[node] = node
                     colors.append('#79BFD3')
                 elif attributes['type'] == 'tweet':
-                    colors.append(self.__return_colour(attributes["lda_cluster"]))
+                    cluster = self.__return_colour(attributes["lda_cluster"])
+                    legend.add(cluster)
+                    colors.append(cluster[0])
                 elif attributes['type'] == 'user':
                     labels[node] = node
                     colors.append('red')
@@ -52,14 +55,26 @@ class Graph(object):
                 node_color=colors,
                 with_labels=False,
                 alpha=0.75,
-                node_size=30)
-        nx.draw_networkx_labels(G,pos,labels,font_size=16,font_color='b')
-        # nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
-        # plt.savefig(title, bbox_inches="tight")
+                node_size=5,
+                width=0.3,
+                arrows=False
+        )
+        nx.draw_networkx_labels(G,pos,labels,font_size=16,font_color='w')
+        plt.legend(handles=self.__return_legends(legend),loc="best")
+        if save: plt.savefig("../visualizations/graph_{}_tweets_{}_retweeters_{}_retweets_{}_topics.pdf".format(self.num_tweets,self.num_retweeters,self.num_retweets,len(legend)-2))
         plt.show()
 
+    def __return_legends(self,legend):
+        legends = [Line2D([0], [0], marker='o', color='w', label='Party Leader',markerfacecolor='r', markersize=10),Line2D([0], [0], marker='o', color='w', label='Retweet',markerfacecolor='#79BFD3', markersize=10)]
+        legend = sorted(legend, key=lambda tup: tup[1])
+        for color,cluster_num in legend:
+            legends.append(Line2D([0], [0], marker='o', color='w', label='Topic {}'.format(cluster_num), markerfacecolor=color, markersize=10))
+        return legends
+        
+
     def build_graph(self,username):
-        twitter_df = pd.read_csv("../data/{}_data.csv".format(username)).sample(n=30,random_state=4)
+        twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
+        twitter_df = twitter_df.sample(n=min(400,len(twitter_df)),random_state=4)
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
         retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(twitter_df['id'])] # if we're only taking 20 tweets find all the retweets for those 20
         G = nx.MultiDiGraph()
@@ -94,8 +109,18 @@ class Graph(object):
 
 
     def __return_colour(self,aNum):
-        colours = ["#00876c","#3d9a70","#64ad73","#89bf77","#afd17c","#d6e184","#fff18f","#fdd576","#fbb862","#f59b56","#ee7d4f","#e35e4e","#d43d51"]
-        return colours[aNum]
+        colours = [ "#006816",
+                    "#8d34e4",
+                    "#c9a738",
+                    "#0163d0",
+                    "#ee5700",
+                    "#00937e",
+                    "#ff4284",
+                    "#4b5400",
+                    "#ea80ff",
+                    "#9f0040"]
+        assert aNum < len(colours) 
+        return colours[aNum], aNum+1
         
     def max_degree_tweet(self):
         #TODO
@@ -107,4 +132,4 @@ class Graph(object):
 if __name__ == '__main__' :
     # Read in CSV file for that twitter user (these are the original tweets)
     G = Graph(sys.argv[1:])
-    G.draw_graph()
+    G.draw_graph(save=True)
