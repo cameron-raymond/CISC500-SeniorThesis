@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 class Graph(object):
+    '''
+    Initiates the networkx graph, houses visualization, as well as some quick/dirty analysis.
+    
+    :param usernames: A list of strings, corresponding to the twitter usernames stored in `/data`
+    '''
     def __init__(self,usernames):
         self.num_retweeters = 0
         self.num_tweets = 0
@@ -46,15 +51,15 @@ class Graph(object):
         nx.draw(G, pos,
                 node_color=colors,
                 with_labels=False,
-                alpha=0.5,
-                node_size=80)
+                alpha=0.75,
+                node_size=30)
         nx.draw_networkx_labels(G,pos,labels,font_size=16,font_color='b')
         # nx.draw_networkx_edge_labels(G,pos,edge_labels=labels)
         # plt.savefig(title, bbox_inches="tight")
         plt.show()
 
     def build_graph(self,username):
-        twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
+        twitter_df = pd.read_csv("../data/{}_data.csv".format(username)).sample(n=30,random_state=4)
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
         retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(twitter_df['id'])] # if we're only taking 20 tweets find all the retweets for those 20
         G = nx.MultiDiGraph()
