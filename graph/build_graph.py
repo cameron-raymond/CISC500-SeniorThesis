@@ -12,7 +12,7 @@ class Graph(object):
     
     :param usernames: A list of strings, corresponding to the twitter usernames stored in `/data`
     '''
-    def __init__(self,usernames):
+    def __init__(self,usernames,n=None):
         self.num_retweeters = 0
         self.num_tweets = 0
         self.num_retweets = 0
@@ -21,10 +21,10 @@ class Graph(object):
         self.title = ""
         for username in usernames:
             self.title += "{}_".format(username)
-            user_graph = self.build_graph(username)
+            user_graph = self.build_graph(username,n)
             self.G = nx.compose(self.G,user_graph)
 
-    def draw_graph(self,save=False):
+    def draw_graph(self,save=False,file_type=None):
         G = self.G
         print("--- Adding colours and labels ---")
         colors = []
@@ -55,14 +55,13 @@ class Graph(object):
                 node_color=colors,
                 with_labels=False,
                 alpha=0.75,
-                node_size=5,
+                node_size=8,
                 width=0.3,
                 arrows=False
         )
         nx.draw_networkx_labels(G,pos,labels,font_size=16,font_color='w')
         plt.legend(handles=self.__return_legends(legend),loc="best")
-        if save: plt.savefig("../visualizations/graph_{}_tweets_{}_retweeters_{}_retweets_{}_topics.pdf".format(self.num_tweets,self.num_retweeters,self.num_retweets,len(legend)-2))
-        plt.show()
+        plt.savefig("../visualizations/graph_{}_tweets_{}_retweeters_{}_retweets_{}_topics.{}".format(self.num_tweets,self.num_retweeters,self.num_retweets,len(legend),file_type)) if save and file_type else plt.show()
 
     def __return_legends(self,legend):
         legends = [Line2D([0], [0], marker='o', color='w', label='Party Leader',markerfacecolor='r', markersize=10),Line2D([0], [0], marker='o', color='w', label='Retweet',markerfacecolor='#79BFD3', markersize=10)]
@@ -72,9 +71,9 @@ class Graph(object):
         return legends
         
 
-    def build_graph(self,username):
+    def build_graph(self,username,n=None):
         twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
-        twitter_df = twitter_df.sample(n=min(400,len(twitter_df)),random_state=4)
+        if n: twitter_df = twitter_df.sample(n=min(n,len(twitter_df)),random_state=4)
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
         retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(twitter_df['id'])] # if we're only taking 20 tweets find all the retweets for those 20
         G = nx.MultiDiGraph()
@@ -131,5 +130,5 @@ class Graph(object):
 
 if __name__ == '__main__' :
     # Read in CSV file for that twitter user (these are the original tweets)
-    G = Graph(sys.argv[1:])
-    G.draw_graph(save=True)
+    G = Graph(sys.argv[1:],n=1000)
+    G.draw_graph(save=True,file_type="png")
