@@ -6,7 +6,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 # from tweepy.get_user_tweets import write_to_file
 
-topic_num = 10
+topic_num = 5
 
 def print_top_words(model, feature_names, n_top_words):
     for topic_idx, topic in enumerate(model.components_):

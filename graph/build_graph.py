@@ -6,13 +6,16 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import pandas as pd
 
+
 class Graph(object):
     '''
     Initiates the networkx graph, houses visualization, as well as some quick/dirty analysis.
-    
+
     :param usernames: A list of strings, corresponding to the twitter usernames stored in `/data`
     '''
-    def __init__(self,usernames,n=None):
+
+    def __init__(self, usernames, n=None):
+        self.usernames = usernames
         self.num_retweeters = 0
         self.num_tweets = 0
         self.num_retweets = 0
@@ -21,11 +24,12 @@ class Graph(object):
         self.title = ""
         for username in usernames:
             self.title += "{}_".format(username)
-            user_graph = self.build_graph(username,n)
-            self.G = nx.compose(self.G,user_graph)
+            user_graph = self.build_graph(username, n)
+            self.G = nx.compose(self.G, user_graph)
 
-    def draw_graph(self,save=False,file_type=None):
-        G = self.G
+    def draw_graph(self, G=None, save=False, file_type=None):
+        if not G:
+            G = self.G
         print("--- Adding colours and labels ---")
         colors = []
         legend = set()
@@ -44,8 +48,8 @@ class Graph(object):
                 elif attributes['type'] == 'user':
                     labels[node] = node
                     colors.append('red')
-        print("--- Laying out {} nodes and {} edges ---".format(len(G.nodes()),G.number_of_edges()))
-        print("--- {} tweets, {} retweeters, {} retweets ---".format(self.num_tweets,self.num_retweeters,self.num_retweets))
+        print("--- Laying out {} nodes and {} edges ---".format(len(G.nodes()), G.number_of_edges()))
+        print("--- {} tweets, {} retweeters, {} retweets ---".format(self.num_tweets,self.num_retweeters, self.num_retweets))
         plt.figure(figsize=(30, 30))
         # use graphviz to find radial layout
         pos = graphviz_layout(G, prog="sfdp")
@@ -58,38 +62,44 @@ class Graph(object):
                 node_size=8,
                 width=0.3,
                 arrows=False
-        )
-        nx.draw_networkx_labels(G,pos,labels,font_size=16,font_color='w')
-        plt.legend(handles=self.__return_legends(legend),loc="best")
-        plt.savefig("../visualizations/graph_{}_tweets_{}_retweeters_{}_retweets_{}_topics.{}".format(self.num_tweets,self.num_retweeters,self.num_retweets,len(legend),file_type)) if save and file_type else plt.show()
+                )
+        nx.draw_networkx_labels(G, pos, labels, font_size=16, font_color='w')
+        plt.legend(handles=self.__return_legends(legend), loc="best")
+        plt.savefig("../visualizations/{}graph_{}_tweets_{}_retweeters_{}_retweets_{}_topics.{}".format(self.title,self.num_tweets, self.num_retweeters, self.num_retweets, len(legend), file_type)) if save and file_type else plt.show()
 
-    def __return_legends(self,legend):
-        legends = [Line2D([0], [0], marker='o', color='w', label='Party Leader',markerfacecolor='r', markersize=10),Line2D([0], [0], marker='o', color='w', label='Retweet',markerfacecolor='#79BFD3', markersize=10)]
+    def __return_legends(self, legend):
+        legends = [Line2D([0], [0], marker='o', color='w', label='Party Leader', markerfacecolor='r', markersize=10), Line2D(
+            [0], [0], marker='o', color='w', label='Retweet', markerfacecolor='#79BFD3', markersize=10)]
         legend = sorted(legend, key=lambda tup: tup[1])
-        for color,cluster_num in legend:
-            legends.append(Line2D([0], [0], marker='o', color='w', label='Topic {}'.format(cluster_num), markerfacecolor=color, markersize=10))
+        for color, cluster_num in legend:
+            legends.append(Line2D([0], [0], marker='o', color='w', label='Topic {}'.format(
+                cluster_num), markerfacecolor=color, markersize=10))
         return legends
-        
 
-    def build_graph(self,username,n=None):
+    def build_graph(self, username, n=None):
         twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
-        if n: twitter_df = twitter_df.sample(n=min(n,len(twitter_df)),random_state=4)
+        if n:
+            twitter_df = twitter_df.sample(
+                n=min(n, len(twitter_df)), random_state=4)
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
-        retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(twitter_df['id'])] # if we're only taking 20 tweets find all the retweets for those 20
+        # if we're only taking 20 tweets find all the retweets for those 20
+        retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(
+            twitter_df['id'])]
         G = nx.MultiDiGraph()
-        G.add_node(username,type='user')
+        G.add_node(username, type='user')
         # Instantiate a new MultiDiGraph (graph is directional + there could potentially be multip edges between a pair of nodes)
         # add tweet nodes
         nodes = twitter_df.set_index('id').to_dict('index').items()
         G.add_nodes_from(nodes)
-        for _,row in twitter_df.iterrows():
-            G.add_edge(username,row['id'],weight=row['favorite_count'])
+        for _, row in twitter_df.iterrows():
+            G.add_edge(username, row['id'], weight=row['favorite_count'])
         # add retweet user nodes (those who retweeted the original tweets) multipl
-        user_nodes = retweet_df.drop_duplicates(subset ="original_author") 
-        user_nodes = user_nodes.set_index('original_author').to_dict('index').items()
+        user_nodes = retweet_df.drop_duplicates(subset="original_author")
+        user_nodes = user_nodes.set_index(
+            'original_author').to_dict('index').items()
         G.add_nodes_from(user_nodes)
-        for _,row in retweet_df.iterrows():
-            G.add_edge(row['original_tweet_id'],row['original_author'])
+        for _, row in retweet_df.iterrows():
+            G.add_edge(row['original_tweet_id'], row['original_author'])
         self.num_retweeters += len(user_nodes)
         self.num_tweets += len(twitter_df)
         self.num_retweets += len(retweet_df)
@@ -103,32 +113,46 @@ class Graph(object):
 
     def get_density(self):
         density = nx.density(self.G)
-        print("The percentage of edges/possible edges is {0:.4f}%: ".format(density*100))
+        print(
+            "The percentage of edges/possible edges is {0:.4f}%: ".format(density*100))
         return density
 
+    def map_topics(self, topics):
+        '''
+        Rebuilds the graph with only certain tweet topics
 
-    def __return_colour(self,aNum):
-        colours = [ "#006816",
-                    "#8d34e4",
-                    "#c9a738",
-                    "#0163d0",
-                    "#ee5700",
-                    "#00937e",
-                    "#ff4284",
-                    "#4b5400",
-                    "#ea80ff",
-                    "#9f0040"]
-        assert aNum < len(colours) 
+        :param topics: A list of ints between 0-k, where k is the number of topics-1, corresponding with the topics to isolate for
+        '''
+        mapped_graph = self.G.copy()
+        remove = [node for node in mapped_graph.nodes() if "lda_cluster" in mapped_graph.nodes[node] and not mapped_graph.nodes[node]["lda_cluster"] in topics]
+        mapped_graph.remove_nodes_from(remove)
+        remove = [node for node in mapped_graph.nodes() if "type" in mapped_graph.nodes[node] and mapped_graph.nodes[node]["type"] == "retweet" and mapped_graph.degree(node) == 0]
+        mapped_graph.remove_nodes_from(remove)        
+        assert not any(node in remove for node in mapped_graph.nodes)
+        return mapped_graph
+
+    def __return_colour(self, aNum):
+        colours = ["#006816",
+                   "#8d34e4",
+                   "#c9a738",
+                   "#0163d0",
+                   "#ee5700",
+                   "#00937e",
+                   "#ff4284",
+                   "#4b5400",
+                   "#ea80ff",
+                   "#9f0040"]
+        assert aNum < len(colours)
         return colours[aNum], aNum+1
-        
+
     def max_degree_tweet(self):
-        #TODO
+        # TODO
         G = self.G
-        tweets = (node for node in G if G.node[node]['type']=='tweet')
+        tweets = (node for node in G if G.node[node]['type'] == 'tweet')
         degree_list = list(G.degree(tweets))
         return degree_list
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     # Read in CSV file for that twitter user (these are the original tweets)
-    G = Graph(sys.argv[1:],n=1000)
+    G = Graph(sys.argv[1:])
     G.draw_graph(save=True,file_type="png")
