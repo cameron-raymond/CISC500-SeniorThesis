@@ -1,25 +1,39 @@
-import random
-import pylab
-from matplotlib.pyplot import pause
+import matplotlib.pyplot as plt
 import networkx as nx
-pylab.ion()
 
-graph = nx.Graph()
-node_number = 0
-graph.add_node(node_number, Position=(random.randrange(0, 100), random.randrange(0, 100)))
+g = nx.Graph()
+g.add_node( 'a' )
+g.add_node( 'b' )
+g.add_node( 'c' )
+g.add_node( 'd' )
+g.add_edge( 'a', 'b' )
+g.add_edge( 'c', 'd' )
 
-def get_fig():
-    global node_number
-    node_number += 1
-    graph.add_node(node_number, Position=(random.randrange(0, 100), random.randrange(0, 100)))
-    graph.add_edge(node_number, random.choice(graph.nodes()))
-    nx.draw(graph, pos=nx.get_node_attributes(graph,'Position'))
+h = nx.Graph()
+h.add_node( 'c' )
+h.add_node( 'd' )
 
-num_plots = 50;
-pylab.show()
+# Define the positions of a, b, c, d
+positions = nx.spring_layout( g )
 
-for i in range(num_plots):
 
-    get_fig()
-    pylab.draw()
-    pause(1)
+# Save the computed x and y dimensions for the entire drawing region of graph g
+xlim = plt.gca().get_xlim()
+ylim = plt.gca().get_ylim()
+
+# Produce image of graph g with a, b, c, d and some edges.
+plt.savefig( "g2.png" )
+#plt.show()
+
+# Clear the figure.
+plt.clf()
+
+# Produce image of graph h with two nodes c and d which should be in
+# the same positions of those of graph g's nodes c and d.
+nx.draw( h, positions )
+
+# Ensure the drawing area and proportions are the same as for graph g.
+plt.axis( [ xlim[0], xlim[1], ylim[0], ylim[1] ] )
+
+#plt.show()
+plt.savefig( "h2.png" )

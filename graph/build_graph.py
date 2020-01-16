@@ -12,6 +12,9 @@ class Graph(object):
     Initiates the networkx graph, houses visualization, as well as some quick/dirty analysis.
 
     :param usernames: A list of strings, corresponding to the twitter usernames stored in `/data`
+    
+    :param n: An int, corresponding to the number of tweets to map. If 
+    
     '''
 
     def __init__(self, usernames, n=None):
@@ -21,25 +24,39 @@ class Graph(object):
         self.num_retweets = 0
         self.usernames = usernames
         self.G = nx.MultiDiGraph()
+        self.pos = None
         self.title = ""
         for username in usernames:
             self.title += "{}_".format(username)
             user_graph = self.build_graph(username, n)
             self.G = nx.compose(self.G, user_graph)
+        print("--- determining initial layout ---")
+        self.pos = graphviz_layout(self.G, prog="sfdp")
 
-    def draw_graph(self, G=None, save=False, file_type=None):
+        print("--- {} tweets, {} retweeters, {} retweets ---".format(self.num_tweets,self.num_retweeters, self.num_retweets))
+
+    def draw_graph(self, G=None, save=False, file_type='png',use_pos=False):
+        """
+            Handles rendering and drawing the network.
+
+            :param G: `optional` a networkx graph. If present draws this graph instead of the one built in the constructor.
+
+            :param save: `optional` A boolean. If true saves an image of the graph to `/visualizations` otherwise renders the graph.
+           
+            :param file_type: `optional` A string. If save flag is true it saves graph with this file extension.
+            
+            :param use_pos: `optional` A boolean. If true renders the graph using default positions of the entire graph. Otherwise calculates positions based on data used.
+        """
         if not G:
             G = self.G
         print("--- Adding colours and labels ---")
         colors = []
         legend = set()
         labels = {}
-        retweet_labels = {}
         for node in G.nodes():
             attributes = G.nodes[node]
             if 'type' in attributes:
                 if attributes['type'] == 'retweet':
-                    retweet_labels[node] = node
                     colors.append('#79BFD3')
                 elif attributes['type'] == 'tweet':
                     cluster = self.__return_colour(attributes["lda_cluster"])
@@ -48,13 +65,19 @@ class Graph(object):
                 elif attributes['type'] == 'user':
                     labels[node] = node
                     colors.append('red')
-        print("--- Laying out {} nodes and {} edges ---".format(len(G.nodes()), G.number_of_edges()))
-        print("--- {} tweets, {} retweeters, {} retweets ---".format(self.num_tweets,self.num_retweeters, self.num_retweets))
         plt.figure(figsize=(30, 30))
-        # use graphviz to find radial layout
-        pos = graphviz_layout(G, prog="sfdp")
-        # pos = nx.spring_layout(G, k=0.15, iterations=20)
+        pos = self.pos if use_pos and self.pos else graphviz_layout(G, prog="sfdp")
+        _xlim = None
+        _ylim = None
+        if use_pos: #To use the same positioning for two subgraphs we need to make sure the x/y limits are the same for the plot
+            nx.draw(self.G,pos)
+            _xlim = plt.gca().get_xlim() # grab the xlims
+            _ylim = plt.gca().get_ylim() # grab the ylims
+            # Clear the figure.
+            plt.clf()
+
         # draw nodes, coloring by rtt ping time
+        print("--- Drawing {} nodes and {} edges ---".format(len(G.nodes()), G.number_of_edges()))
         nx.draw(G, pos,
                 node_color=colors,
                 with_labels=False,
@@ -63,11 +86,13 @@ class Graph(object):
                 width=0.3,
                 arrows=False
                 )
-        nx.draw_networkx_labels(G, pos, labels, font_size=16, font_color='w')
-        plt.legend(handles=self.__return_legends(legend), loc="best")
-        plt.savefig("../visualizations/{}graph_{}_tweets_{}_retweeters_{}_retweets_{}_topics.{}".format(self.title,self.num_tweets, self.num_retweeters, self.num_retweets, len(legend), file_type)) if save and file_type else plt.show()
+        if use_pos: plt.axis( [ _xlim[0], _xlim[1], _ylim[0], _ylim[1] ] )
+        nx.draw_networkx_labels(G, pos, labels, font_size=16, font_color='r')
+        plt.legend(handles=self.__return_legend(legend), loc="best")
+        topics_used = '_'.join(str(l[1]) for l in sorted(legend, key=lambda tup: tup[1]))
+        plt.savefig("../visualizations/{}graph_{}_tweets_{}_retweeters_{}_retweets_topics{}.{}".format(self.title,self.num_tweets, self.num_retweeters, self.num_retweets,topics_used, file_type)) if save else plt.show()
 
-    def __return_legends(self, legend):
+    def __return_legend(self, legend):
         legends = [Line2D([0], [0], marker='o', color='w', label='Party Leader', markerfacecolor='r', markersize=10), Line2D(
             [0], [0], marker='o', color='w', label='Retweet', markerfacecolor='#79BFD3', markersize=10)]
         legend = sorted(legend, key=lambda tup: tup[1])
@@ -155,4 +180,6 @@ class Graph(object):
 if __name__ == '__main__':
     # Read in CSV file for that twitter user (these are the original tweets)
     G = Graph(sys.argv[1:])
-    G.draw_graph(save=True,file_type="png")
+    for i in range(5):
+        removed = G.map_topics([i])
+        G.draw_graph(G=removed,save=True,use_pos=True)
