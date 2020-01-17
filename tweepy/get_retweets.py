@@ -2,6 +2,7 @@ import sys
 import os
 import preprocessor as p
 import emoji
+import tqdm
 from get_user_tweets import write_to_file
 from tweet_config import * 
 import pandas as pd
@@ -35,15 +36,17 @@ class Retweet_Grabber(object):
 	def get_user_retweets(self):
 		screen_name = self.screen_name
 		index = 1
+    	pbar = tqdm.tqdm(total=len(self.tweet_ids))
 		for _, row in self.tweet_ids.iterrows():
 			tweet_id = row['id']
-			print("--- Getting retweet {} of {}, ID: {} ---".format(index, self.num_tweets,tweet_id))
 			retweets = self.get_retweets(tweet_id)
 			self.retweet_df = self.retweet_df.append(retweets)
 			if index % (self.num_tweets//10) == 0:
 				print("\t> writing tweets")
 				write_to_file(self.file_path,self.retweet_df)
 			index += 1
+			pbar.update(1)
+		pbar.close()
 		self.retweet_df.drop(self.retweet_df.loc[self.retweet_df['original_author']==screen_name].index, inplace=True)
 	
 

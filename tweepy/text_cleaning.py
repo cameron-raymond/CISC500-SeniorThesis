@@ -22,7 +22,7 @@ stop_words =  stopwords.words('english')
 # Remove slogans and popular hashtags that don't mean much
 stop_words.extend(['getahead','chooseforward','missionpossible','forwardtogether','initforyou','elxn43','cdnpoli', 'ppc2019'])
 stop_words.extend(['get','dont']) #some words that aren't in the stopwords list but seem like they should be
-print(stop_words)
+
 def clean_text(sentence):
         sentence = sentence.lower()
         sentence = p.clean(sentence)
