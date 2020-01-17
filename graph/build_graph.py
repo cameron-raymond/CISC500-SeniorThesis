@@ -1,6 +1,7 @@
 import sys
 import operator
 import networkx as nx
+import tqdm
 from networkx.drawing.nx_agraph import graphviz_layout
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
@@ -53,6 +54,7 @@ class Graph(object):
         colors = []
         legend = set()
         labels = {}
+        pbar = tqdm.tqdm(total=len(G.nodes()))
         for node in G.nodes():
             attributes = G.nodes[node]
             if 'type' in attributes:
@@ -65,6 +67,8 @@ class Graph(object):
                 elif attributes['type'] == 'user':
                     labels[node] = node
                     colors.append('red')
+            pbar.update(1)
+        pbar.close()
         plt.figure(figsize=(30, 30))
         pos = self.pos if use_pos and self.pos else graphviz_layout(G, prog="sfdp")
         _xlim = None
@@ -104,19 +108,21 @@ class Graph(object):
     def build_graph(self, username, n=None):
         twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
         if n:
-            twitter_df = twitter_df.sample(
-                n=min(n, len(twitter_df)), random_state=4)
+            twitter_df = twitter_df.sample(n=min(n, len(twitter_df)), random_state=4)
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
         # if we're only taking 20 tweets find all the retweets for those 20
         retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(
             twitter_df['id'])]
+        # Instantiate a new MultiDiGraph (graph is directional + there could potentially be multip edges between a pair of nodes)
         G = nx.MultiDiGraph()
         G.add_node(username, type='user')
-        # Instantiate a new MultiDiGraph (graph is directional + there could potentially be multip edges between a pair of nodes)
         # add tweet nodes
         nodes = twitter_df.set_index('id').to_dict('index').items()
         G.add_nodes_from(nodes)
+        print("--- adding edges ---")
+        pbar = tqdm.tqdm(total=len(twitter_df)+len(retweet_df))
         for _, row in twitter_df.iterrows():
+            pbar.update(1)
             G.add_edge(username, row['id'], weight=row['favorite_count'])
         # add retweet user nodes (those who retweeted the original tweets) multipl
         user_nodes = retweet_df.drop_duplicates(subset="original_author")
@@ -124,7 +130,9 @@ class Graph(object):
             'original_author').to_dict('index').items()
         G.add_nodes_from(user_nodes)
         for _, row in retweet_df.iterrows():
+            pbar.update(1)
             G.add_edge(row['original_tweet_id'], row['original_author'])
+        pbar.close()
         self.num_retweeters += len(user_nodes)
         self.num_tweets += len(twitter_df)
         self.num_retweets += len(retweet_df)
@@ -180,6 +188,7 @@ class Graph(object):
 if __name__ == '__main__':
     # Read in CSV file for that twitter user (these are the original tweets)
     G = Graph(sys.argv[1:])
-    for i in range(5):
-        removed = G.map_topics([i])
-        G.draw_graph(G=removed,save=True,use_pos=True)
+    G.draw_graph()
+    # for i in range(5):
+    #     removed = G.map_topics([i])
+    #     G.draw_graph(G=removed,save=False,use_pos=True)
