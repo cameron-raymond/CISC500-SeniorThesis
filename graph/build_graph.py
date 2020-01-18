@@ -33,7 +33,6 @@ class Graph(object):
             self.G = nx.compose(self.G, user_graph)
         print("--- determining initial layout ---")
         self.pos = graphviz_layout(self.G, prog="sfdp")
-
         print("--- {} tweets, {} retweeters, {} retweets ---".format(self.num_tweets,self.num_retweeters, self.num_retweets))
 
     def draw_graph(self, G=None, save=False, file_type='png',use_pos=False):

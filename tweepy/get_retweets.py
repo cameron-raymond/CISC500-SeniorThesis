@@ -1,7 +1,5 @@
 import sys
 import os
-import preprocessor as p
-import emoji
 import tqdm
 from get_user_tweets import write_to_file
 from tweet_config import * 
@@ -36,7 +34,7 @@ class Retweet_Grabber(object):
 	def get_user_retweets(self):
 		screen_name = self.screen_name
 		index = 1
-    	pbar = tqdm.tqdm(total=len(self.tweet_ids))
+		pbar = tqdm.tqdm(total=len(self.tweet_ids))
 		for _, row in self.tweet_ids.iterrows():
 			tweet_id = row['id']
 			retweets = self.get_retweets(tweet_id)
@@ -49,7 +47,6 @@ class Retweet_Grabber(object):
 		pbar.close()
 		self.retweet_df.drop(self.retweet_df.loc[self.retweet_df['original_author']==screen_name].index, inplace=True)
 	
-
 	# TODO Find way to get more than 100 retweets
 	def get_retweets(self,tweet_id):
 		#Twitter only allows access to a users most recent 3240 tweets with this method

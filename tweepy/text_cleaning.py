@@ -1,4 +1,3 @@
-from tweet_config import COLS, api
 import sys
 import re
 import preprocessor as p
@@ -7,6 +6,7 @@ import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.stem import WordNetLemmatizer 
 from nltk.corpus import stopwords
+from tweet_config import COLS
 import emoji
 import ssl
 try:
@@ -16,12 +16,16 @@ except AttributeError:
 else:
     ssl._create_default_https_context = _create_unverified_https_context
 nltk.download('wordnet')
-lemmatizer = WordNetLemmatizer()
+lemmatizer = WordNetLemmatizer()	
+# pylint: disable=no-member
+
 p.set_options(p.OPT.URL,p.OPT.SMILEY)
 stop_words =  stopwords.words('english')
 # Remove slogans and popular hashtags that don't mean much
-stop_words.extend(['getahead','chooseforward','missionpossible','forwardtogether','initforyou','elxn43','cdnpoli','ppc','gpc', 'ppc2019'])
-stop_words.extend(['get','dont','let']) #some words that aren't in the stopwords list but seem like they should be
+stop_words.extend(['getahead','chooseforward','missionpossible','forwardtogether','initforyou','elxn43','cdnpoli','ppc','gpc','ppc2019','peoplespca'])
+# Remove party names
+stop_words.extend(['elxn43','cdnpoli','ppc','gpc','ppc2019','peoplespca'])
+stop_words.extend(['get','dont','let','&amp;','amp','canada','canadian']) #some words that aren't in the stopwords list but seem like they should be
 
 def clean_text(sentence):
         sentence = sentence.lower()

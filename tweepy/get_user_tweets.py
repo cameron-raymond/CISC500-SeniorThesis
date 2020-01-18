@@ -7,19 +7,24 @@ from text_cleaning import clean_tweet
 import pandas as pd
 import json
 import csv
+import tqdm
 
 startDate = datetime(2017, 10, 21, 0, 0, 0)
 endDate =   datetime(2019, 10, 21, 0, 0, 0)
 
 def get_tweets(screen_name,most_recent_date=None,en_only=True):
 	print("--- Return Tweets for {} ---".format(screen_name))
+	# pylint: disable=no-member
 	tweets 		= tweepy.Cursor(api.user_timeline,screen_name=screen_name,include_rts=False,tweet_mode='extended')
 	timeline_df = pd.DataFrame(columns=COLS)
 	print("--- Clean Data ---")
+	pbar = tqdm.tqdm(iterable=tweets.items())
 	for tweet in tweets.items():
 		if ((en_only and tweet.lang == 'en') or not en_only) and (tweet.created_at < endDate and tweet.created_at > startDate):
 			tweet_df 	= clean_tweet(tweet)
 			timeline_df = timeline_df.append(tweet_df, ignore_index=True)
+		pbar.update(1)
+	pbar.close()
 	if most_recent_date:
 		print("--- Removing Tweets Before {}---".format(most_recent_date))
 		timeline_df['to_date'] = pd.to_datetime(timeline_df['created_at']).dt.tz_convert(None)
@@ -30,7 +35,7 @@ def get_tweets(screen_name,most_recent_date=None,en_only=True):
 
 def write_to_file(file_path,new_data):
 	"""
-		test
+		Writes a dataframe to file
 	"""
 	data_frame = new_data
 	csvFile = open(file_path, 'w' ,encoding='utf-8')
@@ -59,14 +64,4 @@ if __name__ == '__main__':
 	usernames = sys.argv[1:]
 	for username in usernames:
 		put_tweets(username,en_only=True)
-	# get_tweets("liberal_party")
-	# get_tweets("JustinTrudeau")
-	# get_tweets("CPC_HQ")
-	# get_tweets("AndrewScheer")
-	# get_tweets("NDP")
-	# get_tweets("theJagmeetSingh")
-	# get_tweets("ElizabethMay")
-	# get_tweets("CanadianGreens")
-	# get_tweets("MaximeBernier")
-	# get_tweets("peoplespca")
 
