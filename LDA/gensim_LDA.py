@@ -15,7 +15,13 @@ def make_bigrams(texts, bigram_mod):
 
 def create_bow(data):
     # Create Dictionary
-    word_dict = corpora.Dictionary(data)  # Create Corpus
+    word_dict = None
+    if os.path.exists('./gensimmodel/worddict.txtdic'):
+        print("--- using existing word dict ---")
+        word_dict = corpora.Dictionary.load('./gensimmodel/worddict.txtdic')
+    else:
+        word_dict = corpora.Dictionary(data)  # Create Corpus
+        word_dict.save('./gensimmodel/worddict.txtdic')
     # Term Document Frequency
     corpus = [word_dict.doc2bow(text) for text in data]  # View
     return corpus, word_dict
@@ -155,17 +161,17 @@ if __name__ == "__main__":
     print("--- Building model with coherence {:.3f} (Alpha: {}, Beta: {}, Num Topics: {}) ---".format(coherence,alpha,beta,num_topics))
     lda_model = gensim.models.LdaMulticore(corpus=corpus,id2word=word_dict,num_topics=num_topics,alpha=alpha,eta=beta,random_state=100,chunksize=100,passes=10,per_word_topics=True)
     print("--- Updating {} Users Tweet Clusters ---".format(len(usernames)))
-    pbar = tqdm.tqdm(total=len(usernames))
-    for username in usernames:
-        file_path = "../data/{}_data.csv".format(username)
-        timeline_df = pd.read_csv(file_path)
-        timeline_df["lda_cluster"] = timeline_df["clean_text"].apply(lambda x : predict(x,lda_model,word_dict))
-        csvFile = open(file_path, 'w' ,encoding='utf-8')
-        timeline_df.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
-        pbar.update(1)
-    pbar.close()
-    for i in range(6,11):
-        vis_coherence_surface("lda_tuning_results.csv",topics=i)
+    # pbar = tqdm.tqdm(total=len(usernames))
+    # for username in usernames:
+    #     file_path = "../data/{}_data.csv".format(username)
+    #     timeline_df = pd.read_csv(file_path)
+    #     timeline_df["lda_cluster"] = timeline_df["clean_text"].apply(lambda x : predict(x,lda_model,word_dict))
+    #     csvFile = open(file_path, 'w' ,encoding='utf-8')
+    #     timeline_df.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
+    #     pbar.update(1)
+    # pbar.close()
+    # for i in range(6,11):
+    #     vis_coherence_surface("lda_tuning_results.csv",topics=i)
     for idx, topic in lda_model.print_topics(-1):
         print('Topic: {} \nWords: {}'.format(idx, topic))
     coherence_model_lda = CoherenceModel(model=lda_model, texts=text_data, dictionary=word_dict, coherence='c_v')
