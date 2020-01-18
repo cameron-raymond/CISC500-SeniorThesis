@@ -2,7 +2,7 @@ import sys
 import os
 import gensim
 import gensim.corpora as corpora
-from gensim.models import CoherenceModel  # Compute Coherence Score
+from gensim.models import CoherenceModel
 import pandas as pd
 import numpy as np
 import tqdm
@@ -30,7 +30,7 @@ def compute_coherence_values(corpus, text_data, dictionary, k, a, b):
     """
         Computer the c_v coherence score for an arbitrary LDA model.
 
-        For more info on c_v coherence see:  `M. Röder, A. Both, and A. Hinneburg: Exploring the Space of Topic Coherence Measures. In Proceedings of the eighth International Conference on Web Search and Data Mining, 2015.`
+        For more info on c_v coherence see:  `M. Röder, A. Both, and A. Hinneburg: Exploring the Space of Topic Coherence Measures. 2015.`
 
         :param corpus: the text to be modelled (a list of vectors).
         :param text_data: the actual text as a list of list
@@ -51,16 +51,16 @@ def compute_coherence_values(corpus, text_data, dictionary, k, a, b):
     coherence_model_lda = CoherenceModel(model=lda_model, texts=text_data, dictionary=dictionary, coherence='c_v')
     return coherence_model_lda.get_coherence()
 
-def hyper_parameter_tuning(corpus, word_dict, text_data,min_topics=6,max_topics=11):
+def hyper_parameter_tuning(corpus, word_dict, text_data,min_topics=4,max_topics=8):
     min_topics = min_topics
     max_topics = max_topics
     topics_range = range(min_topics, max_topics)
     # Alpha parameter
-    alpha = list(np.arange(0.01, 1, 0.3))
+    alpha = list(np.arange(0.01, 1, 0.1))
     alpha.append('symmetric')
     alpha.append('asymmetric')
     # Beta parameter
-    beta = list(np.arange(0.01, 1, 0.3))
+    beta = list(np.arange(0.01, 1, 0.1))
     beta.append('symmetric')
     model_results = {'Topics': [],
                      'Alpha': [],
@@ -70,13 +70,13 @@ def hyper_parameter_tuning(corpus, word_dict, text_data,min_topics=6,max_topics=
     num_combinations = len(topics_range)*len(alpha)*len(beta)
     pbar = tqdm.tqdm(total=num_combinations)
     # iterate through number of topics, different alpha values, and different beta values
-    for k in topics_range:
+    for num_topics in topics_range:
         for a in alpha:
             for b in beta:
                 # get the coherence score for the given parameters
                 cv = compute_coherence_values(
-                    corpus=corpus, text_data=text_data, dictionary=word_dict, k=k, a=a, b=b)
-                model_results['Topics'].append(k)
+                    corpus=corpus, text_data=text_data, dictionary=word_dict, k=num_topics, a=a, b=b)
+                model_results['Topics'].append(num_topics)
                 model_results['Alpha'].append(a)
                 model_results['Beta'].append(b)
                 model_results['Coherence'].append(cv)
@@ -91,10 +91,11 @@ def vis_coherence_surface(file_path,topics=10):
     """
         Visualizes the various hyper-parameters and their coherence score for a set number of topics.
     """
+    ticks = lambda x : 0 if x=="symmetric" else -0.2 if x=="asymmetric" else x
     data = pd.read_csv(file_path)
     data = data[data["Topics"]==topics]
-    x = data["Alpha"].apply(lambda x : 0.1 if x=="symmetric" or x=="asymmetric" else x).astype('float64')
-    y = data["Beta"].apply(lambda x : 0.1 if x=="symmetric" or x=="asymmetric" else x).astype('float64')
+    x = data["Alpha"].apply(ticks).astype('float64')
+    y = data["Beta"].apply(ticks).astype('float64')
     z = data["Coherence"].astype('float64')
     fig = plt.figure()
     ax = Axes3D(fig)
@@ -104,10 +105,14 @@ def vis_coherence_surface(file_path,topics=10):
     ax.set_xlabel('Alpha')
     ax.set_ylabel('Beta')
     ax.set_zlabel('Coherence (c_v)')
+    a = ax.get_xticks().tolist()
+    a[0] = "asymmetric"
+    a[1] = "symmetric"
+    ax.set_xticklabels(a)
     plt.title("Alpha-Beta Hyperparameter Sweep (k={})".format(topics))
     plt.savefig('Coherence_Surface_k={}.png'.format(topics))
 
-def return_hyperparams(corpus,word_dict,text_data,use_existing=True):
+def return_hyperparams(corpus,word_dict,text_data,use_existing=True, **kwargs):
     """
         Returns the optimal hyperparameters. Done by sorting saved hyperparams or performing a new hyperparameter sweep.
     """
@@ -116,7 +121,7 @@ def return_hyperparams(corpus,word_dict,text_data,use_existing=True):
     params = None
     if not use_existing or not exists:
         print("--- starting hyperparameter tuning ---")
-        coherence,alpha,beta,num_topics = hyper_parameter_tuning(corpus, word_dict, text_data)
+        coherence,alpha,beta,num_topics = hyper_parameter_tuning(corpus, word_dict, text_data, **kwargs)
         return coherence,alpha,beta,num_topics
     params = pd.read_csv("lda_tuning_results.csv")
     params["Alpha"],params["Beta"] = params["Alpha"].apply(to_float),params["Beta"].apply(to_float)
@@ -145,33 +150,36 @@ if __name__ == "__main__":
         frames.append(timeline_df)
     # The sample(frac=1) shuffles the rows
     text_data = pd.concat(frames,sort=False)["clean_text"].sample(frac=1).values.astype('U')
+    #Convert each tweet into a list of tokens
     text_data = [sent.split() for sent in text_data]
     # Build the bigram models
     print("--- finding bigrams ---")
-    bigram = gensim.models.Phrases(text_data, min_count=5, threshold=100)
+    bigram = gensim.models.Phrases(text_data, min_count=8, threshold=100)
     bigram_mod = gensim.models.phrases.Phraser(bigram)
     # creates bigrams of words that appear frequently together "gun control" -> "gun_control"
     text_data = make_bigrams(text_data, bigram_mod)
     print("--- creating BoW model ---")
     corpus, word_dict = create_bow(text_data)
     print("--- returning hyperparameters ---")
+    min_topics = 4
+    max_topics = 8
     # coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False)
-    coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=True)
+    coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False,min_topic=4,max_topics=8)
     # Build LDA model
     print("--- Building model with coherence {:.3f} (Alpha: {}, Beta: {}, Num Topics: {}) ---".format(coherence,alpha,beta,num_topics))
     lda_model = gensim.models.LdaMulticore(corpus=corpus,id2word=word_dict,num_topics=num_topics,alpha=alpha,eta=beta,random_state=100,chunksize=100,passes=10,per_word_topics=True)
     print("--- Updating {} Users Tweet Clusters ---".format(len(usernames)))
-    # pbar = tqdm.tqdm(total=len(usernames))
-    # for username in usernames:
-    #     file_path = "../data/{}_data.csv".format(username)
-    #     timeline_df = pd.read_csv(file_path)
-    #     timeline_df["lda_cluster"] = timeline_df["clean_text"].apply(lambda x : predict(x,lda_model,word_dict))
-    #     csvFile = open(file_path, 'w' ,encoding='utf-8')
-    #     timeline_df.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
-    #     pbar.update(1)
-    # pbar.close()
-    # for i in range(6,11):
-    #     vis_coherence_surface("lda_tuning_results.csv",topics=i)
+    pbar = tqdm.tqdm(total=len(usernames))
+    for username in usernames:
+        file_path = "../data/{}_data.csv".format(username)
+        timeline_df = pd.read_csv(file_path)
+        timeline_df["lda_cluster"] = timeline_df["clean_text"].apply(lambda x : predict(x,lda_model,word_dict))
+        csvFile = open(file_path, 'w' ,encoding='utf-8')
+        timeline_df.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
+        pbar.update(1)
+    pbar.close()
+    for i in range(min_topics,max_topics):
+        vis_coherence_surface("lda_tuning_results.csv",topics=i)
     for idx, topic in lda_model.print_topics(-1):
         print('Topic: {} \nWords: {}'.format(idx, topic))
     coherence_model_lda = CoherenceModel(model=lda_model, texts=text_data, dictionary=word_dict, coherence='c_v')
