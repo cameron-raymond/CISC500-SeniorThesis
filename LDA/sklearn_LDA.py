@@ -4,6 +4,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
+from joblib import dump, load
 # from tweepy.get_user_tweets import write_to_file
 
 topic_num = 5
@@ -43,7 +44,7 @@ if __name__ == "__main__":
 
     #create document term matrix
     train_dtm = tf_idf_vectorizer.transform(text_data)
-    lda = LatentDirichletAllocation(n_components = topic_num)
+    lda = LatentDirichletAllocation(n_components = topic_num, random_state=35)
     lda = lda.fit(train_dtm)
     lda_weights = lda.transform(train_dtm)
 
@@ -54,4 +55,3 @@ if __name__ == "__main__":
         added_cluster, file_path = model_document(lda,tf_idf_vectorizer,username)
         csvFile = open(file_path, 'w' ,encoding='utf-8')
         added_cluster.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
-        print(added_cluster.head())
