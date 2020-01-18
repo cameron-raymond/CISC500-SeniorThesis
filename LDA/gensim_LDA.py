@@ -60,17 +60,16 @@ def hyper_parameter_tuning(corpus, word_dict, text_data):
     topics_range = range(min_topics, max_topics, step_size)
     # Alpha parameter
     alpha = list(np.arange(0.01, 1, 0.3))
-    alpha = list(np.arange(0.01, 1, 0.3))
     alpha.append('symmetric')
     alpha.append('asymmetric') #REMOVE
     # Beta parameter
     beta = list(np.arange(0.01, 1, 0.3))
-    beta.append('symmetric')  # Validation sets
+    beta.append('symmetric')
     model_results = {'Topics': [],
                      'Alpha': [],
                      'Beta': [],
                      'Coherence': []
-                     }  # Can take a long time to run
+                     }
     num_combinations = len(topics_range)*len(alpha)*len(beta)
     pbar = tqdm.tqdm(total=num_combinations)
     # iterate through number of topics, different alpha values, and different beta values
@@ -94,11 +93,10 @@ def hyper_parameter_tuning(corpus, word_dict, text_data):
 
 def vis_coherence_surface(file_path,topics=10):
     data = pd.read_csv(file_path)
-    data = data[data["Topics"]==10]
+    data = data[data["Topics"]==topics]
     x = data["Alpha"].apply(lambda x : 0.1 if x=="symmetric" or x=="asymmetric" else x).astype('float64')
     y = data["Beta"].apply(lambda x : 0.1 if x=="symmetric" or x=="asymmetric" else x).astype('float64')
     z = data["Coherence"].astype('float64')
-    
     fig = plt.figure()
     ax = Axes3D(fig)
     surf = ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.1)
@@ -108,11 +106,10 @@ def vis_coherence_surface(file_path,topics=10):
     ax.set_zlabel('Coherence (c_v)')
     plt.title("Alpha-Beta Hyperparameter Sweep (k={})".format(topics))
     plt.savefig('Coherence_Surface_k={}.png'.format(topics))
-    plt.show()
-
 
 if __name__ == "__main__":
-    vis_coherence_surface("good_lda_tuning_results.csv",9)
+    for i in range(6,10):
+        vis_coherence_surface("lda_tuning_results.csv",i)
 # if __name__ == "__main__":
 #     # Put all of the party leaders into one data frame
 #     usernames = sys.argv[1:]
@@ -135,15 +132,7 @@ if __name__ == "__main__":
 #     print("--- starting hyperparameter tuning ---")
 #     coherence,alpha,beta,num_topics = hyper_parameter_tuning(corpus, word_dict, text_data)
 #     # Build LDA model
-#     lda_model = gensim.models.LdaMulticore(corpus=corpus,
-#                                            id2word=word_dict,
-#                                            num_topics=num_topics,
-#                                            alpha=alpha,
-#                                            eta=beta,
-#                                            random_state=100,
-#                                            chunksize=100,
-#                                            passes=10,
-#                                            per_word_topics=True)
+#     lda_model = gensim.models.LdaMulticore(corpus=corpus,id2word=word_dict,num_topics=num_topics,alpha=alpha,eta=beta,random_state=100,chunksize=100,passes=10,per_word_topics=True)
 
 #     for idx, topic in lda_model.print_topics(-1):
 #         print('Topic: {} \nWords: {}'.format(idx, topic))
