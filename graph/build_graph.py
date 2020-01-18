@@ -186,8 +186,9 @@ class Graph(object):
 
 if __name__ == '__main__':
     # Read in CSV file for that twitter user (these are the original tweets)
+    topics = range(0,10)
     G = Graph(sys.argv[1:])
-    G.draw_graph()
-    # for i in range(5):
-    #     removed = G.map_topics([i])
-    #     G.draw_graph(G=removed,save=False,use_pos=True)
+    G.draw_graph(save=True,use_pos=True)
+    for i in topics:
+        removed = G.map_topics([i])
+        G.draw_graph(G=removed,save=True,use_pos=True)

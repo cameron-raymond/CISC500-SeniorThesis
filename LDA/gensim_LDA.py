@@ -149,7 +149,8 @@ if __name__ == "__main__":
     print("--- creating BoW model ---")
     corpus, word_dict = create_bow(text_data)
     print("--- returning hyperparameters ---")
-    coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False)
+    # coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False)
+    coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=True)
     # Build LDA model
     print("--- Building model with coherence {:.3f} (Alpha: {}, Beta: {}, Num Topics: {}) ---".format(coherence,alpha,beta,num_topics))
     lda_model = gensim.models.LdaMulticore(corpus=corpus,id2word=word_dict,num_topics=num_topics,alpha=alpha,eta=beta,random_state=100,chunksize=100,passes=10,per_word_topics=True)
@@ -170,5 +171,4 @@ if __name__ == "__main__":
     coherence_model_lda = CoherenceModel(model=lda_model, texts=text_data, dictionary=word_dict, coherence='c_v')
     coherence_lda = coherence_model_lda.get_coherence()
     print('\nCoherence Score: {}'.format(coherence_lda))
-    lda_model.save("/gensimmodel/gensim_lda")
 
