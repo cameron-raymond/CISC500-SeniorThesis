@@ -18,7 +18,6 @@ else:
 nltk.download('wordnet')
 lemmatizer = WordNetLemmatizer()	
 # pylint: disable=no-member
-
 p.set_options(p.OPT.URL,p.OPT.SMILEY)
 stop_words =  stopwords.words('english')
 # Remove slogans and popular hashtags that don't mean much
