@@ -24,15 +24,12 @@ class Graph(object):
         self.num_tweets = 0
         self.num_retweets = 0
         self.usernames = usernames
-        self.G = nx.MultiDiGraph()
-        self.pos = None
+        self.G = nx.MultiGraph()
         self.title = ""
         for username in usernames:
             self.title += "{}_".format(username)
             user_graph = self.build_graph(username, n)
             self.G = nx.compose(self.G, user_graph)
-        print("--- determining initial layout ---")
-        self.pos = graphviz_layout(self.G, prog="sfdp")
         print("--- {} tweets, {} retweeters, {} retweets ---".format(self.num_tweets,self.num_retweeters, self.num_retweets))
 
     def draw_graph(self, G=None, save=False, file_type='png',use_pos=False):
@@ -69,7 +66,7 @@ class Graph(object):
             pbar.update(1)
         pbar.close()
         plt.figure(figsize=(30, 30))
-        pos = self.pos if use_pos and self.pos else graphviz_layout(G, prog="sfdp")
+        pos = graphviz_layout(self.G, prog="sfdp") if use_pos else graphviz_layout(G, prog="sfdp")
         _xlim = None
         _ylim = None
         if use_pos: #To use the same positioning for two subgraphs we need to make sure the x/y limits are the same for the plot
@@ -112,8 +109,8 @@ class Graph(object):
         # if we're only taking 20 tweets find all the retweets for those 20
         retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(
             twitter_df['id'])]
-        # Instantiate a new MultiDiGraph (graph is directional + there could potentially be multip edges between a pair of nodes)
-        G = nx.MultiDiGraph()
+        # Instantiate a new MultiGraph (there could potentially be multiple edges between a pair of nodes)
+        G = nx.MultiGraph()
         G.add_node(username, type='user')
         # add tweet nodes
         nodes = twitter_df.set_index('id').to_dict('index').items()
@@ -183,12 +180,20 @@ class Graph(object):
         tweets = (node for node in G if G.node[node]['type'] == 'tweet')
         degree_list = list(G.degree(tweets))
         return degree_list
+        
+    def diameter(self,G=None):
+        if not G:
+            G = self.G
+        d = nx.diameter(G)
+        print("Diameter: {}".format(d))
+        return d
 
 if __name__ == '__main__':
     # Read in CSV file for that twitter user (these are the original tweets)
-    topics = range(0,10)
-    G = Graph(sys.argv[1:])
-    G.draw_graph(save=True,use_pos=True)
-    for i in topics:
-        removed = G.map_topics([i])
-        G.draw_graph(G=removed,save=True,use_pos=True)
+    topics = range(0,8)
+    G = Graph(sys.argv[1:],n=40)
+    G.diameter()
+    # G.draw_graph(save=False,use_pos=True)
+    # for i in topics:
+    #     removed = G.map_topics([i])
+    #     G.draw_graph(G=removed,save=True,use_pos=True)

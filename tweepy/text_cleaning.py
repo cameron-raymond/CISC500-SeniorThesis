@@ -23,8 +23,8 @@ p.set_options(p.OPT.URL,p.OPT.SMILEY)
 stop_words =  stopwords.words('english')
 # Remove slogans and popular hashtags that don't mean much
 stop_words.extend(['getahead','chooseforward','missionpossible','forwardtogether','initforyou','notasadvertised','elxn43','cdnpoli','ppc','gpc','ppc2019','peoplespca'])
-# Remove party names
-stop_words.extend(['elxn43','cdnpoli','ppc','ndp','gpc','ppc2019','peoplespca'])
+# Remove party names - hard to know whether to remove words like "liberal" or "green" as they are often used in other contexts
+stop_words.extend(['elxn43','cdnpoli','ppc','ndp','gpc','pcs','ppc2019','peoplespca'])
 stop_words.extend(['get','dont','let','&amp;','amp','canadian']) #some words that aren't in the stopwords list but seem like they should be
 
 def clean_text(sentence):
