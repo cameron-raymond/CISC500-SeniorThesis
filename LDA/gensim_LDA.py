@@ -91,7 +91,7 @@ def vis_coherence_surface(file_path,topics=10):
     """
         Visualizes the various hyper-parameters and their coherence score for a set number of topics.
     """
-    ticks = lambda x : 0 if x=="symmetric" else -0.2 if x=="asymmetric" else x
+    ticks = lambda x : -0.2 if x == "asymmetric" else -0.1 if x == "symmetric" else x
     data = pd.read_csv(file_path)
     data = data[data["Topics"]==topics]
     x = data["Alpha"].apply(ticks).astype('float64')
@@ -105,14 +105,15 @@ def vis_coherence_surface(file_path,topics=10):
     ax.set_xlabel('Alpha')
     ax.set_ylabel('Beta')
     ax.set_zlabel('Coherence (c_v)')
-    a = ax.get_xticks().tolist()
-    a[0] = "asymmetric"
-    a[1] = "symmetric"
+    a = list(np.round(np.arange(-0.3, 1, 0.1),decimals=1))
+    a[1] = "asymmetric"
+    a[2] = "symmetric"
     ax.set_xticklabels(a)
+    ax.set_yticklabels(a)
     plt.title("Alpha-Beta Hyperparameter Sweep (k={})".format(topics))
     plt.savefig('Coherence_Surface_k={}.png'.format(topics))
 
-def return_hyperparams(corpus,word_dict,text_data,use_existing=True, **kwargs):
+def return_hyperparams(corpus,word_dict,text_data,use_existing=True,**kwargs):
     """
         Returns the optimal hyperparameters. Done by sorting saved hyperparams or performing a new hyperparameter sweep.
     """
@@ -121,7 +122,7 @@ def return_hyperparams(corpus,word_dict,text_data,use_existing=True, **kwargs):
     params = None
     if not use_existing or not exists:
         print("--- starting hyperparameter tuning ---")
-        coherence,alpha,beta,num_topics = hyper_parameter_tuning(corpus, word_dict, text_data, **kwargs)
+        coherence,alpha,beta,num_topics = hyper_parameter_tuning(corpus, word_dict, text_data,**kwargs)
         return coherence,alpha,beta,num_topics
     params = pd.read_csv("lda_tuning_results.csv")
     params["Alpha"],params["Beta"] = params["Alpha"].apply(to_float),params["Beta"].apply(to_float)
@@ -139,6 +140,11 @@ def predict(new_doc,lda_model,word_dict):
         # Some rows may have null clean text (example: every token in the tweet is <3 character long). If that's the case return -1 (we want to discard these)
         return -1
 
+# if __name__ == "__main__":
+#     min_topics = 4
+#     max_topics = 8
+#     for i in range(min_topics,max_topics):
+#         vis_coherence_surface("lda_tuning_results.csv",topics=i)
 if __name__ == "__main__":
     # Put all of the party leaders into one data frame
     usernames = sys.argv[1:]
@@ -163,8 +169,8 @@ if __name__ == "__main__":
     print("--- returning hyperparameters ---")
     min_topics = 4
     max_topics = 8
-    # coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False)
-    coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False,min_topic=4,max_topics=8)
+    coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=True)
+    # coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False,min_topics=min_topics,max_topics=max_topics)
     # Build LDA model
     print("--- Building model with coherence {:.3f} (Alpha: {}, Beta: {}, Num Topics: {}) ---".format(coherence,alpha,beta,num_topics))
     lda_model = gensim.models.LdaMulticore(corpus=corpus,id2word=word_dict,num_topics=num_topics,alpha=alpha,eta=beta,random_state=100,chunksize=100,passes=10,per_word_topics=True)
