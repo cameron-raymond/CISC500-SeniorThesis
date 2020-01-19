@@ -55,12 +55,13 @@ def hyper_parameter_tuning(corpus, word_dict, text_data,min_topics=4,max_topics=
     min_topics = min_topics
     max_topics = max_topics
     topics_range = range(min_topics, max_topics)
+    step = 0.05
     # Alpha parameter
-    alpha = list(np.arange(0.01, 1, 0.1))
+    alpha = list(np.arange(0.01, 1, step))
     alpha.append('symmetric')
     alpha.append('asymmetric')
     # Beta parameter
-    beta = list(np.arange(0.01, 1, 0.1))
+    beta = list(np.arange(0.01, 1, step))
     beta.append('symmetric')
     model_results = {'Topics': [],
                      'Alpha': [],
@@ -91,7 +92,7 @@ def vis_coherence_surface(file_path,topics=10):
     """
         Visualizes the various hyper-parameters and their coherence score for a set number of topics.
     """
-    ticks = lambda x : -0.2 if x == "asymmetric" else -0.1 if x == "symmetric" else x
+    ticks = lambda x : -0.6 if x == "asymmetric" else -0.4 if x == "symmetric" else x
     data = pd.read_csv(file_path)
     data = data[data["Topics"]==topics]
     x = data["Alpha"].apply(ticks).astype('float64')
@@ -100,12 +101,12 @@ def vis_coherence_surface(file_path,topics=10):
     fig = plt.figure()
     ax = Axes3D(fig)
     # pylint: disable=no-member
-    surf = ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.1)
+    surf = ax.plot_trisurf(x, y, z, cmap=cm.jet, linewidth=0.05)
     fig.colorbar(surf, shrink=0.5, aspect=5)
     ax.set_xlabel('Alpha')
     ax.set_ylabel('Beta')
     ax.set_zlabel('Coherence (c_v)')
-    a = list(np.round(np.arange(-0.3, 1, 0.1),decimals=1))
+    a = list(np.round(np.arange(-0.6, 1.2, 0.2),decimals=1))
     a[1] = "asymmetric"
     a[2] = "symmetric"
     ax.set_xticklabels(a)
@@ -140,6 +141,15 @@ def predict(new_doc,lda_model,word_dict):
         # Some rows may have null clean text (example: every token in the tweet is <3 character long). If that's the case return -1 (we want to discard these)
         return -1
 
+
+def add_cluster(username,lda_model,word_dict):
+    file_path = "../data/{}_data.csv".format(username)
+    timeline_df = pd.read_csv(file_path)
+    timeline_df["lda_cluster"] = timeline_df["clean_text"].apply(lambda x : predict(x,lda_model,word_dict))
+    csvFile = open(file_path, 'w' ,encoding='utf-8')
+    timeline_df.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
+
+
 # if __name__ == "__main__":
 #     min_topics = 4
 #     max_topics = 8
@@ -172,16 +182,12 @@ if __name__ == "__main__":
     coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=True)
     # coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False,min_topics=min_topics,max_topics=max_topics)
     # Build LDA model
-    print("--- Building model with coherence {:.3f} (Alpha: {}, Beta: {}, Num Topics: {}) ---".format(coherence,alpha,beta,num_topics))
+    print("--- Building model with coherence {:.3f} (Alpha: {:.2f}, Beta: {:0.2f}, Num Topics: {}) ---".format(coherence,alpha,beta,num_topics))
     lda_model = gensim.models.LdaMulticore(corpus=corpus,id2word=word_dict,num_topics=num_topics,alpha=alpha,eta=beta,random_state=100,chunksize=100,passes=10,per_word_topics=True)
     print("--- Updating {} Users Tweet Clusters ---".format(len(usernames)))
     pbar = tqdm.tqdm(total=len(usernames))
     for username in usernames:
-        file_path = "../data/{}_data.csv".format(username)
-        timeline_df = pd.read_csv(file_path)
-        timeline_df["lda_cluster"] = timeline_df["clean_text"].apply(lambda x : predict(x,lda_model,word_dict))
-        csvFile = open(file_path, 'w' ,encoding='utf-8')
-        timeline_df.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
+        add_cluster(username,lda_model,word_dict)
         pbar.update(1)
     pbar.close()
     for i in range(min_topics,max_topics):
