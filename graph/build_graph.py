@@ -11,7 +11,8 @@ import pandas as pd
 class Graph(object):
     '''
     Initiates the networkx graph, houses visualization, as well as some quick/dirty analysis.
-
+    Parameters
+    ----------
     :param usernames: A list of strings, corresponding to the twitter usernames stored in `/data`
     
     :param n: An int, corresponding to the number of tweets to map. If 
@@ -34,15 +35,16 @@ class Graph(object):
 
     def draw_graph(self, G=None, save=False, file_type='png',use_pos=False):
         """
-            Handles rendering and drawing the network.
+        Handles rendering and drawing the network.
+        Parameters
+        ----------
+        :param G: `optional` a networkx graph. If present draws this graph instead of the one built in the constructor.
 
-            :param G: `optional` a networkx graph. If present draws this graph instead of the one built in the constructor.
-
-            :param save: `optional` A boolean. If true saves an image of the graph to `/visualizations` otherwise renders the graph.
-           
-            :param file_type: `optional` A string. If save flag is true it saves graph with this file extension.
-            
-            :param use_pos: `optional` A boolean. If true renders the graph using default positions of the entire graph. Otherwise calculates positions based on data used.
+        :param save: `optional` A boolean. If true saves an image of the graph to `/visualizations` otherwise renders the graph.
+        
+        :param file_type: `optional` A string. If save flag is true it saves graph with this file extension.
+        
+        :param use_pos: `optional` A boolean. If true renders the graph using default positions of the entire graph. Otherwise calculates positions based on data used.
         """
         if not G:
             G = self.G
@@ -149,6 +151,8 @@ class Graph(object):
     def map_topics(self, topics):
         '''
         Rebuilds the graph with only certain tweet topics
+        Parameters
+        ----------
 
         :param topics: A list of ints between 0-k, where k is the number of topics-1, corresponding with the topics to isolate for
         '''

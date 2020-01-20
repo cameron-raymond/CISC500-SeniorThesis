@@ -28,16 +28,22 @@ def create_bow(data):
 
 def compute_coherence_values(corpus, text_data, dictionary, k, a, b):
     """
-        Computer the c_v coherence score for an arbitrary LDA model.
+    Computer the c_v coherence score for an arbitrary LDA model.
 
-        For more info on c_v coherence see:  `M. Röder, A. Both, and A. Hinneburg: Exploring the Space of Topic Coherence Measures. 2015.`
-
-        :param corpus: the text to be modelled (a list of vectors).
-        :param text_data: the actual text as a list of list
-        :param dictionary: a dictionary coresponding that maps elements of the corpus to words.
-        :param k: the number of topics
-        :param a: Alpha, document-topic density
-        :param b: Beta, topic-word density
+    For more info on c_v coherence see:  `M. Röder, A. Both, and A. Hinneburg: Exploring the Space of Topic Coherence Measures. 2015.`
+    Parameters
+    ----------
+    :param corpus: the text to be modelled (a list of vectors).
+    
+    :param text_data: the actual text as a list of list
+    
+    :param dictionary: a dictionary coresponding that maps elements of the corpus to words.
+    
+    :param k: the number of topics
+    
+    :param a: Alpha, document-topic density
+    
+    :param b: Beta, topic-word density
     """
     lda_model = gensim.models.LdaMulticore(corpus=corpus,
                                            id2word=dictionary,
@@ -52,6 +58,21 @@ def compute_coherence_values(corpus, text_data, dictionary, k, a, b):
     return coherence_model_lda.get_coherence()
 
 def hyper_parameter_tuning(corpus, word_dict, text_data,min_topics=4,max_topics=8):
+    """
+    Iterates through an arbitrary number of hyperparameter combinaitions for a given corpus. 
+    Measures LDA coherence
+    Parameters
+    ----------
+    :param corpus: the text to be modelled (a list of vectors).
+    
+    :param word_dict: a dictionary coresponding that maps elements of the corpus to words.
+    
+    :param text_data: the actual text as a list of list
+
+    :param min_topics: `optional` the minimum number of latent topics.
+
+    :param max_topics: `optional` the maximum number of latent topics.
+    """
     min_topics = min_topics
     max_topics = max_topics
     topics_range = range(min_topics, max_topics)
@@ -143,12 +164,21 @@ def predict(new_doc,lda_model,word_dict):
 
 
 def add_cluster(username,lda_model,word_dict):
+    """
+    Addeds the LDA clusters to a users twitter timeline data frame.
+    Parameters
+    ----------
+    :param username: The twitter handle of the user being modelled.
+    
+    :param lda_model: Some gensim LDA model.
+    
+    :param word_dict: a dictionary coresponding that maps elements of the corpus to words.
+    """
     file_path = "../data/{}_data.csv".format(username)
     timeline_df = pd.read_csv(file_path)
     timeline_df["lda_cluster"] = timeline_df["clean_text"].apply(lambda x : predict(x,lda_model,word_dict))
     csvFile = open(file_path, 'w' ,encoding='utf-8')
     timeline_df.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
-
 
 # if __name__ == "__main__":
 #     min_topics = 4
