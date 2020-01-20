@@ -6,7 +6,6 @@ import tqdm
 from networkx.drawing.nx_agraph import graphviz_layout
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-from comp_graphs import log_bin_frequency
 import pandas as pd
 
 class Graph(object):
@@ -17,15 +16,11 @@ class Graph(object):
     :param usernames: A list of strings, corresponding to the twitter usernames stored in `/data`
     
     :param n: An int, corresponding to the number of tweets to map. If 
-    
     '''
-
     def __init__(self, usernames, n=None):
-        self.usernames = usernames
         self.num_retweeters = 0
         self.num_tweets = 0
         self.num_retweets = 0
-        self.usernames = usernames
         self.G = nx.MultiGraph()
         self.title = ""
         for username in usernames:
@@ -78,7 +73,6 @@ class Graph(object):
             _ylim = plt.gca().get_ylim() # grab the ylims
             # Clear the figure.
             plt.clf()
-        # draw nodes, coloring by rtt ping time
         print("--- Drawing {} nodes and {} edges ---".format(len(G.nodes()), G.number_of_edges()))
         nx.draw(G, pos,
                 node_color=colors,
@@ -95,12 +89,10 @@ class Graph(object):
         plt.savefig("../visualizations/{}graph_{}_tweets_{}_retweeters_{}_retweets_topics{}.{}".format(self.title,self.num_tweets, self.num_retweeters, self.num_retweets,topics_used, file_type)) if save else plt.show()
 
     def __return_legend(self, legend):
-        legends = [Line2D([0], [0], marker='o', color='w', label='Party Leader', markerfacecolor='r', markersize=10), Line2D(
-            [0], [0], marker='o', color='w', label='Retweet', markerfacecolor='#79BFD3', markersize=10)]
+        legends = [Line2D([0], [0], marker='o', color='w', label='Party Leader', markerfacecolor='r', markersize=10), Line2D([0], [0], marker='o', color='w', label='Retweet', markerfacecolor='#79BFD3', markersize=10)]
         legend = sorted(legend, key=lambda tup: tup[1])
         for color, cluster_num in legend:
-            legends.append(Line2D([0], [0], marker='o', color='w', label='Topic {}'.format(
-                cluster_num), markerfacecolor=color, markersize=10))
+            legends.append(Line2D([0], [0], marker='o', color='w', label='Topic {}'.format(cluster_num), markerfacecolor=color, markersize=10))
         return legends
 
     def build_graph(self, username, n=None):
@@ -146,7 +138,6 @@ class Graph(object):
         Rebuilds the graph with only certain tweet topics
         Parameters
         ----------
-
         :param topics: A list of ints between 0-k, where k is the number of topics-1, corresponding with the topics to isolate for
         '''
         mapped_graph = self.G.copy()
@@ -172,9 +163,9 @@ class Graph(object):
 if __name__ == '__main__':
     # Read in CSV file for that twitter user (these are the original tweets)
     topics = range(0,8)
-    G = Graph(sys.argv[1:],n=40)
-    # G.diameter()
-    # G.draw_graph(save=False,use_pos=True)
+    G = Graph(sys.argv[1:],n=1000)
+    G.draw_graph()
+    # G.draw_graph(save=True,use_pos=True)
     # for i in topics:
     #     removed = G.map_topics([i])
     #     G.draw_graph(G=removed,save=True,use_pos=True)
