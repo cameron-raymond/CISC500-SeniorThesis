@@ -1,12 +1,13 @@
 import sys
 import operator
+import collections
 import networkx as nx
 import tqdm
 from networkx.drawing.nx_agraph import graphviz_layout
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from comp_graphs import log_bin_frequency
 import pandas as pd
-
 
 class Graph(object):
     '''
@@ -77,7 +78,6 @@ class Graph(object):
             _ylim = plt.gca().get_ylim() # grab the ylims
             # Clear the figure.
             plt.clf()
-
         # draw nodes, coloring by rtt ping time
         print("--- Drawing {} nodes and {} edges ---".format(len(G.nodes()), G.number_of_edges()))
         nx.draw(G, pos,
@@ -136,16 +136,9 @@ class Graph(object):
         self.num_retweets += len(retweet_df)
         return G
 
-    def to_adjecency_matrix(self):
-        G = self.G
-        title = self.title
-        matrix = nx.to_numpy_matrix(G)
-        pd.DataFrame(matrix).to_csv(title+"adj_matrix.csv")
-
     def get_density(self):
         density = nx.density(self.G)
-        print(
-            "The percentage of edges/possible edges is {0:.4f}%: ".format(density*100))
+        print("The percentage of edges/possible edges is {0:.4f}%: ".format(density*100))
         return density
 
     def map_topics(self, topics):
@@ -165,25 +158,9 @@ class Graph(object):
         return mapped_graph
 
     def __return_colour(self, aNum):
-        colours = ["#006816",
-                   "#8d34e4",
-                   "#c9a738",
-                   "#0163d0",
-                   "#ee5700",
-                   "#00937e",
-                   "#ff4284",
-                   "#4b5400",
-                   "#ea80ff",
-                   "#9f0040"]
+        colours = ["#006816","#8d34e4","#c9a738","#0163d0","#ee5700", "#00937e", "#ff4284", "#4b5400", "#ea80ff","#9f0040"]
         assert aNum < len(colours)
         return colours[aNum], aNum+1
-
-    def max_degree_tweet(self):
-        # TODO
-        G = self.G
-        tweets = (node for node in G if G.node[node]['type'] == 'tweet')
-        degree_list = list(G.degree(tweets))
-        return degree_list
         
     def diameter(self,G=None):
         if not G:
@@ -196,7 +173,7 @@ if __name__ == '__main__':
     # Read in CSV file for that twitter user (these are the original tweets)
     topics = range(0,8)
     G = Graph(sys.argv[1:],n=40)
-    G.diameter()
+    # G.diameter()
     # G.draw_graph(save=False,use_pos=True)
     # for i in topics:
     #     removed = G.map_topics([i])
