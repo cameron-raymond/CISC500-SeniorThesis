@@ -10,7 +10,7 @@ COLOURS = ["#006816", "#8d34e4", "#c9a738", "#0163d0", "#ee5700",
            "#00937e", "#ff4284", "#4b5400", "#ea80ff", "#9f0040"]
 
 
-def centrality_per_topic(G, username=None, mean=False):
+def centrality_per_topic(G, username=None, measure='mean'):
     """
         Calculates the eigenvector centrality for a network G, and then takes the sums/averages the centrality of tweets grouped by topic. 
         Parameters
@@ -19,7 +19,7 @@ def centrality_per_topic(G, username=None, mean=False):
 
         :param username: `optional` if present only uses that user's tweets when calculating the mean.
 
-        :param mean: `optional` If True calculates the average centrality for topic. Otherwise sums it up.
+        :param measure: `optional` Options are ('mean','sum','zscore'). Choooses how to represent the aggregate zscores
     """
     netx_graph = G.G.copy()
     # centrality = nx.eigenvector_centrality_numpy(netx_graph)
@@ -35,16 +35,22 @@ def centrality_per_topic(G, username=None, mean=False):
                     topic_centrality[topic].append(node_centrality)
                 else:
                     topic_centrality[topic] = [node_centrality]
+    all_topic_centralities = np.concatenate([centrality for _,centrality in topic_centrality.items()]).ravel()
+    average_centrality = np.mean(all_topic_centralities)
+    std_dev = np.std(all_topic_centralities)
 
     for topic, centrality_list in topic_centrality.items():
-        if mean:
-            topic_centrality[topic] = np.mean(centrality_list)
-        else:
+        if measure == 'zscore':
+            zscores = (np.array(centrality_list)-average_centrality)/std_dev
+            topic_centrality[topic] = np.mean(zscores)
+        elif measure == 'sum':
             topic_centrality[topic] = np.sum(centrality_list)
+        else:
+            topic_centrality[topic] = np.mean(centrality_list)
     return topic_centrality
 
 
-def plot_dual_centralities(overall_net_cent, individaul_cents, expand=False, usernames=None, mean=False):
+def plot_dual_centralities(overall_net_cent, individaul_cents, expand=False, usernames=None, measure='mean'):
     """
         Plots the "overall network centrality" (the centralities of every tweet of a certain topic) for each topic over the 
         "individual network centrality" (the centralities of every tweet of a certain topic for a certain user)
@@ -58,7 +64,7 @@ def plot_dual_centralities(overall_net_cent, individaul_cents, expand=False, use
 
         :param usernames: `optional` If expand is true this should correspond to the order of usernames in the individual_cents list. For plot legend purposes.
 
-        :param mean: `optional` For title/filename purposes. Should be true if the overall_net_cent and individual_cents are the mean centralities instead of the summation.
+        :param measure: `optional` Options are ('mean','sum','zscore'). For title/filename purposes.
     """
     overall_net_cent = sorted(overall_net_cent.items(), key=lambda tup: tup[0])
     #get rid of topic -1 (empty tweets)
@@ -73,11 +79,20 @@ def plot_dual_centralities(overall_net_cent, individaul_cents, expand=False, use
         centralities = np.nan_to_num(np.array(centralities))
         leader_cents.append(centralities)
     topics, average_overall_cents = map(list, zip(*overall_net_cent))
-    label = "Average" if mean else "Total"
+    if measure=="zscore":
+        ax = plt.gca()
+        ax.spines['top'].set_color('none')
+        ax.spines['bottom'].set_position('zero')
+        ax.spines['left'].set_position('zero')
+        ax.spines['right'].set_color('none')
+        ax.axis(xmin=-2,xmax=2,ymin=-2,ymax=2)
+        ax.set_xlabel('Topic Centrality for Individual\'s Network ({})'.format(measure),labelpad=125)
+        ax.set_ylabel('Overall Network Topic Centrality ({})'.format(measure),labelpad=165)
+    else:
+        plt.xlabel('Topic Centrality for Individual\'s Network ({})'.format(measure))
+        plt.ylabel('Overall Network Topic Centrality ({})'.format(measure))
     plt.title(
-        'Overall Network Centrality/Individual\'s Network Centrality ({})'.format(label))
-    plt.xlabel('{} Topic Centrality for Individual\'s Network'.format(label))
-    plt.ylabel('{} Topic Centrality'.format(label))
+        'Overall Importance of Topic/Importance of Topic to Individual ({})\n'.format(measure))
     plt.grid(True)
     if expand and usernames:
         assert len(usernames) == len(leader_cents)
@@ -89,7 +104,7 @@ def plot_dual_centralities(overall_net_cent, individaul_cents, expand=False, use
                              (centralities[j], average_overall_cents[j]))
             plt.legend()
         plt.savefig(
-            "../visualizations/centrality_charts/{}_opposing_centrality_chart_(expanded).png".format(label))
+            "../visualizations/centrality_charts/{}_opposing_centrality_chart_(expanded).png".format(measure))
         plt.clf()
     else:
         average_individual_cents = np.mean(leader_cents, axis=0)
@@ -98,7 +113,7 @@ def plot_dual_centralities(overall_net_cent, individaul_cents, expand=False, use
             plt.annotate("Topic {}".format(
                 txt+1), (average_individual_cents[j], average_overall_cents[j]))
         plt.savefig(
-            "../visualizations/centrality_charts/{}_opposing_centrality_chart_(mean_of_leaders).png".format(label))
+            "../visualizations/centrality_charts/{}_opposing_centrality_chart_(mean_of_leaders).png".format(measure))
         plt.clf()
 
 
@@ -106,20 +121,29 @@ if __name__ == "__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else [
         "JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
     G = Graph(usernames, n=10)
-    sum_overall_topic_centralities = centrality_per_topic(G, mean=False)
-    mean_overall_topic_centralities = centrality_per_topic(G, mean=True)
+    sum_overall_topic_centralities = centrality_per_topic(G, measure='sum')
+    mean_overall_topic_centralities = centrality_per_topic(G, measure='mean')
+    zscore_overall_topic_centralities = centrality_per_topic(G, measure='zscore')
     sum_leader_cents = []
     mean_leader_cents = []
+    zscore_leader_cents = []
     for username in usernames:
+        singl_leader_g = Graph([username])
         sum_leader_cents.append(centrality_per_topic(
-            G, username=username, mean=False))
+            singl_leader_g, measure='sum'))
         mean_leader_cents.append(centrality_per_topic(
-            G, username=username, mean=True))
+            singl_leader_g, measure='mean'))
+        zscore_leader_cents.append(centrality_per_topic(
+            singl_leader_g, measure='zscore'))
     plot_dual_centralities(sum_overall_topic_centralities,
-                           sum_leader_cents, expand=False, usernames=usernames, mean=False)
+                           sum_leader_cents, expand=False, usernames=usernames, measure='sum')
     plot_dual_centralities(sum_overall_topic_centralities,
-                           sum_leader_cents, expand=True, usernames=usernames, mean=False)
+                           sum_leader_cents, expand=True, usernames=usernames, measure='sum')
     plot_dual_centralities(mean_overall_topic_centralities,
-                           mean_leader_cents, expand=False, usernames=usernames, mean=True)
+                           mean_leader_cents, expand=False, usernames=usernames, measure='mean')
     plot_dual_centralities(mean_overall_topic_centralities,
-                           mean_leader_cents, expand=True, usernames=usernames, mean=True)
+                           mean_leader_cents, expand=True, usernames=usernames, measure='mean')
+    plot_dual_centralities(zscore_overall_topic_centralities,
+                           zscore_leader_cents, expand=False, usernames=usernames, measure='zscore')
+    plot_dual_centralities(zscore_overall_topic_centralities,
+                           zscore_leader_cents, expand=True, usernames=usernames, measure='zscore')
