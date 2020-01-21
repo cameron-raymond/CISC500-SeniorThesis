@@ -15,13 +15,13 @@ class Graph(object):
     ----------
     :param usernames: A list of strings, corresponding to the twitter usernames stored in `/data`
     
-    :param n: An int, corresponding to the number of tweets to map. If 
+    :param n: An int, corresponding to the number of tweets to map.
     '''
     def __init__(self, usernames, n=None):
         self.num_retweeters = 0
         self.num_tweets = 0
         self.num_retweets = 0
-        self.G = nx.MultiGraph()
+        self.G = nx.Graph()
         self.title = ""
         for username in usernames:
             self.title += "{}_".format(username)
@@ -103,8 +103,8 @@ class Graph(object):
         # if we're only taking 20 tweets find all the retweets for those 20
         retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(
             twitter_df['id'])]
-        # Instantiate a new MultiGraph (there could potentially be multiple edges between a pair of nodes)
-        G = nx.MultiGraph()
+        # Instantiate a new Graph (there could potentially be multiple edges between a pair of nodes)
+        G = nx.Graph()
         G.add_node(username, type='user')
         # add tweet nodes
         nodes = twitter_df.set_index('id').to_dict('index').items()
