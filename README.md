@@ -6,6 +6,8 @@
 
 ## Applications of Graph Theory in Exploring Political Engagment
 
+![Image](https://raw.githubusercontent.com/cameron-raymond/CISC500-SeniorThesis/master/visualizations/JustinTrudeau_theJagmeetSingh_AndrewScheer_ElizabethMay_MaximeBernier_graph_4416_tweets_23754_retweeters_65897_retweets_topics0_1_2_3_4_5_6_7.png)
+
 ## Dependencies
 
 * `pip3 install -r requirements.txt`
