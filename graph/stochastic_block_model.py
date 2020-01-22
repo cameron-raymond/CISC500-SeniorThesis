@@ -27,14 +27,13 @@ def possible_tweets(G, aUser, topic):
     return possible_tweets
 
 
-def return_topic_distribution(posteriors, history_dict, k, p, tweet_thresh):
-    topic_distribution = np.full(k+1, p)
-    topic_distribution[-1] = tweet_thresh
+def return_topic_distribution(posteriors, history_dict, k, p):
+    topic_distribution = np.full(k, p)
     # go through each topic and do the bayes theorem stuff
     return topic_distribution
 
 
-def stochastic_topic_graph(posteriors, n=5, tweet_dist=(1000, 300), k=7, m=60000, p=0.02, tweet_threshold=3, alpha=0.9):
+def stochastic_topic_graph(posteriors, n=5, tweet_dist=(1000, 300), k=7, m=60000, p=0.02, num_retweets_per_cycle=0.20, alpha=0.9):
     """
         Build a stochastic block model based off of the prior probability distributions of topic engagment.
         Parameters
@@ -51,7 +50,7 @@ def stochastic_topic_graph(posteriors, n=5, tweet_dist=(1000, 300), k=7, m=60000
 
         :param p: The default probability of a retweeter tweeting any tweet. 
 
-        :param tweet_threshold: Added as the k+1 "topic" if this is chosen as the topic the user doesn't retweet anyone. Since this is run through the softmax it doesn't need to be between 0-1. 2-5 seems to work well with they eye test.
+        :param num_retweets_per_cycle: The % of users that will retweet a tweet on each epoch.
 
         :param alpha: How heavily to weight the probability distributions.
 
@@ -70,7 +69,7 @@ def stochastic_topic_graph(posteriors, n=5, tweet_dist=(1000, 300), k=7, m=60000
         6) Repeat until steps 3-5, until there are m retweeters have been placed on the graph or network has converged (no new edges added).
     """
     # Add an extra element in the topics array that when selected the user doesn't retweet anything.
-    topics = [i for i in range(k+1)]
+    topics = [i for i in range(k)]
     G = nx.Graph()
     for user in range(n):
         G.add_node(user, type='user')
@@ -80,8 +79,7 @@ def stochastic_topic_graph(posteriors, n=5, tweet_dist=(1000, 300), k=7, m=60000
         num_tweets = max(int(normal(loc=tweet_dist[0], scale=tweet_dist[1])), 1)
         topic_distribution = softmax([random() for i in range(k)])
         # here, a= are the topic numbers [0...6] and p is the probability of choosing tweet a
-        tweets = np.random.choice(
-            a=topics[:-1], size=num_tweets, p=topic_distribution)
+        tweets = np.random.choice(a=topics, size=num_tweets, p=topic_distribution)
         pbar = tqdm.tqdm(total=num_tweets)
         for tweet, topic in enumerate(tweets):
             node = "{}_{}".format(user, tweet)
@@ -92,27 +90,29 @@ def stochastic_topic_graph(posteriors, n=5, tweet_dist=(1000, 300), k=7, m=60000
 
     history_dict = dict((topic, 0) for topic in range(k))
     print("--- adding tweets ---")
-    pbar = tqdm.tqdm(total=(m*m//2)+(m//2))
+    pbar = tqdm.tqdm(total=m)
     for new_user in range(m):
         # add a new user
         username = "user_{}".format(new_user)
         G.add_node(username, type="retweet", history_dict=history_dict)
-        # initialize the probability array
-        for j in range(new_user+1):
-            pbar.update(1)
-            username = "user_{}".format(j)
+        # Select num_retweets_per_cycle% of the current users on the board to have retweet a tweet.
+        retweeters = np.random.choice(np.arange(0,new_user+1),size=int(new_user*num_retweets_per_cycle))
+        for retweeter in retweeters:
+            username = "user_{}".format(retweeter)
             history_dict = G.nodes()[username]["history_dict"]
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
-            topic_distribution = return_topic_distribution(posteriors, history_dict, k, p, tweet_threshold)
+            topic_distribution = return_topic_distribution(posteriors, history_dict, k, p)
             # Squish it using softmax to make it a probability distribution.
             to_probability = softmax(topic_distribution)
             winning_topic = np.random.choice(topics, p=to_probability)
             pos_tweets = possible_tweets(G, username, winning_topic)
-            if len(pos_tweets) > 0 and winning_topic != k+1:
+            if len(pos_tweets) > 0:
                 winning_tweet = np.random.choice(pos_tweets)
                 history_dict[winning_topic] += 1
                 G.nodes[username]["history_dict"] = history_dict
                 G.add_edge(winning_tweet, username)
+        pbar.update(1)
+
     pbar.close()
     return G
 
@@ -201,5 +201,5 @@ def stochastic_party_leader_graph(posteriors, n=5, tweet_dist=(1000, 100), k=7, 
 
 
 if __name__ == "__main__":
-    G = stochastic_topic_graph(None, n=5, m=1000)
+    G = stochastic_topic_graph(None, n=5, m=300)
     draw_graph(G)
