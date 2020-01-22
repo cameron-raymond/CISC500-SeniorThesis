@@ -22,7 +22,7 @@ def log_bin_frequency(G,title="Log-Log Histogram Plot",type=None,G2=None):
     ax.set_yscale('log')
     plt.title=(title)
     plt.xlabel("Log Degree")
-    plt.xlabel("Log Frequency")
+    plt.ylabel("Log Frequency")
     plt.plot(log_bins,log_bin_density,'x',color='blue')
     plt.show()
 

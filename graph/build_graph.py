@@ -8,6 +8,20 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import pandas as pd
 
+
+def return_colour(aNum):
+    colours = ["#006816","#8d34e4","#c9a738","#0163d0","#ee5700", "#00937e", "#ff4284", "#4b5400", "#ea80ff","#9f0040"]
+    assert aNum < len(colours)
+    return colours[aNum], aNum+1
+
+
+def return_legend(legend):
+    legends = [Line2D([0], [0], marker='o', color='w', label='Party Leader', markerfacecolor='r', markersize=10), Line2D([0], [0], marker='o', color='w', label='Retweet', markerfacecolor='#79BFD3', markersize=10)]
+    legend = sorted(legend, key=lambda tup: tup[1])
+    for color, cluster_num in legend:
+        legends.append(Line2D([0], [0], marker='o', color='w', label='Topic {}'.format(cluster_num), markerfacecolor=color, markersize=10))
+    return legends
+
 class Graph(object):
     '''
     Initiates the networkx graph, houses visualization, as well as some quick/dirty analysis.
@@ -89,11 +103,7 @@ class Graph(object):
         plt.savefig("../visualizations/{}graph_{}_tweets_{}_retweeters_{}_retweets_topics{}.{}".format(self.title,self.num_tweets, self.num_retweeters, self.num_retweets,topics_used, file_type)) if save else plt.show()
 
     def __return_legend(self, legend):
-        legends = [Line2D([0], [0], marker='o', color='w', label='Party Leader', markerfacecolor='r', markersize=10), Line2D([0], [0], marker='o', color='w', label='Retweet', markerfacecolor='#79BFD3', markersize=10)]
-        legend = sorted(legend, key=lambda tup: tup[1])
-        for color, cluster_num in legend:
-            legends.append(Line2D([0], [0], marker='o', color='w', label='Topic {}'.format(cluster_num), markerfacecolor=color, markersize=10))
-        return legends
+        return return_legend(legend)
 
     def build_graph(self, username, n=None):
         twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
@@ -113,7 +123,7 @@ class Graph(object):
         pbar = tqdm.tqdm(total=len(twitter_df)+len(retweet_df))
         for _, row in twitter_df.iterrows():
             pbar.update(1)
-            G.add_edge(username, row['id'], weight=row['favorite_count'])
+            G.add_edge(username, row['id'])
         # add retweet user nodes (those who retweeted the original tweets) multipl
         user_nodes = retweet_df.drop_duplicates(subset="original_author")
         user_nodes = user_nodes.set_index(
@@ -149,9 +159,7 @@ class Graph(object):
         return mapped_graph
 
     def __return_colour(self, aNum):
-        colours = ["#006816","#8d34e4","#c9a738","#0163d0","#ee5700", "#00937e", "#ff4284", "#4b5400", "#ea80ff","#9f0040"]
-        assert aNum < len(colours)
-        return colours[aNum], aNum+1
+        return return_colour(aNum)
         
     def diameter(self,G=None):
         if not G:
