@@ -1,12 +1,15 @@
 import networkx as nx
 import numpy as np
 from numpy.random import normal, random
+from tensorflow.keras.models import load_model
 from build_graph import return_colour, return_legend
 from networkx.drawing.nx_agraph import graphviz_layout
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import tqdm
 
+print("--- Loading Next Topic Neural Network ---")
+NEXT_TOPIC_NN = load_model("../neuralnet/dense_next_topic.h5")
 
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
@@ -28,13 +31,15 @@ def possible_tweets(G, aUser, topic):
 
 
 def return_topic_distribution(posteriors, history_dict, k, p, tweet_thresh):
-    topic_distribution = np.full(k+1, p)
-    topic_distribution[-1] = tweet_thresh
+    history = np.fromiter(history_dict.values(), dtype=float)
+    history = history.reshape(1,len(history)) 
+    next_topic_distribution = NEXT_TOPIC_NN.predict(history).reshape(7)
+    next_topic_distribution = np.append(next_topic_distribution,[tweet_thresh])
     # go through each topic and do the bayes theorem stuff
-    return topic_distribution
+    return next_topic_distribution
 
 
-def stochastic_topic_graph(posteriors, n=5, tweet_dist=(1000, 300), k=7, m=60000, p=0.02, tweet_threshold=3, alpha=0.9):
+def stochastic_topic_graph(posteriors, n=5, tweet_dist=(1000, 300), k=7, m=60000, p=0.02, tweet_threshold=2, alpha=0.9):
     """
         Build a stochastic block model based off of the prior probability distributions of topic engagment.
         Parameters
@@ -92,6 +97,7 @@ def stochastic_topic_graph(posteriors, n=5, tweet_dist=(1000, 300), k=7, m=60000
 
     history_dict = dict((topic, 0) for topic in range(k))
     print("--- adding tweets ---")
+    #progress bar
     pbar = tqdm.tqdm(total=(m*m//2)+(m//2))
     for new_user in range(m):
         # add a new user
@@ -199,7 +205,10 @@ def stochastic_party_leader_graph(posteriors, n=5, tweet_dist=(1000, 100), k=7, 
     """
     pass
 
+def stochastic_hybrid_graph():
+    pass
+
 
 if __name__ == "__main__":
-    G = stochastic_topic_graph(None, n=5, m=1000)
+    G = stochastic_topic_graph(None,tweet_dist=(100,1), n=4, m=100)
     draw_graph(G)
