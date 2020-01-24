@@ -22,7 +22,7 @@ def centrality_per_topic(G, username=None, measure='mean'):
         :param measure: `optional` Options are ('mean','sum','zscore'). Choooses how to represent the aggregate zscores
     """
     assert (measure in ["mean","sum","zscore"]), "Unknown measure used, must be one of mean, sum, or zscore."
-    netx_graph = G.G.copy()
+    netx_graph = G.copy()
     # centrality = nx.eigenvector_centrality_numpy(netx_graph)
     centrality = nx.eigenvector_centrality_numpy(netx_graph)
     topic_centrality = dict((topic, []) for topic in range(NUM_TOPICS))
@@ -124,7 +124,7 @@ def plot_dual_centralities(overall_net_cent, individaul_cents, expand=False, use
 if __name__ == "__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else [
         "JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-    G = Graph(usernames, n=10)
+    G = Graph(usernames, n=10).G
     sum_overall_topic_centralities = centrality_per_topic(G, measure='sum')
     mean_overall_topic_centralities = centrality_per_topic(G, measure='mean')
     zscore_overall_topic_centralities = centrality_per_topic(
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     mean_leader_cents = []
     zscore_leader_cents = []
     for username in usernames:
-        singl_leader_g = Graph([username])
+        singl_leader_g = Graph([username]).G
         sum_leader_cents.append(centrality_per_topic(
             singl_leader_g, measure='sum'))
         mean_leader_cents.append(centrality_per_topic(
