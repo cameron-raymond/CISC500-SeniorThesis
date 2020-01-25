@@ -6,9 +6,7 @@ from numpy import log10
 import numpy as np
 
 NUM_TOPICS = 7
-COLOURS = ["#006816", "#8d34e4", "#c9a738", "#0163d0", "#ee5700",
-           "#00937e", "#ff4284", "#4b5400", "#ea80ff", "#9f0040"]
-
+COLOURS = ["#006816", "#8d34e4", "#c9a738", "#0163d0", "#ee5700", "#00937e", "#ff4284", "#4b5400", "#ea80ff", "#9f0040"]
 
 def centrality_per_topic(G, username=None, measure='mean'):
     """

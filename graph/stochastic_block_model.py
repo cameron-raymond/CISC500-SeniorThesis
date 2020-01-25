@@ -278,16 +278,16 @@ Retweets Per Retweeter:  2.8    (epochs*(1-tweet_threshold)=2.8)
 Retweets Per Tweet: 14.9        (tweet_dist*m = 14.9)
 """
 if __name__ == "__main__":
-    tweet_dist = (40,5)
+    tweet_dist = (500,100)
     n=5
     # m=447
     # epochs=10
     # tweet_threshold=0.3
     # epsilon=0.99
-    m=200
+    m=7450
     epochs=20
     tweet_threshold=0.8
-    epsilon=0.95
+    epsilon=0.80
     party_title="stochastic_party_leader_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
     party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
     draw_graph(party_G,save=True,title=party_title)
