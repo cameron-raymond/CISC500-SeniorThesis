@@ -269,16 +269,16 @@ def stochastic_hybrid_graph():
 
 
 """
-Retweet Data
+Twitter Data
     * Num Tweets:           4416
     * Num Retweet Users:    23754
     * Num Total Retweets:   65897
 
 Retweets Per Retweeter:  2.8    (epochs*(1-tweet_threshold)=2.8)
-Retweets Per Tweet: 14.9        (tweet_dist*m = 14.9)
+Retweeters Per Tweet: 5.37        (m/tweet_dist = 5.37)
 """
 if __name__ == "__main__":
-    tweet_dist = (500,100)
+    tweet_dist = (93,0)
     n=5
     # m=447
     # epochs=10
