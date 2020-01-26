@@ -153,26 +153,26 @@ def draw_graph(G, save=False, title="stochastic_block_graph",file_type='png',tra
         attributes = G.nodes[node]
         if 'type' in attributes:
             if attributes['type'] == 'retweet':
-                colors.append('#79bfd3ff') if not transparent else "white"
+                colors.append('#79bfd3ff') if not transparent else colors.append("white")
             elif attributes['type'] == 'tweet':
                 cluster = return_colour(attributes["lda_cluster"])
                 legend.add(cluster)
                 colors.append(cluster[0])
             elif attributes['type'] == 'user':
                 labels[node] = node
-                colors.append('red') if not transparent else "white"
+                colors.append('red') if not transparent else colors.append("white")
         pbar.update(1)
     pbar.close()
     plt.figure(figsize=(30, 30))
     pos = graphviz_layout(G, prog="sfdp")
     print("--- Drawing {} nodes and {} edges ---".format(len(G.nodes()),
                                                          G.number_of_edges()))
-    width = 0.3 if not transparent else o
+    width = 0.3 if not transparent else 0
     nx.draw(G, pos,
             node_color=colors,
             with_labels=False,
             alpha=0.75,
-            node_size=8,
+            node_size=200,
             width=width,
             arrows=False
             )
@@ -294,7 +294,12 @@ if __name__ == "__main__":
     party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
     draw_graph(party_G,save=True,title=party_title)
     party_title="transparent_stochastic_party_leader_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
-    draw_graph(party_G,save=True,title=party_title)
+    draw_graph(party_G,save=True,title=party_title,transparent=True)
+    topic_title="stochastic_topic_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
+    topic_G = stochastic_topic_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
+    draw_graph(topic_G,save=True,title=topic_title)
+    topic_title="transparent_stochastic_topic_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
+    draw_graph(topic_G,save=True,title=topic_title,transparent=True)
     # topic_G = stochastic_topic_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
     # topic_title="stochastic_topic_tweet_dist={}_m={}_epsilon={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epsilon,epochs,tweet_threshold)
     # draw_graph(topic_G,save=True,title=topic_title)
