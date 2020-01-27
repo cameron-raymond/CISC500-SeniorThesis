@@ -14,6 +14,7 @@ class Retweet_Grabber(object):
 
 	def get_old_retweets(self):
 		tweet_file_path		= "../data/{}_data.csv".format(self.screen_name)
+		assert os.path.exists(tweet_file_path), "Tweets must be collected and placed in /data folder before retweets can be collected."
 		tweet_df = pd.read_csv(tweet_file_path)
 		exists = os.path.exists(self.file_path)
 		old_retweets = pd.DataFrame(columns=RETWEET_COLS)
@@ -30,7 +31,6 @@ class Retweet_Grabber(object):
 	def put_tweets(self):
 		screen_name = self.screen_name
 		self.get_user_retweets()
-		# assert self. TODO assert so that number of unique "original_tweet_id"s is == to the number of tweets in the df (- the ones that don't have any retweets)
 		write_to_file(self.file_path,self.retweet_df)
 		print("--- done for {} ---".format(screen_name))
 
@@ -50,10 +50,7 @@ class Retweet_Grabber(object):
 		pbar.close()
 		self.retweet_df.drop(self.retweet_df.loc[self.retweet_df['original_author']==screen_name].index, inplace=True)
 	
-	# TODO Find way to get more than 100 retweets
 	def get_retweets(self,tweet_id):
-		#Twitter only allows access to a users most recent 3240 tweets with this method
-		#authorize twitter, initialize tweepy
 		tweets 		= api.retweets(id=tweet_id,tweet_mode='extended')
 		retweet_df = pd.DataFrame(columns=RETWEET_COLS)
 		for tweet in tweets:

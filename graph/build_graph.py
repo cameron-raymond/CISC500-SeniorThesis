@@ -65,16 +65,16 @@ class Graph(object):
         pbar = tqdm.tqdm(total=len(G.nodes()))
         for node in G.nodes():
             attributes = G.nodes[node]
-            if 'type' in attributes:
-                if attributes['type'] == 'retweet':
-                    colors.append('#79BFD3')
-                elif attributes['type'] == 'tweet':
-                    cluster = self.__return_colour(attributes["lda_cluster"])
-                    legend.add(cluster)
-                    colors.append(cluster[0])
-                elif attributes['type'] == 'user':
-                    labels[node] = node
-                    colors.append('red')
+            assert 'type' in attributes, "Type is a required attribute for any vertex in this graph."
+            if attributes['type'] == 'retweet':
+                colors.append('#79BFD3')
+            elif attributes['type'] == 'tweet':
+                cluster = self.__return_colour(attributes["lda_cluster"])
+                legend.add(cluster)
+                colors.append(cluster[0])
+            elif attributes['type'] == 'user':
+                labels[node] = node
+                colors.append('red')
             pbar.update(1)
         pbar.close()
         plt.figure(figsize=(30, 30))
@@ -92,8 +92,8 @@ class Graph(object):
                 node_color=colors,
                 with_labels=False,
                 alpha=0.75,
-                node_size=8,
-                width=0.3,
+                node_size=20,
+                width=0.2,
                 arrows=False
                 )
         if use_pos: plt.axis( [ _xlim[0], _xlim[1], _ylim[0], _ylim[1] ] )
@@ -109,6 +109,7 @@ class Graph(object):
         twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
         if n:
             twitter_df = twitter_df.sample(n=min(n, len(twitter_df)), random_state=4)
+        # twitter_df = twitter_df.set_index('id')
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
         # if we're only taking 20 tweets find all the retweets for those 20
         retweet_df = retweet_df[retweet_df['original_tweet_id'].isin(
@@ -117,8 +118,7 @@ class Graph(object):
         G = nx.Graph()
         G.add_node(username, type='user')
         # add tweet nodes
-        # nodes = twitter_df.set_index('id').to_dict('index').items()
-        nodes = twitter_df.to_dict('index').items()
+        nodes = twitter_df.drop_duplicates(subset="id").set_index('id').to_dict('index').items()
         G.add_nodes_from(nodes)
         print("--- adding edges ---")
         pbar = tqdm.tqdm(total=len(twitter_df)+len(retweet_df))
@@ -172,8 +172,8 @@ class Graph(object):
 if __name__ == '__main__':
     # Read in CSV file for that twitter user (these are the original tweets)
     topics = range(0,8)
-    G = Graph(sys.argv[1:],n=1000)
-    G.draw_graph()
+    G = Graph(sys.argv[1:],n=10)
+    G.draw_graph(save=True)
     # G.draw_graph(save=True,use_pos=True)
     # for i in topics:
     #     removed = G.map_topics([i])
