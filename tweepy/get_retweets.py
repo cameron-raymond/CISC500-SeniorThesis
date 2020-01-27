@@ -18,9 +18,12 @@ class Retweet_Grabber(object):
 		exists = os.path.exists(self.file_path)
 		old_retweets = pd.DataFrame(columns=RETWEET_COLS)
 		if exists:
-			old_retweets = pd.read_csv(self.file_path)	
-			tweet_df = tweet_df[(~tweet_df["id"].isin(old_retweets["original_tweet_id"])) & tweet_df["retweet_count"]!=0]
-			print("--- {} retweets already collected, only collecting {} now ---".format(len(old_retweets["original_tweet_id"].unique()),tweet_df.shape[0]))		
+			total_tweets = tweet_df.shape[0]
+			old_retweets = pd.read_csv(self.file_path)
+			already_collected = pd.merge(tweet_df, old_retweets, how='inner', left_on='id', right_on='original_tweet_id')["id"].unique()
+			to_collect = tweet_df[~tweet_df["id"].isin(old_retweets["original_tweet_id"])].dropna()
+			print("--- {}: total tweets. {} retweets already collected, only collecting {} now ---".format(total_tweets,len(already_collected),to_collect.shape[0]))		
+			return to_collect,old_retweets,to_collect.shape[0]
 		num_tweets = tweet_df.shape[0]
 		return tweet_df,old_retweets,num_tweets
 
