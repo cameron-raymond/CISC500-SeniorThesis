@@ -3,6 +3,7 @@ import os
 import gensim
 import gensim.corpora as corpora
 from gensim.models import CoherenceModel
+from gensim.test.utils import datapath
 import pandas as pd
 import numpy as np
 import tqdm
@@ -208,8 +209,8 @@ if __name__ == "__main__":
     corpus, word_dict = create_bow(text_data)
     print("--- returning hyperparameters ---")
     min_topics = 4
-    max_topics = 8
-    coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=True)
+    max_topics = 7
+    coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False)
     # coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False,min_topics=min_topics,max_topics=max_topics)
     # Build LDA model
     print("--- Building model with coherence {:.3f} (Alpha: {:.2f}, Beta: {:0.2f}, Num Topics: {}) ---".format(coherence,alpha,beta,num_topics))
@@ -227,4 +228,6 @@ if __name__ == "__main__":
     coherence_model_lda = CoherenceModel(model=lda_model, texts=text_data, dictionary=word_dict, coherence='c_v')
     coherence_lda = coherence_model_lda.get_coherence()
     print('\nCoherence Score: {}'.format(coherence_lda))
+    temp_file = datapath("./gensimmodel/gensim_lda")
+    lda_model.save(temp_file)
 

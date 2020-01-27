@@ -42,3 +42,4 @@ thesisEnv/
 .Trashes
 ehthumbs.db
 Thumbs.db
+tweepy/historical_search_test/search_tweets_creds.yaml

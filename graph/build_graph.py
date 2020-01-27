@@ -117,7 +117,8 @@ class Graph(object):
         G = nx.Graph()
         G.add_node(username, type='user')
         # add tweet nodes
-        nodes = twitter_df.set_index('id').to_dict('index').items()
+        # nodes = twitter_df.set_index('id').to_dict('index').items()
+        nodes = twitter_df.to_dict('index').items()
         G.add_nodes_from(nodes)
         print("--- adding edges ---")
         pbar = tqdm.tqdm(total=len(twitter_df)+len(retweet_df))
