@@ -6,7 +6,6 @@ import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.stem import WordNetLemmatizer 
 from nltk.corpus import stopwords
-from tweet_config import COLS
 import emoji
 import ssl
 try:

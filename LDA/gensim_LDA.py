@@ -181,16 +181,13 @@ def add_cluster(username,lda_model,word_dict):
     csvFile = open(file_path, 'w' ,encoding='utf-8')
     timeline_df.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
 
-# if __name__ == "__main__":
-#     min_topics = 4
-#     max_topics = 8
-#     for i in range(min_topics,max_topics):
-#         vis_coherence_surface("lda_tuning_results.csv",topics=i)
+
 if __name__ == "__main__":
     # Put all of the party leaders into one data frame
     usernames = sys.argv[1:]
     frames = []
     for username in usernames:
+        print(username)
         file_path = "../data/{}_data.csv".format(username)
         timeline_df = pd.read_csv(file_path)
         print("Number of Tweets for {} is {}".format(username, len(timeline_df)))
@@ -210,7 +207,7 @@ if __name__ == "__main__":
     print("--- returning hyperparameters ---")
     min_topics = 4
     max_topics = 7
-    coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False)
+    coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=True)
     # coherence,alpha,beta,num_topics = return_hyperparams(corpus, word_dict, text_data,use_existing=False,min_topics=min_topics,max_topics=max_topics)
     # Build LDA model
     print("--- Building model with coherence {:.3f} (Alpha: {:.2f}, Beta: {:0.2f}, Num Topics: {}) ---".format(coherence,alpha,beta,num_topics))
@@ -221,13 +218,13 @@ if __name__ == "__main__":
         add_cluster(username,lda_model,word_dict)
         pbar.update(1)
     pbar.close()
-    for i in range(min_topics,max_topics):
-        vis_coherence_surface("lda_tuning_results.csv",topics=i)
-    for idx, topic in lda_model.print_topics(-1):
-        print('Topic: {} \nWords: {}'.format(idx, topic))
-    coherence_model_lda = CoherenceModel(model=lda_model, texts=text_data, dictionary=word_dict, coherence='c_v')
-    coherence_lda = coherence_model_lda.get_coherence()
-    print('\nCoherence Score: {}'.format(coherence_lda))
-    temp_file = datapath("./gensimmodel/gensim_lda")
-    lda_model.save(temp_file)
+    # for i in range(min_topics,max_topics):
+    #     vis_coherence_surface("lda_tuning_results.csv",topics=i)
+    # for idx, topic in lda_model.print_topics(-1):
+    #     print('Topic: {} \nWords: {}'.format(idx, topic))
+    # coherence_model_lda = CoherenceModel(model=lda_model, texts=text_data, dictionary=word_dict, coherence='c_v')
+    # coherence_lda = coherence_model_lda.get_coherence()
+    # print('\nCoherence Score: {}'.format(coherence_lda))
+    # temp_file = datapath("./gensimmodel/gensim_lda")
+    # lda_model.save(temp_file)
 
