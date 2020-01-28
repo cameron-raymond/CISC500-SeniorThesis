@@ -4,10 +4,13 @@ import tqdm
 from get_user_tweets import write_to_file
 from tweet_config import * 
 import pandas as pd
+from datetime import datetime, date
 import tweepy
 
 class Retweet_Grabber(object):
 	def __init__(self, screen_name, *args, **kwargs):
+		self.__START_DATE = date(2018, 10, 21)
+		self.__END_DATE =   date(2020, 1, 1)
 		self.screen_name = screen_name	
 		self.file_path =  "../data/{}_retweets.csv".format(screen_name)
 		self.tweet_ids, self.retweet_df, self.num_tweets = self.get_old_retweets()	
@@ -31,6 +34,9 @@ class Retweet_Grabber(object):
 	def put_tweets(self):
 		screen_name = self.screen_name
 		self.get_user_retweets()
+		self.retweet_df["date"] = pd.to_datetime(self.retweet_df['created_at']).dt.date
+		self.retweet_df = self.retweet_df[self.retweet_df["date"] >= self.__START_DATE]
+		self.retweet_df = self.retweet_df.drop("date",axis=1)
 		write_to_file(self.file_path,self.retweet_df)
 		print("--- done for {} ---".format(screen_name))
 
@@ -42,7 +48,7 @@ class Retweet_Grabber(object):
 			tweet_id = row['id']
 			retweets = self.get_retweets(tweet_id)
 			self.retweet_df = self.retweet_df.append(retweets)
-			if index % (self.num_tweets//10) == 0:
+			if index % 74 == 0:
 				print("\t> writing tweets")
 				write_to_file(self.file_path,self.retweet_df)
 			index += 1
