@@ -1,6 +1,5 @@
 # Secrets #
 cred.py
-tweepy/historical_search/search_tweets_creds.yaml
 
 # Folders #
 data/
