@@ -1,5 +1,6 @@
 # Secrets #
 cred.py
+tweepy/historical_search/search_tweets_creds.yaml
 
 # Folders #
 data/
@@ -42,4 +43,3 @@ thesisEnv/
 .Trashes
 ehthumbs.db
 Thumbs.db
-tweepy/historical_search_test/search_tweets_creds.yaml
