@@ -291,7 +291,7 @@ if __name__ == "__main__":
     m=914
     epochs=5
     tweet_threshold=0.37
-    epsilon=0.90
+    epsilon=0.95
     # party_title="stochastic_party_leader_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
     # party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
     # draw_graph(party_G,save=True,title=party_title)
