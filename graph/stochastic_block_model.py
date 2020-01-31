@@ -9,14 +9,12 @@ from matplotlib.lines import Line2D
 import tqdm
 from centrality_measures import centrality_per_topic, plot_dual_centralities
 
-
 def softmax(x):
     """
         Compute softmax values for each sets of scores in x.
     """
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=0)  # only difference
-
 
 def possible_tweets(G, aUser, topic=None, leader=None):
     """
@@ -40,7 +38,6 @@ def possible_tweets(G, aUser, topic=None, leader=None):
                 possible_tweets.append(node)
     return possible_tweets
 
-
 def predict_next_retweet(history, model, use_model=True):
     next_decision_distribution = history + np.full(history.shape, 1)
     if use_model:
@@ -49,7 +46,6 @@ def predict_next_retweet(history, model, use_model=True):
             history).reshape(history.shape[1])
     # Squish it using softmax to make it a probability distribution.
     return softmax(next_decision_distribution)
-
 
 def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.95, epochs=2.5):
     """
@@ -146,8 +142,7 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
     pbar.close()
     return G
 
-
-def draw_graph(G, save=False, title="stochastic_block_graph", file_type='png', transparent=False, label="Stochastic Block Model"):
+def draw_graph(G, save=False, file_name="stochastic_block_graph", file_type='png', transparent=False, title="Stochastic Block Model"):
     """
     Handles rendering and drawing the network.
     Parameters
@@ -197,9 +192,10 @@ def draw_graph(G, save=False, title="stochastic_block_graph", file_type='png', t
                      )
     nx.draw_networkx_labels(G, pos, labels, font_size=16, font_color='r')
     plt.legend(handles=return_legend(legend), loc="best")
-    plt.title(label, fontdict={'fontsize': 30})
-    plt.savefig("../visualizations/random_graphs/{}.{}".format(title,file_type),bbox_inches="tight",transparent=True) if save else plt.show()
-
+    plt.title(title, fontdict={'fontsize': 30})
+    # Turn off borders
+    plt.box(False)
+    plt.savefig("../visualizations/random_graphs/{}.{}".format(file_name,file_type),bbox_inches="tight") if save else plt.show()
 
 def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.9, epochs=2.5):
     """
@@ -298,7 +294,6 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
             break
     pbar.close()
     return G
-
 
 def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.4, epsilon=0.9, epochs=5):
     """
@@ -438,21 +433,21 @@ if __name__ == "__main__":
     m = 914
     epochs = 7
     tweet_threshold = 0.37
-    epsilon = 0.85
+    epsilon = 0.9
     alpha = 0.8
-    # party_title="stochastic_party_leader_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
+    # party_file_name="stochastic_party_leader_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
     # party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
-    # draw_graph(party_G,save=True,title=party_title)
-    # topic_title="stochastic_topic_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
+    # draw_graph(party_G,save=True,file_name=party_file_name)
+    # topic_file_name="stochastic_topic_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
     # topic_G = stochastic_topic_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
-    # draw_graph(topic_G,save=True,title=topic_title)
-    hybrid_title = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(
+    # draw_graph(topic_G,save=True,file_name=topic_file_name)
+    hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(
         alpha, tweet_dist, m, epochs, tweet_threshold)
     hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,
                                        m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
-    draw_graph(hybrid_G, save=True, title=hybrid_title,
-               label="Hybrid Graph. Alpha={}".format(alpha))
-    draw_graph(hybrid_G, save=True, title="transparent_"+hybrid_title,
-               transparent=True, label="Hybrid Model. Alpha={}".format(alpha))
+    draw_graph(hybrid_G, save=True, file_name=hybrid_file_name,
+               title="Hybrid Graph. Alpha={}".format(alpha))
+    draw_graph(hybrid_G, save=True, file_name="transparent_"+hybrid_file_name,
+               transparent=True, title="Hybrid Model. Alpha={}".format(alpha))
     # party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
     # draw_graph(party_G)
