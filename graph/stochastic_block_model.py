@@ -277,8 +277,7 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
                 history, NEXT_LEADER_NN, use_model=True)
             winning_leader = np.random.choice(leaders, p=leader_distribution)
             if np.random.random() < epsilon and not np.all(history == 0):
-                arg_maxes = np.flatnonzero(
-                    leader_distribution == leader_distribution.max())
+                arg_maxes = np.flatnonzero(leader_distribution == leader_distribution.max())
                 winning_leader = np.random.choice(arg_maxes)
             pos_tweets = possible_tweets(G, username, leader=winning_leader)
             odds = np.random.random()
@@ -348,8 +347,7 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
 
     print("--- Adding party leader tweets ---")
     for user in range(n):
-        num_tweets = max(
-            int(normal(loc=tweet_dist[0], scale=tweet_dist[1])), 1)
+        num_tweets = max(int(normal(loc=tweet_dist[0], scale=tweet_dist[1])), 1)
         topic_distribution = softmax([random() for i in range(k)])
         # here, a= are the topic numbers [0...6] and p is the probability of choosing tweet a
         tweets = np.random.choice(
@@ -369,8 +367,7 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
     for new_user in range(m):
         # add a new user
         username = "user_{}".format(new_user)
-        G.add_node(username, type="retweet",
-                   topic_history=topic_history, leader_history=leader_history)
+        G.add_node(username, type="retweet",topic_history=topic_history, leader_history=leader_history)
     pbar = tqdm.tqdm(total=m*epochs)
     topic_leader = [i for i in range(n*k)]
     for _ in range(epochs):
@@ -381,26 +378,25 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
             topic_history = G.nodes()[username]["topic_history"].copy()
             leader_history = G.nodes()[username]["leader_history"].copy()
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
-            topic_distribution = predict_next_retweet(
-                topic_history, NEXT_TOPIC_NN, use_model=True).reshape((1, k))
-            leader_distribution = predict_next_retweet(
-                leader_history, NEXT_LEADER_NN, use_model=True).reshape((1, n))
+            topic_distribution = predict_next_retweet(topic_history, NEXT_TOPIC_NN, use_model=False).reshape((1, k))
+            leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=False).reshape((1, n))
             topic_distribution *= (1-alpha)
             leader_distribution *= alpha
+            # normalize 
+            if k>n:
+                topic_distribution *= (k/n)
+            else:
+                leader_distribution *= (n/k)
             # Add the weighted distributions together. Element (i,j) in this
             # matrix means the weight of choosing a tweet about topic i from party leader j
             topic_leader_matrix = topic_distribution.T+leader_distribution
             flattened_topic_leader = softmax(topic_leader_matrix.reshape(n*k))
-            topic_leader_ind = np.random.choice(
-                topic_leader, p=flattened_topic_leader)
+            topic_leader_ind = np.random.choice(topic_leader, p=flattened_topic_leader)
             if np.random.random() < epsilon and not np.all(topic_history == 0) and not np.all(leader_history == 0):
-                arg_maxes = np.flatnonzero(
-                    flattened_topic_leader == flattened_topic_leader.max())
+                arg_maxes = np.flatnonzero(np.abs(flattened_topic_leader - flattened_topic_leader.max()) < 0.0035)
                 topic_leader_ind = np.random.choice(arg_maxes)
-            winning_topic, winning_leader = np.unravel_index(
-                topic_leader_ind, (7, 5))
-            pos_tweets = possible_tweets(
-                G, username, leader=winning_leader, topic=winning_topic)
+            winning_topic, winning_leader = np.unravel_index(topic_leader_ind, (k, n))
+            pos_tweets = possible_tweets(G, username, leader=winning_leader, topic=winning_topic)
             odds = np.random.random()
             if len(pos_tweets) > 0 and odds > tweet_threshold:
                 # print(winning_leader,leader_distribution)
@@ -417,6 +413,24 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
     pbar.close()
     return G
 
+if __name__ == "__main__":
+    tweet_dist = (100, 35)
+    n       = 5
+    m       = 476
+    epochs  = 9
+    tweet_threshold = 0.37
+    epsilon = 0.95
+    # alpha = 0.3
+    # hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
+    # hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
+    # draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
+    for alpha in np.round(np.arange(1,-0.001,-0.01),3).tolist():
+        print("--- alpha {} --".format(alpha))
+        hybrid_file_name = "stochastic_hybrid_graph_alpha={:.2f}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
+        print(hybrid_file_name)
+        hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
+        draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
+   
 
 """
 Twitter Data
@@ -427,27 +441,25 @@ Twitter Data
 Retweets Per Retweeter: 3.11       (epochs*(1-tweet_threshold)=3.11)
 Retweeters Per Tweet:   4.57       (m/tweet_dist = 4.57)
 """
-if __name__ == "__main__":
-    tweet_dist = (200, 70)
-    n = 5
-    m = 914
-    epochs = 7
-    tweet_threshold = 0.37
-    epsilon = 0.9
-    alpha = 0.8
-    # party_file_name="stochastic_party_leader_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
-    # party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
-    # draw_graph(party_G,save=True,file_name=party_file_name)
-    # topic_file_name="stochastic_topic_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
-    # topic_G = stochastic_topic_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
-    # draw_graph(topic_G,save=True,file_name=topic_file_name)
-    hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(
-        alpha, tweet_dist, m, epochs, tweet_threshold)
-    hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,
-                                       m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
-    draw_graph(hybrid_G, save=True, file_name=hybrid_file_name,
-               title="Hybrid Graph. Alpha={}".format(alpha))
-    draw_graph(hybrid_G, save=True, file_name="transparent_"+hybrid_file_name,
-               transparent=True, title="Hybrid Model. Alpha={}".format(alpha))
-    # party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
-    # draw_graph(party_G)
+# if __name__ == "__main__":
+#     # tweet_dist = (200, 70)
+#     tweet_dist = (100, 35)
+#     n       = 5
+#     m       = 914
+#     epochs  = 9
+#     tweet_threshold = 0.37
+#     epsilon = 0.9
+#     party_file_name="stochastic_party_leader_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
+#     party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
+#     draw_graph(party_G,save=True,file_name=party_file_name)
+#     topic_file_name="stochastic_topic_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
+#     topic_G = stochastic_topic_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
+#     draw_graph(topic_G,save=True,file_name=topic_file_name)
+#     for alpha in np.round(np.arange(1,-0.01,-0.1),3).tolist():
+#         print("--- alpha {} --".format(alpha))
+#         hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
+#         hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
+#         draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
+#     draw_graph(hybrid_G, save=True, file_name="transparent_"+hybrid_file_name,transparent=True, title="Hybrid Model. Alpha={}".format(alpha))
+#     party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
+#     draw_graph(party_G)

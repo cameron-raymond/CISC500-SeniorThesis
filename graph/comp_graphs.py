@@ -27,6 +27,8 @@ def log_bin_frequency(G,title="Log-Log Histogram Plot",type=None,G2=None):
     plt.show()
 
 
+# I feel like this is gonna be important 
+#L = nx.normalized_laplacian_matrix(G)
 
 if __name__ == "__main__":
     m = 3
