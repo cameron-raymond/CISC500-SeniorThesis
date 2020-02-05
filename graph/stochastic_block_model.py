@@ -378,8 +378,8 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
             topic_history = G.nodes()[username]["topic_history"].copy()
             leader_history = G.nodes()[username]["leader_history"].copy()
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
-            topic_distribution = predict_next_retweet(topic_history, NEXT_TOPIC_NN, use_model=False).reshape((1, k))
-            leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=False).reshape((1, n))
+            topic_distribution = predict_next_retweet(topic_history, NEXT_TOPIC_NN, use_model=True).reshape((1, k))
+            leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=True).reshape((1, n))
             topic_distribution *= (1-alpha)
             leader_distribution *= alpha
             # normalize 
