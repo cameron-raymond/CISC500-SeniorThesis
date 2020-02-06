@@ -47,28 +47,78 @@ def predict_next_retweet(history, model, use_model=True):
     # Squish it using softmax to make it a probability distribution.
     return softmax(next_decision_distribution)
 
+def init_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000):
+    topics = [i for i in range(k)]
+    G = nx.Graph()
+    for user in range(n):
+        G.add_node(user, type='user')
+
+    print("--- Adding party leader tweets ---")
+    for user in range(n):
+        num_tweets = max(int(normal(loc=tweet_dist[0], scale=tweet_dist[1])), 1)
+        topic_distribution = softmax([random() for i in range(k)])
+        # here, a= are the topic numbers [0...6] and p is the probability of choosing tweet a
+        tweets = np.random.choice(
+            a=topics, size=num_tweets, p=topic_distribution)
+        pbar = tqdm.tqdm(total=num_tweets)
+        for tweet, topic in enumerate(tweets):
+            node = "{}_{}".format(user, tweet)
+            G.add_node(node, type="tweet", lda_cluster=topic)
+            G.add_edge(user, node)
+            pbar.update(1)
+        pbar.close()
+
+    # initialize the probability array
+    topic_history = np.zeros(k)
+    leader_history = np.zeros(n)
+    print("--- adding tweets ---")
+    # progress bar
+    for new_user in range(m):
+        # add a new user
+        username = "user_{}".format(new_user)
+        G.add_node(username, type="retweet",topic_history=topic_history, leader_history=leader_history)
+    return G
+    
 def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.95, epochs=2.5):
     """
         Build a stochastic block model based off of the prior probability distributions of topic engagment.
         Parameters
         ----------
-        :param posteriors: A list of prior observations as to how retweeters have behaved. 
+        :param posteriors: 
+        
+        A list of prior observations as to how retweeters have behaved. 
 
-        :param n: The number of "party leaders"
+        :param n: 
+        
+        The number of "party leaders"
 
-        :param tweet_dist: A tuple where the first element is the mean number of tweets per tweeter, and the second element is the standard deviation of tweets.
+        :param tweet_dist: 
+        
+        A tuple where the first element is the mean number of tweets per tweeter, and the second element is the standard deviation of tweets.
 
-        :param k: The number of topics that a tweeter might tweet about.
+        :param k: 
+        
+        The number of topics that a tweeter might tweet about.
 
-        :param m: The max number of retweeters in the system. 
+        :param m: 
+        
+        The max number of retweeters in the system. 
 
-        :param p: The default probability of a retweeter tweeting any tweet. 
+        :param p: 
+        
+        The default probability of a retweeter tweeting any tweet. 
 
-        :param tweet_threshold: A float on in the range [0..1]. A user will retweet any tweet this percent of the time.
+        :param tweet_threshold: 
+        
+        A float on in the range [0..1]. A user will retweet any tweet this percent of the time.
 
-        :param epsilon: Choose the highest activated result epsilon% of the time; (1-epsilon)% of the time use the probability distribution given to make a more random choice.  
+        :param epsilon: 
+        
+        Choose the highest activated result epsilon% of the time; (1-epsilon)% of the time use the probability distribution given to make a more random choice.  
 
-        :param epochs: How many times to give each user an opportunity to retweet something.
+        :param epochs: 
+        
+        How many times to give each user an opportunity to retweet something.
 
         Algorithm
         ---------
@@ -90,45 +140,19 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
     print("--- Loading Next Topic Neural Network ---")
     NEXT_TOPIC_NN = load_model("../neuralnet/dense_next_topic.h5")
     topics = [i for i in range(k)]
-    G = nx.Graph()
-    for user in range(n):
-        G.add_node(user, type='user')
-
-    print("--- Adding party leader tweets ---")
-    for user in range(n):
-        num_tweets = max(
-            int(normal(loc=tweet_dist[0], scale=tweet_dist[1])), 1)
-        topic_distribution = softmax([random() for i in range(k)])
-        # here, a= are the topic numbers [0...6] and p is the probability of choosing tweet a
-        tweets = np.random.choice(
-            a=topics, size=num_tweets, p=topic_distribution)
-        pbar = tqdm.tqdm(total=num_tweets)
-        for tweet, topic in enumerate(tweets):
-            node = "{}_{}".format(user, tweet)
-            G.add_node(node, type="tweet", lda_cluster=topic)
-            G.add_edge(user, node)
-            pbar.update(1)
-        pbar.close()
-
-    history = np.zeros(k)
-    print("--- adding tweets ---")
-    # progress bar
-    for new_user in range(m):
-        # add a new user
-        username = "user_{}".format(new_user)
-        G.add_node(username, type="retweet", history=history)
+    G = init_graph(n,tweet_dist,k,m)
     # initialize the probability array
     pbar = tqdm.tqdm(total=m*epochs)
     for _ in range(epochs):
         for j in range(m):
             pbar.update(1)
             username = "user_{}".format(j)
-            history = G.nodes()[username]["history"].copy()
+            topic_history = G.nodes()[username]["topic_history"].copy()
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
             topic_distribution = predict_next_retweet(
-                history, NEXT_TOPIC_NN, use_model=True)
+                topic_history, NEXT_TOPIC_NN, use_model=True)
             winning_topic = np.random.choice(topics, p=topic_distribution)
-            if np.random.random() < epsilon and not np.all(history == 0):
+            if np.random.random() < epsilon and not np.all(topic_history == 0):
                 arg_maxes = np.flatnonzero(
                     topic_distribution == topic_distribution.max())
                 winning_topic = np.random.choice(arg_maxes)
@@ -136,8 +160,8 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
             pos_tweets = possible_tweets(G, username, topic=winning_topic)
             if len(pos_tweets) > 0 and odds > tweet_threshold:
                 winning_tweet = np.random.choice(pos_tweets)
-                history[winning_topic] += 1
-                G.nodes[username]["history"] = history
+                topic_history[winning_topic] += 1
+                G.nodes[username]["topic_history"] = topic_history
                 G.add_edge(winning_tweet, username)
     pbar.close()
     return G
@@ -147,13 +171,21 @@ def draw_graph(G, save=False, file_name="stochastic_block_graph", file_type='png
     Handles rendering and drawing the network.
     Parameters
     ----------
-    :param G: `optional` a networkx graph. If present draws this graph instead of the one built in the constructor.
+    :param G: `optional` 
+    
+    a networkx graph. If present draws this graph instead of the one built in the constructor.
 
-    :param save: `optional` A boolean. If true saves an image of the graph to `/visualizations` otherwise renders the graph.
+    :param save: `optional` 
+    
+    A boolean. If true saves an image of the graph to `/visualizations` otherwise renders the graph.
 
-    :param file_type: `optional` A string. If save flag is true it saves graph with this file extension.
+    :param file_type: `optional` 
+    
+    A string. If save flag is true it saves graph with this file extension.
 
-    :param transparent: `optional` A Boolean. If true it only renders the tweet's; no edges or user nodes.
+    :param transparent: `optional` 
+    
+    A Boolean. If true it only renders the tweet's; no edges or user nodes.
     """
     print("--- Adding colours and labels ---")
     colors = []
@@ -202,19 +234,33 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
         Build a stochastic block model based o00 of the prior probability distributions of topic engagment.
         Parameters
         ----------
-        :param n: The number of "party leaders"
+        :param n: 
+        
+        The number of "party leaders"
 
-        :param tweet_dist: A tuple where the first element is the mean number of tweets per tweeter, and the second element is the standard deviation of tweets.
+        :param tweet_dist: 
+        
+        A tuple where the first element is the mean number of tweets per tweeter, and the second element is the standard deviation of tweets.
 
-        :param k: The number of topics that a tweeter might tweet about.
+        :param k: 
+        
+        The number of topics that a tweeter might tweet about.
 
-        :param m: The max number of retweeters in the system. 
+        :param m: 
+        
+        The max number of retweeters in the system. 
 
-        :param tweet_threshold: A float on in the range [0..1]. A user will retweet any tweet this percent of the time.
+        :param tweet_threshold: 
+        
+        A float on in the range [0..1]. A user will retweet any tweet this percent of the time.
 
-        :param epsilon: What % of the time you will choose the highest activated leader from the ANN.
+        :param epsilon: 
+        
+        What % of the time you will choose the highest activated leader from the ANN.
 
-        :param epochs: How many times to give each user an opportunity to retweet something.
+        :param epochs: 
+        
+        How many times to give each user an opportunity to retweet something.
 
         Algorithm
         ---------
@@ -237,46 +283,18 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
     # Add an extra element in the topics array that when selected the user doesn't retweet anything.
     topics = [i for i in range(k)]
     leaders = [i for i in range(n)]
-    G = nx.Graph()
-    for user in leaders:
-        G.add_node(user, type='user')
-
-    print("--- Adding party leader tweets ---")
-    for user in range(n):
-        num_tweets = max(
-            int(normal(loc=tweet_dist[0], scale=tweet_dist[1])), 1)
-        leader_distribution = softmax([random() for i in range(k)])
-        # here, a= are the topic numbers [0...6] and p is the probability of choosing tweet a
-        tweets = np.random.choice(
-            a=topics, size=num_tweets, p=leader_distribution)
-        pbar = tqdm.tqdm(total=num_tweets)
-        for tweet, topic in enumerate(tweets):
-            node = "{}_{}".format(user, tweet)
-            G.add_node(node, type="tweet", lda_cluster=topic)
-            G.add_edge(user, node)
-            pbar.update(1)
-        pbar.close()
-    # Create an array where each element
-    history = np.zeros(n)
-    print("--- adding tweets ---")
-    # progress bar
-    for new_user in range(m):
-        # add a new user
-        username = "user_{}".format(new_user)
-        G.add_node(username, type="retweet", history=history)
-        # initialize the probability array
+    G = init_graph(n,tweet_dist,k,m)
     pbar = tqdm.tqdm(total=m*epochs)
     for _ in range(epochs):
         edges_added = 0
         for j in range(m):
             pbar.update(1)
             username = "user_{}".format(j)
-            history = G.nodes()[username]["history"].copy()
+            leader_history = G.nodes()[username]["leader_history"].copy()
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
-            leader_distribution = predict_next_retweet(
-                history, NEXT_LEADER_NN, use_model=True)
+            leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=True)
             winning_leader = np.random.choice(leaders, p=leader_distribution)
-            if np.random.random() < epsilon and not np.all(history == 0):
+            if np.random.random() < epsilon and not np.all(leader_history == 0):
                 arg_maxes = np.flatnonzero(leader_distribution == leader_distribution.max())
                 winning_leader = np.random.choice(arg_maxes)
             pos_tweets = possible_tweets(G, username, leader=winning_leader)
@@ -284,8 +302,8 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
             if len(pos_tweets) > 0 and odds > tweet_threshold:
                 # print(winning_leader,leader_distribution)
                 winning_tweet = np.random.choice(pos_tweets)
-                history[winning_leader] += 1
-                G.nodes[username]["history"] = history
+                leader_history[winning_leader] += 1
+                G.nodes[username]["leader_history"] = leader_history
                 G.add_edge(winning_tweet, username)
                 edges_added += 1
         if not edges_added:
@@ -299,21 +317,37 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
         Build a stochastic block model based off of the prior probability distributions of topic and leader engagment.
         Parameters
         ----------
-        :param alpha: The proportionate weightings of the leader selection and the topic selection. alpha -> 1: model is equivalent to stochastic_party_leader_graph; alpha -> 0 model is equivalent to stochastic_topic_graph
+        :param alpha: 
+        
+        The proportionate weightings of the leader selection and the topic selection. alpha -> 1: model is equivalent to stochastic_party_leader_graph; alpha -> 0 model is equivalent to stochastic_topic_graph
 
-        :param n: The number of "party leaders"
+        :param n: 
+        
+        The number of "party leaders"
 
-        :param tweet_dist: A tuple where the first element is the mean number of tweets per tweeter, and the second element is the standard deviation of tweets.
+        :param tweet_dist: 
+        
+        A tuple where the first element is the mean number of tweets per tweeter, and the second element is the standard deviation of tweets.
 
-        :param k: The number of topics that a tweeter might tweet about.
+        :param k: 
+        
+        The number of topics that a tweeter might tweet about.
 
-        :param m: The max number of retweeters in the system. 
+        :param m: 
+        
+        The max number of retweeters in the system. 
 
-        :param tweet_threshold: A float on in the range [0..1]. A user will retweet any tweet this percent of the time.
+        :param tweet_threshold: 
+        
+        A float on in the range [0..1]. A user will retweet any tweet this percent of the time.
 
-        :param epsilon: What % of the time you will choose the highest activated leader from the ANN.
+        :param epsilon: 
+        
+        What % of the time you will choose the highest activated leader from the ANN.
 
-        :param epochs: How many times to give each user an opportunity to retweet something.
+        :param epochs: 
+        
+        How many times to give each user an opportunity to retweet something.
 
         Algorithm
         ---------
@@ -341,33 +375,7 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
     NEXT_LEADER_NN = load_model("../neuralnet/dense_next_leader.h5")
 
     topics = [i for i in range(k)]
-    G = nx.Graph()
-    for user in range(n):
-        G.add_node(user, type='user')
-
-    print("--- Adding party leader tweets ---")
-    for user in range(n):
-        num_tweets = max(int(normal(loc=tweet_dist[0], scale=tweet_dist[1])), 1)
-        topic_distribution = softmax([random() for i in range(k)])
-        # here, a= are the topic numbers [0...6] and p is the probability of choosing tweet a
-        tweets = np.random.choice(
-            a=topics, size=num_tweets, p=topic_distribution)
-        pbar = tqdm.tqdm(total=num_tweets)
-        for tweet, topic in enumerate(tweets):
-            node = "{}_{}".format(user, tweet)
-            G.add_node(node, type="tweet", lda_cluster=topic)
-            G.add_edge(user, node)
-            pbar.update(1)
-        pbar.close()
-    # initialize the probability array
-    topic_history = np.zeros(k)
-    leader_history = np.zeros(n)
-    print("--- adding tweets ---")
-    # progress bar
-    for new_user in range(m):
-        # add a new user
-        username = "user_{}".format(new_user)
-        G.add_node(username, type="retweet",topic_history=topic_history, leader_history=leader_history)
+    G = init_graph(n,tweet_dist,k,m)
     pbar = tqdm.tqdm(total=m*epochs)
     topic_leader = [i for i in range(n*k)]
     for _ in range(epochs):
@@ -393,7 +401,7 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
             flattened_topic_leader = softmax(topic_leader_matrix.reshape(n*k))
             topic_leader_ind = np.random.choice(topic_leader, p=flattened_topic_leader)
             if np.random.random() < epsilon and not np.all(topic_history == 0) and not np.all(leader_history == 0):
-                arg_maxes = np.flatnonzero(np.abs(flattened_topic_leader - flattened_topic_leader.max()) < 0.0035)
+                arg_maxes = np.flatnonzero(np.abs(flattened_topic_leader - flattened_topic_leader.max()) < 0.003)
                 topic_leader_ind = np.random.choice(arg_maxes)
             winning_topic, winning_leader = np.unravel_index(topic_leader_ind, (k, n))
             pos_tweets = possible_tweets(G, username, leader=winning_leader, topic=winning_topic)
@@ -413,23 +421,23 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
     pbar.close()
     return G
 
-if __name__ == "__main__":
-    tweet_dist = (100, 35)
-    n       = 5
-    m       = 476
-    epochs  = 9
-    tweet_threshold = 0.37
-    epsilon = 0.95
-    # alpha = 0.3
-    # hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
-    # hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
-    # draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
-    for alpha in np.round(np.arange(1,-0.001,-0.01),3).tolist():
-        print("--- alpha {} --".format(alpha))
-        hybrid_file_name = "stochastic_hybrid_graph_alpha={:.2f}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
-        print(hybrid_file_name)
-        hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
-        draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
+# if __name__ == "__main__":
+#     tweet_dist = (100, 35)
+#     n       = 5
+#     m       = 476
+#     epochs  = 9
+#     tweet_threshold = 0.37
+#     epsilon = 0.95
+#     alpha = 0.3
+#     hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
+#     hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
+#     draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
+#     for alpha in np.round(np.arange(1,0.01,-0.1),3).tolist():
+#         print("--- alpha {} --".format(alpha))
+#         hybrid_file_name = "stochastic_hybrid_graph_alpha={:.2f}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
+#         print(hybrid_file_name)
+#         hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
+#         draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
    
 
 """
@@ -441,20 +449,20 @@ Twitter Data
 Retweets Per Retweeter: 3.11       (epochs*(1-tweet_threshold)=3.11)
 Retweeters Per Tweet:   4.57       (m/tweet_dist = 4.57)
 """
-# if __name__ == "__main__":
-#     # tweet_dist = (200, 70)
-#     tweet_dist = (100, 35)
-#     n       = 5
-#     m       = 914
-#     epochs  = 9
-#     tweet_threshold = 0.37
-#     epsilon = 0.9
-#     party_file_name="stochastic_party_leader_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
-#     party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
-#     draw_graph(party_G,save=True,file_name=party_file_name)
-#     topic_file_name="stochastic_topic_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
-#     topic_G = stochastic_topic_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
-#     draw_graph(topic_G,save=True,file_name=topic_file_name)
+if __name__ == "__main__":
+    # tweet_dist = (200, 70)
+    tweet_dist = (100, 35)
+    n       = 5
+    m       = 914
+    epochs  = 9
+    tweet_threshold = 0.37
+    epsilon = 0.9
+    party_file_name="stochastic_party_leader_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
+    party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
+    draw_graph(party_G,save=True,file_name=party_file_name)
+    topic_file_name="stochastic_topic_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
+    topic_G = stochastic_topic_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
+    draw_graph(topic_G,save=True,file_name=topic_file_name)
 #     for alpha in np.round(np.arange(1,-0.01,-0.1),3).tolist():
 #         print("--- alpha {} --".format(alpha))
 #         hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
