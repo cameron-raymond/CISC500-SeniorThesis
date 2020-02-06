@@ -4,6 +4,7 @@ tweepy/historical_search/search_tweets_creds.yaml
 # Folders #
 data/
 thesisEnv/
+__pycache__/
 
 # Compiled source #
 ###################
@@ -26,6 +27,7 @@ thesisEnv/
 *.rar
 *.tar
 *.zip
+
 
 # Logs and databases #
 ######################
