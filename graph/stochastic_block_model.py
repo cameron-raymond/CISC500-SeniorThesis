@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 from numpy.random import normal, random
+import tensorflow as tf
 from tensorflow.keras.models import load_model
 from build_graph import return_colour, return_legend
 from networkx.drawing.nx_agraph import graphviz_layout
@@ -8,7 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import tqdm
 from centrality_measures import centrality_per_topic, plot_dual_centralities
-
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 def softmax(x):
     """
         Compute softmax values for each sets of scores in x.
@@ -432,12 +433,12 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
 #     hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
 #     hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
 #     draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
-    for alpha in np.round(np.arange(1,0.01,-0.1),3).tolist():
-        print("--- alpha {} --".format(alpha))
-        hybrid_file_name = "stochastic_hybrid_graph_alpha={:.2f}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
-        print(hybrid_file_name)
-        hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
-        draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
+    # for alpha in np.round(np.arange(1,0.01,-0.1),3).tolist():
+    #     print("--- alpha {} --".format(alpha))
+    #     hybrid_file_name = "stochastic_hybrid_graph_alpha={:.2f}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
+    #     print(hybrid_file_name)
+    #     hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
+    #     draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
    
 
 """

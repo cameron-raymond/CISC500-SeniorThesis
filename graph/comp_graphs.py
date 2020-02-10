@@ -44,6 +44,7 @@ def plot_log_bin_frequency(G,G2=None,title="Log-Log Histogram Plot",type=None):
 
 def graph_spectrum_laplacian(G):
     eigenvals = nx.laplacian_spectrum(G)
+    assert np.all(eigenvals[:-1] <= eigenvals[1:]), "Something went wrong... eigenvalues aren't sorted in ascending order"
     return eigenvals
     # eigenvals = len(eigenvals) > max_len ? eigenvals[:max_len] : eigenvals
 
