@@ -53,30 +53,29 @@ def init_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000):
     for user in range(n):
         G.add_node(user, type='user')
 
-    print("--- Adding party leader tweets ---")
-    for user in range(n):
-        num_tweets = max(int(normal(loc=tweet_dist[0], scale=tweet_dist[1])), 1)
+    print("--- Adding users and tweets ---")
+    num_tweets = [max(int(normal(loc=tweet_dist[0], scale=tweet_dist[1])), 1) for _ in range(n)]
+    total_nodes = sum(num_tweets)+m
+    pbar = tqdm.tqdm(total=total_nodes)
+    for user,num_tweets in enumerate(num_tweets):
         topic_distribution = softmax([random() for i in range(k)])
         # here, a= are the topic numbers [0...6] and p is the probability of choosing tweet a
-        tweets = np.random.choice(
-            a=topics, size=num_tweets, p=topic_distribution)
-        pbar = tqdm.tqdm(total=num_tweets)
+        tweets = np.random.choice(a=topics, size=num_tweets, p=topic_distribution)
         for tweet, topic in enumerate(tweets):
             node = "{}_{}".format(user, tweet)
             G.add_node(node, type="tweet", lda_cluster=topic)
             G.add_edge(user, node)
             pbar.update(1)
-        pbar.close()
 
     # initialize the probability array
     topic_history = np.zeros(k)
     leader_history = np.zeros(n)
-    print("--- adding tweets ---")
-    # progress bar
     for new_user in range(m):
         # add a new user
         username = "user_{}".format(new_user)
         G.add_node(username, type="retweet",topic_history=topic_history, leader_history=leader_history)
+        pbar.update(1)
+    pbar.close()
     return G
     
 def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.95, epochs=2.5):
@@ -312,7 +311,7 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
     pbar.close()
     return G
 
-def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.4, epsilon=0.9, epochs=5):
+def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.4, epsilon=0.9, epochs=5,use_model=True):
     """
         Build a stochastic block model based off of the prior probability distributions of topic and leader engagment.
         Parameters
@@ -376,6 +375,7 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
 
     topics = [i for i in range(k)]
     G = init_graph(n,tweet_dist,k,m)
+    print("--- Adding Retweets ---")
     pbar = tqdm.tqdm(total=m*epochs)
     topic_leader = [i for i in range(n*k)]
     for _ in range(epochs):
@@ -386,8 +386,8 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
             topic_history = G.nodes()[username]["topic_history"].copy()
             leader_history = G.nodes()[username]["leader_history"].copy()
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
-            topic_distribution = predict_next_retweet(topic_history, NEXT_TOPIC_NN, use_model=True).reshape((1, k))
-            leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=True).reshape((1, n))
+            topic_distribution = predict_next_retweet(topic_history, NEXT_TOPIC_NN, use_model=use_model).reshape((1, k))
+            leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=use_model).reshape((1, n))
             topic_distribution *= (1-alpha)
             leader_distribution *= alpha
             # normalize 
@@ -432,12 +432,12 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
 #     hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
 #     hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
 #     draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
-#     for alpha in np.round(np.arange(1,0.01,-0.1),3).tolist():
-#         print("--- alpha {} --".format(alpha))
-#         hybrid_file_name = "stochastic_hybrid_graph_alpha={:.2f}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
-#         print(hybrid_file_name)
-#         hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
-#         draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
+    for alpha in np.round(np.arange(1,0.01,-0.1),3).tolist():
+        print("--- alpha {} --".format(alpha))
+        hybrid_file_name = "stochastic_hybrid_graph_alpha={:.2f}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
+        print(hybrid_file_name)
+        hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
+        draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
    
 
 """
