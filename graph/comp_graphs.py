@@ -4,14 +4,13 @@ import collections
 import matplotlib.pyplot as plt
 import numpy as np
 from build_graph import Graph
-from stochastic_block_model import stochastic_hybrid_graph
+from stochastic_block_model import stochastic_hybrid_graph, draw_graph
 from sklearn.decomposition import PCA
 import pandas as pd
 # from scipy.spatial.distance import directed_hausdorff
 from math import ceil
 
 def log_bin_frequency(G):
-    # degree_list=list(nx.degree(G))
     degree_list = [d for n, d in G.degree()]
     degree_sequence = sorted([d for n, d in G.degree()], reverse=True)  # degree sequence
     degree_count = collections.Counter(degree_sequence)
@@ -24,7 +23,6 @@ def log_bin_frequency(G):
     for x in range(len(log_bins)):
         log_bins[x] = ceil(log_bins[x])
     return log_bins, log_bin_density
-
 
 def plot_log_bin_frequency(G,G2=None,title="Log-Log Histogram Plot",type=None):
     log_bins, log_bin_density = log_bin_frequency(G)
@@ -42,68 +40,78 @@ def plot_log_bin_frequency(G,G2=None,title="Log-Log Histogram Plot",type=None):
     plt.legend(loc="best")
     plt.show()
 
-def heat(G=None,graph_dict=None):
-    assert G is not None or graph_dict is not None, "Need to supply a graph, or graphs, via the parameters G or graph_dict"
+def calc_heat(graph,times,normalize):
     to_heat = lambda eigs,t : np.sum(np.exp(-eigs*t))
+    eigenvals = nx.normalized_laplacian_spectrum(graph)
+    heats = np.array([to_heat(eigenvals,t) for t in times])
+    if normalize:
+        # Eigenvalues of an empty graph are all 0's. Therefore e^(-t*0) is always 1. Since any graph has n 
+        # eigenvalues the sum of the heat trace is n regardless of the timeframe
+        heats = heats/len(graph)
+    return heats
+
+def heat(G=None,graph_dict=None,start=-3,end=2,normalize=True):
+    assert G is not None or graph_dict is not None, "Need to supply a graph, or graphs, via the parameters G or graph_dict"
     # Create a set of times ranging from 10**-4, to 10**2 on a logarithmic scale
-    times = np.logspace(-4,2).tolist()
+    times = np.logspace(start,end).tolist()
     heat_dict = {"t":times}
     if G is not None:
-        print("Calculating eigenvals")
-        eigenvals = nx.normalized_laplacian_spectrum(G)
-        heats = np.array([to_heat(eigenvals,t) for t in times])
-        heat_dict["graph"] = heats
+        heat_dict["graph"] = calc_heat(G,times,normalize)
     else:
         for label, graph in graph_dict.items():
-            print("--- calculating {} eigenvalues (n={})".format(label,len(graph)))
-            eigenvals = nx.normalized_laplacian_spectrum(graph)
-            heats = np.array([to_heat(eigenvals,t) for t in times])
-            heat_dict[label] = heats            
+            if type(graph) is list:
+                print("--- calculating heat traces for {} graphs of type {} ---".format(len(graph),label))
+                heat_list = [calc_heat(g,times,normalize) for g in graph]
+                heat_dict[label] = heat_list
+            else:
+                print("--- calculating {} eigenvalues (n={})".format(label,len(graph)))
+                heats = calc_heat(graph,times,normalize)
+                heat_dict[label] = heats            
     return heat_dict
 
-def plot_heat_traces(heat_dict,normalize=False):
-    if normalize:
-        fig = plt.figure(figsize = (16,8))
-        ax = fig.add_subplot(2,1,1) 
-    else:
-        fig = plt.figure(figsize = (8,8))
-        ax = fig.add_subplot(1,1,1) 
-    ax.set_xlabel('t', fontsize = 15)
+def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False):
+    fig = plt.figure(figsize = (8,8))
+    ax = fig.add_subplot(1,1,1)  
+    title = "Heat Trace (Normalized)" if is_normalized else "Heat Trace"
+    ax.set_title(title)
     ax.set_ylabel('h(t)', fontsize = 15)
     ax.set_xscale('log')
     ax.grid()
-    times = heat_dict["t"]
+    times = heat_dict.pop("t")
     for label,heat_traces in heat_dict.items():
-        if label != "t":
-            ax.plot(times,heat_traces,label=label)
+        if type(heat_traces) is list:
+            heat_traces = np.matrix(heat_traces)
+            std_dev = np.array(heat_traces.std(axis=0)).flatten()
+            heat_traces = np.array(heat_traces.mean(axis=0)).flatten()
+            print(std_dev,'\n',heat_traces)
+            ax.fill_between(times, heat_traces+std_dev, heat_traces-std_dev, alpha=0.5)
+        ax.plot(times,heat_traces,label=label)
     ax.legend()
-    if normalize:
-        ax = fig.add_subplot(2,1,2)
-        for label,heat_traces in heat_dict.items():
-            if label != "t":
-                heat_traces = (heat_traces-np.min(heat_traces))/(np.max(heat_traces)-np.min(heat_traces))
-                ax.plot(times,heat_traces,label=label)
-        ax.set_xlabel('t', fontsize = 15)
-        ax.set_ylabel('h(t) (Normalized)', fontsize = 15)
-        ax.set_xscale('log')
-        ax.grid()
-        ax.legend()
+    file_name = "_".join(heat_dict.keys()).replace(" ", "_").lower()
+    file_name += "_heat_trace_plot"
+    file_name = "normalized_"+file_name if is_normalized else file_name
+    plt.savefig("../visualizations/heat_traces/{}.png".format(file_name)) if save_fig else plt.show()
 
-    plt.show()
-
-
-# I feel like this is gonna be important 
-#L = nx.normalized_laplacian_matrix(G)
-# and https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.directed_hausdorff.html
 if __name__=="__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-    G = Graph(usernames,n=50).G  
-    G2 = nx.erdos_renyi_graph(len(G),0.9)
-    G3 = stochastic_hybrid_graph(alpha=0.8, tweet_dist=(50,10), n=5,m=100, tweet_threshold=0.37, epochs=9, epsilon=0.95,use_model=False)
-    graph_dict = { "Actual Graph": G, "Erdos Renyi": G2,"Hybrid Graph (a=0.8)":G3}
-    heat_dict = heat(graph_dict=graph_dict)
-    plot_heat_traces(heat_dict)
-    plot_heat_traces(heat_dict,normalize=True)
+    sampled_graphs = [Graph(usernames,n=15).G for _ in range (10)]
+    avg_size = int(np.mean([len(G) for G in sampled_graphs]))
+    graph_dict = {"Original Graph": sampled_graphs}
+    tweet_dist = (200, 70)
+    n       = 5
+    m       = 914
+    epochs  = 9
+    tweet_threshold = 0.37
+    epsilon = 0.9
+    normalize = True
+    for alpha in np.round(np.arange(1,-0.01,-0.5),2):
+        # hybrid_g = stochastic_hybrid_graph(alpha=alpha,tweet_dist=tweet_dist,n=n,m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon,use_model=False)     
+        # graph_dict["Hybrid Graph (a={})".format(alpha)] = hybrid_g
+        print("a is {}".format(alpha))
+        graph_dict["Erdos Renyi (a = {})".format(alpha)] = [nx.erdos_renyi_graph(avg_size,alpha) for _ in range(10)]
+    heat_dict = heat(graph_dict=graph_dict,normalize=normalize)
+    plot_heat_traces(heat_dict,is_normalized=normalize,save_fig=True)
+    
 
 # if __name__ == "__main__":
 #     m = 3
@@ -124,20 +132,20 @@ if __name__=="__main__":
 #     for alpha in alphas:
 #         print("--- alpha: {} ---".format(alpha))
 #         frames.append(graph_spectrum_laplacian(stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon,use_model=False)))
-#     frames = np.matrix(frames)
-#     pca = PCA(n_components=2)
-#     principalComponents = pca.fit_transform(frames)
-#     principal_df = pd.DataFrame(data=principalComponents,columns = ['pc1', 'pc2'])
-#     principal_df = principal_df.assign(alpha=pd.Series(alphas).values)
-#     principal_df.set_index('alpha', inplace=True)
-#     fig = plt.figure(figsize = (8,8))
-#     ax = fig.add_subplot(1,1,1) 
-#     ax.set_xlabel('Principal Component 1', fontsize = 15)
-#     ax.set_ylabel('Principal Component 2', fontsize = 15)
-#     ax.set_title('2 component PCA', fontsize = 20)
-#     principal_df.plot(kind='scatter',x='pc1',y='pc2',ax=ax)
-#     for k, v in principal_df.iterrows():
-#         ax.annotate("a: {}".format(k), v)
-#     ax.grid()
-#     plt.show()
+    # frames = np.matrix(frames)
+    # pca = PCA(n_components=2)
+    # principalComponents = pca.fit_transform(frames)
+    # principal_df = pd.DataFrame(data=principalComponents,columns = ['pc1', 'pc2'])
+    # principal_df = principal_df.assign(alpha=pd.Series(alphas).values)
+    # principal_df.set_index('alpha', inplace=True)
+    # fig = plt.figure(figsize = (8,8))
+    # ax = fig.add_subplot(1,1,1) 
+    # ax.set_xlabel('Principal Component 1', fontsize = 15)
+    # ax.set_ylabel('Principal Component 2', fontsize = 15)
+    # ax.set_title('2 component PCA', fontsize = 20)
+    # principal_df.plot(kind='scatter',x='pc1',y='pc2',ax=ax)
+    # for k, v in principal_df.iterrows():
+    #     ax.annotate("a: {}".format(k), v)
+    # ax.grid()
+    # plt.show()
     

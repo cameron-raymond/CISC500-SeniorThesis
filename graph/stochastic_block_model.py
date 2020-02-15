@@ -78,8 +78,71 @@ def init_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000):
         pbar.update(1)
     pbar.close()
     return G
+
+def draw_graph(G, save=False, file_name="stochastic_block_graph", file_type='png', transparent=False, title="Stochastic Block Model"):
+    """
+    Handles rendering and drawing the network.
+    Parameters
+    ----------
+    :param G: `optional` 
     
-def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.95, epochs=2.5):
+    a networkx graph. If present draws this graph instead of the one built in the constructor.
+
+    :param save: `optional` 
+    
+    A boolean. If true saves an image of the graph to `/visualizations` otherwise renders the graph.
+
+    :param file_type: `optional` 
+    
+    A string. If save flag is true it saves graph with this file extension.
+
+    :param transparent: `optional` 
+    
+    A Boolean. If true it only renders the tweet's; no edges or user nodes.
+    """
+    print("--- Adding colours and labels ---")
+    colors = []
+    legend = set()
+    labels = {}
+    pbar = tqdm.tqdm(total=len(G.nodes()))
+    for node in G.nodes():
+        attributes = G.nodes[node]
+        if 'type' in attributes:
+            if attributes['type'] == 'retweet':
+                colors.append(
+                    '#79bfd3ff') if not transparent else colors.append("white")
+            elif attributes['type'] == 'tweet':
+                cluster = return_colour(attributes["lda_cluster"])
+                legend.add(cluster)
+                colors.append(cluster[0])
+            elif attributes['type'] == 'user':
+                labels[node] = node
+                colors.append(
+                    'red') if not transparent else colors.append("white")
+        pbar.update(1)
+    pbar.close()
+    plt.figure(figsize=(30, 30))
+    pos = graphviz_layout(G, prog="sfdp")
+    print("--- Drawing {} nodes and {} edges ---".format(len(G.nodes()),
+                                                         G.number_of_edges()))
+    width = 0.2 if not transparent else 0
+    # node_size = 20 if not transparent else 200
+    nx.draw_networkx(G, pos,
+                     node_color=colors,
+                     with_labels=False,
+                     alpha=0.75,
+                     node_size=200,
+                     width=width,
+                     arrows=False
+                     )
+    nx.draw_networkx_labels(G, pos, labels, font_size=16, font_color='r')
+    plt.legend(handles=return_legend(legend), loc="best")
+    plt.title(title, fontdict={'fontsize': 30})
+    # Turn off borders
+    plt.box(False)
+    plt.savefig("../visualizations/random_graphs/{}.{}".format(file_name,file_type),bbox_inches="tight") if save else plt.show()
+
+def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.95, epochs=2.5,**kwargs):
     """
         Build a stochastic block model based off of the prior probability distributions of topic engagment.
         Parameters
@@ -166,70 +229,7 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
     pbar.close()
     return G
 
-def draw_graph(G, save=False, file_name="stochastic_block_graph", file_type='png', transparent=False, title="Stochastic Block Model"):
-    """
-    Handles rendering and drawing the network.
-    Parameters
-    ----------
-    :param G: `optional` 
-    
-    a networkx graph. If present draws this graph instead of the one built in the constructor.
-
-    :param save: `optional` 
-    
-    A boolean. If true saves an image of the graph to `/visualizations` otherwise renders the graph.
-
-    :param file_type: `optional` 
-    
-    A string. If save flag is true it saves graph with this file extension.
-
-    :param transparent: `optional` 
-    
-    A Boolean. If true it only renders the tweet's; no edges or user nodes.
-    """
-    print("--- Adding colours and labels ---")
-    colors = []
-    legend = set()
-    labels = {}
-    pbar = tqdm.tqdm(total=len(G.nodes()))
-    for node in G.nodes():
-        attributes = G.nodes[node]
-        if 'type' in attributes:
-            if attributes['type'] == 'retweet':
-                colors.append(
-                    '#79bfd3ff') if not transparent else colors.append("white")
-            elif attributes['type'] == 'tweet':
-                cluster = return_colour(attributes["lda_cluster"])
-                legend.add(cluster)
-                colors.append(cluster[0])
-            elif attributes['type'] == 'user':
-                labels[node] = node
-                colors.append(
-                    'red') if not transparent else colors.append("white")
-        pbar.update(1)
-    pbar.close()
-    plt.figure(figsize=(30, 30))
-    pos = graphviz_layout(G, prog="sfdp")
-    print("--- Drawing {} nodes and {} edges ---".format(len(G.nodes()),
-                                                         G.number_of_edges()))
-    width = 0.2 if not transparent else 0
-    # node_size = 20 if not transparent else 200
-    nx.draw_networkx(G, pos,
-                     node_color=colors,
-                     with_labels=False,
-                     alpha=0.75,
-                     node_size=200,
-                     width=width,
-                     arrows=False
-                     )
-    nx.draw_networkx_labels(G, pos, labels, font_size=16, font_color='r')
-    plt.legend(handles=return_legend(legend), loc="best")
-    plt.title(title, fontdict={'fontsize': 30})
-    # Turn off borders
-    plt.box(False)
-    plt.savefig("../visualizations/random_graphs/{}.{}".format(file_name,file_type),bbox_inches="tight") if save else plt.show()
-
-def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.9, epochs=2.5):
+def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.9, epochs=2.5, **kwargs):
     """
         Build a stochastic block model based o00 of the prior probability distributions of topic engagment.
         Parameters
@@ -312,7 +312,7 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
     pbar.close()
     return G
 
-def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.4, epsilon=0.9, epochs=5,use_model=True):
+def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.4, epsilon=0.9, epochs=5,use_model=True, **kwargs):
     """
         Build a stochastic block model based off of the prior probability distributions of topic and leader engagment.
         Parameters
@@ -451,8 +451,7 @@ Retweets Per Retweeter: 3.11       (epochs*(1-tweet_threshold)=3.11)
 Retweeters Per Tweet:   4.57       (m/tweet_dist = 4.57)
 """
 if __name__ == "__main__":
-    # tweet_dist = (200, 70)
-    tweet_dist = (100, 35)
+    tweet_dist = (200, 70)
     n       = 5
     m       = 914
     epochs  = 9

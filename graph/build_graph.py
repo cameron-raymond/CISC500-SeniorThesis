@@ -48,13 +48,21 @@ class Graph(object):
         Handles rendering and drawing the network.
         Parameters
         ----------
-        :param G: `optional` a networkx graph. If present draws this graph instead of the one built in the constructor.
+        :param G: `optional` 
+        
+        a networkx graph. If present draws this graph instead of the one built in the constructor.
 
-        :param save: `optional` A boolean. If true saves an image of the graph to `/visualizations` otherwise renders the graph.
+        :param save: `optional` 
         
-        :param file_type: `optional` A string. If save flag is true it saves graph with this file extension.
+        A boolean. If true saves an image of the graph to `/visualizations` otherwise renders the graph.
         
-        :param use_pos: `optional` A boolean. If true renders the graph using default positions of the entire graph. Otherwise calculates positions based on data used.
+        :param file_type: `optional` 
+        
+        A string. If save flag is true it saves graph with this file extension.
+        
+        :param use_pos: `optional` 
+        
+        A boolean. If true renders the graph using default positions of the entire graph. Otherwise calculates positions based on data used.
         """
         if not G:
             G = self.G
@@ -108,7 +116,7 @@ class Graph(object):
     def build_graph(self, username, n=None):
         twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
         if n:
-            twitter_df = twitter_df.sample(n=min(n, len(twitter_df)), random_state=4)
+            twitter_df = twitter_df.sample(n=min(n, len(twitter_df)))
         # twitter_df = twitter_df.set_index('id')
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
         # if we're only taking 20 tweets find all the retweets for those 20
