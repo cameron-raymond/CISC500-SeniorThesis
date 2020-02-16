@@ -373,7 +373,6 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
     NEXT_TOPIC_NN = load_model("../neuralnet/dense_next_topic.h5")
     print("--- Loading Next Leader Neural Network ---")
     NEXT_LEADER_NN = load_model("../neuralnet/dense_next_leader.h5")
-
     topics = [i for i in range(k)]
     G = init_graph(n,tweet_dist,k,m)
     print("--- Adding Retweets ---")
@@ -422,24 +421,6 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
     pbar.close()
     return G
 
-# if __name__ == "__main__":
-#     tweet_dist = (100, 35)
-#     n       = 5
-#     m       = 476
-#     epochs  = 9
-#     tweet_threshold = 0.37
-#     epsilon = 0.95
-#     alpha = 0.3
-#     hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
-#     hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
-#     draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
-    # for alpha in np.round(np.arange(1,0.01,-0.1),3).tolist():
-    #     print("--- alpha {} --".format(alpha))
-    #     hybrid_file_name = "stochastic_hybrid_graph_alpha={:.2f}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
-    #     print(hybrid_file_name)
-    #     hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
-    #     draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
-   
 
 """
 Twitter Data
@@ -451,23 +432,25 @@ Retweets Per Retweeter: 3.11       (epochs*(1-tweet_threshold)=3.11)
 Retweeters Per Tweet:   4.57       (m/tweet_dist = 4.57)
 """
 if __name__ == "__main__":
-    tweet_dist = (200, 70)
-    n       = 5
-    m       = 914
-    epochs  = 9
-    tweet_threshold = 0.37
-    epsilon = 0.9
+    kwargs = {
+        "tweet_dist": (200, 70),
+        "n": 5,
+        "m": 914,
+        "epochs": 9,
+        "tweet_threshold": 0.37,
+        "epsilon": 0.9
+    }
     party_file_name="stochastic_party_leader_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
-    party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
+    party_G = stochastic_party_leader_graph(**kwargs)
     draw_graph(party_G,save=True,file_name=party_file_name)
     topic_file_name="stochastic_topic_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
-    topic_G = stochastic_topic_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
+    topic_G = stochastic_topic_graph(**kwargs)
     draw_graph(topic_G,save=True,file_name=topic_file_name)
-#     for alpha in np.round(np.arange(1,-0.01,-0.1),3).tolist():
-#         print("--- alpha {} --".format(alpha))
-#         hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
-#         hybrid_G = stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon)
-#         draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
-#     draw_graph(hybrid_G, save=True, file_name="transparent_"+hybrid_file_name,transparent=True, title="Hybrid Model. Alpha={}".format(alpha))
-#     party_G = stochastic_party_leader_graph(tweet_dist=tweet_dist,n=n, m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon)
-#     draw_graph(party_G)
+    for alpha in np.round(np.arange(1,-0.01,-0.1),3).tolist():
+        print("--- alpha {} --".format(alpha))
+        hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
+        hybrid_G = stochastic_hybrid_graph(alpha=alpha,**kwargs)
+        draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
+    draw_graph(hybrid_G, save=True, file_name="transparent_"+hybrid_file_name,transparent=True, title="Hybrid Model. Alpha={}".format(alpha))
+    party_G = stochastic_party_leader_graph(**kwargs)
+    draw_graph(party_G)

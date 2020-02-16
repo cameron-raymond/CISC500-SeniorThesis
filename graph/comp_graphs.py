@@ -80,10 +80,15 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False):
     times = heat_dict.pop("t")
     for label,heat_traces in heat_dict.items():
         if type(heat_traces) is list:
+            print("here")
             heat_traces = np.matrix(heat_traces)
+            print(heat_traces)
             std_dev = np.array(heat_traces.std(axis=0)).flatten()
+            print("///")
+            print(std_dev)
             heat_traces = np.array(heat_traces.mean(axis=0)).flatten()
-            print(std_dev,'\n',heat_traces)
+            print("///")
+            print(heat_traces)
             ax.fill_between(times, heat_traces+std_dev, heat_traces-std_dev, alpha=0.5)
         ax.plot(times,heat_traces,label=label)
     ax.legend()
@@ -97,18 +102,22 @@ if __name__=="__main__":
     sampled_graphs = [Graph(usernames,n=15).G for _ in range (10)]
     avg_size = int(np.mean([len(G) for G in sampled_graphs]))
     graph_dict = {"Original Graph": sampled_graphs}
-    tweet_dist = (200, 70)
-    n       = 5
-    m       = 914
-    epochs  = 9
-    tweet_threshold = 0.37
-    epsilon = 0.9
+    kwargs = {
+        "tweet_dist": (100, 20),
+        "n": 5,
+        "m": 407,
+        "epochs" : 9,
+        "tweet_threshold": 0.37,
+        "epsilon": 0.9,
+        "use_model": False
+    }
     normalize = True
-    for alpha in np.round(np.arange(1,-0.01,-0.5),2):
-        # hybrid_g = stochastic_hybrid_graph(alpha=alpha,tweet_dist=tweet_dist,n=n,m=m,tweet_threshold=tweet_threshold,epochs=epochs,epsilon=epsilon,use_model=False)     
-        # graph_dict["Hybrid Graph (a={})".format(alpha)] = hybrid_g
-        print("a is {}".format(alpha))
-        graph_dict["Erdos Renyi (a = {})".format(alpha)] = [nx.erdos_renyi_graph(avg_size,alpha) for _ in range(10)]
+    # graph_dict["Hybrid Graph"] = [stochastic_hybrid_graph(alpha=alpha,**kwargs) for alpha in np.round(np.arange(1,-0.01,-0.2),2)]
+    graph_dict["Erdos Renyi"] = [nx.erdos_renyi_graph(avg_size,alpha) for alpha in np.round(np.arange(1,0,-0.2),2)]
+    # for alpha in np.round(np.arange(1,-0.01,-0.5),2):
+    #     print("a is {}".format(alpha))
+    #     graph_dict["Hybrid Graph (a={})".format(alpha)] = [stochastic_hybrid_graph(alpha=alpha,**kwargs) for _ in range(10)]
+    #     graph_dict["Erdos Renyi (p = {})".format(alpha)] = [nx.erdos_renyi_graph(avg_size,alpha) for _ in range(10)]
     heat_dict = heat(graph_dict=graph_dict,normalize=normalize)
     plot_heat_traces(heat_dict,is_normalized=normalize,save_fig=True)
     
