@@ -8,6 +8,7 @@ from stochastic_block_model import stochastic_hybrid_graph, draw_graph
 from sklearn.decomposition import PCA
 import pandas as pd
 # from scipy.spatial.distance import directed_hausdorff
+from netlsd import heat, compare
 from math import ceil
 
 def log_bin_frequency(G):
@@ -40,32 +41,22 @@ def plot_log_bin_frequency(G,G2=None,title="Log-Log Histogram Plot",type=None):
     plt.legend(loc="best")
     plt.show()
 
-def calc_heat(graph,times,normalize):
-    to_heat = lambda eigs,t : np.sum(np.exp(-eigs*t))
-    eigenvals = nx.normalized_laplacian_spectrum(graph)
-    heats = np.array([to_heat(eigenvals,t) for t in times])
-    if normalize:
-        # Eigenvalues of an empty graph are all 0's. Therefore e^(-t*0) is always 1. Since any graph has n 
-        # eigenvalues the sum of the heat trace is n regardless of the timeframe
-        heats = heats/len(graph)
-    return heats
-
-def heat(G=None,graph_dict=None,start=-3,end=2,normalize=True):
+def calc_heat(G=None,graph_dict=None,start=-3,end=2,normalization="empty"):
     assert G is not None or graph_dict is not None, "Need to supply a graph, or graphs, via the parameters G or graph_dict"
     # Create a set of times ranging from 10**-4, to 10**2 on a logarithmic scale
-    times = np.logspace(start,end).tolist()
+    times = np.logspace(start,end,250)
     heat_dict = {"t":times}
     if G is not None:
-        heat_dict["graph"] = calc_heat(G,times,normalize)
+        heat_dict["graph"] = heat(G,timescales=times,normalization=normalization)
     else:
         for label, graph in graph_dict.items():
             if type(graph) is list:
                 print("--- calculating heat traces for {} graphs of type {} ---".format(len(graph),label))
-                heat_list = [calc_heat(g,times,normalize) for g in graph]
+                heat_list = [heat(g,timescales=times, normalization=normalization) for g in graph]
                 heat_dict[label] = heat_list
             else:
                 print("--- calculating {} eigenvalues (n={})".format(label,len(graph)))
-                heats = calc_heat(graph,times,normalize)
+                heats = heat(graph,timescales=times,normalization=normalization)
                 heat_dict[label] = heats            
     return heat_dict
 
@@ -80,15 +71,9 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False):
     times = heat_dict.pop("t")
     for label,heat_traces in heat_dict.items():
         if type(heat_traces) is list:
-            print("here")
             heat_traces = np.matrix(heat_traces)
-            print(heat_traces)
-            std_dev = np.array(heat_traces.std(axis=0)).flatten()
-            print("///")
-            print(std_dev)
+            std_dev = np.array(heat_traces.std(axis=0)).flatten() * 2
             heat_traces = np.array(heat_traces.mean(axis=0)).flatten()
-            print("///")
-            print(heat_traces)
             ax.fill_between(times, heat_traces+std_dev, heat_traces-std_dev, alpha=0.5)
         ax.plot(times,heat_traces,label=label)
     ax.legend()
@@ -112,13 +97,14 @@ if __name__=="__main__":
         "use_model": False
     }
     normalize = True
-    # graph_dict["Hybrid Graph"] = [stochastic_hybrid_graph(alpha=alpha,**kwargs) for alpha in np.round(np.arange(1,-0.01,-0.2),2)]
-    graph_dict["Erdos Renyi"] = [nx.erdos_renyi_graph(avg_size,alpha) for alpha in np.round(np.arange(1,0,-0.2),2)]
-    # for alpha in np.round(np.arange(1,-0.01,-0.5),2):
-    #     print("a is {}".format(alpha))
-    #     graph_dict["Hybrid Graph (a={})".format(alpha)] = [stochastic_hybrid_graph(alpha=alpha,**kwargs) for _ in range(10)]
-    #     graph_dict["Erdos Renyi (p = {})".format(alpha)] = [nx.erdos_renyi_graph(avg_size,alpha) for _ in range(10)]
-    heat_dict = heat(graph_dict=graph_dict,normalize=normalize)
+    normalization = "empty" if normalize else None
+    for alpha in np.round(np.arange(1,-0.01,-0.5),2):
+        print("a is {}".format(alpha))
+        # graph_dict["Hybrid Graph (a={})".format(alpha)] = [stochastic_hybrid_graph(alpha=alpha,**kwargs) for _ in range(10)]
+        # graph_dict["Erdos Renyi (p = {})".format(alpha)] = [nx.erdos_renyi_graph(avg_size,alpha) for _ in range(10)]
+        graph_dict["Hybrid Graph (a={})".format(alpha)] = stochastic_hybrid_graph(alpha=alpha,**kwargs)
+        graph_dict["Erdos Renyi (p = {})".format(alpha)] = nx.erdos_renyi_graph(avg_size,alpha)
+    heat_dict = calc_heat(graph_dict=graph_dict,normalization=normalization)
     plot_heat_traces(heat_dict,is_normalized=normalize,save_fig=True)
     
 
