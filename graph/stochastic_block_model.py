@@ -48,16 +48,16 @@ def predict_next_retweet(history, model, use_model=True):
     # Squish it using softmax to make it a probability distribution.
     return softmax(next_decision_distribution)
 
-def init_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000):
+def init_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000,verbose=False):
     topics = [i for i in range(k)]
     G = nx.Graph()
     for user in range(n):
         G.add_node(user, type='user')
 
-    print("--- Adding users and tweets ---")
+    if verbose: print("--- Adding users and tweets ---")
     num_tweets = [max(int(normal(loc=tweet_dist[0], scale=tweet_dist[1])), 1) for _ in range(n)]
     total_nodes = sum(num_tweets)+m
-    pbar = tqdm.tqdm(total=total_nodes)
+    pbar = tqdm.tqdm(total=total_nodes) if verbose else None
     for user,num_tweets in enumerate(num_tweets):
         topic_distribution = softmax([random() for i in range(k)])
         # here, a= are the topic numbers [0...6] and p is the probability of choosing tweet a
@@ -66,7 +66,7 @@ def init_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000):
             node = "{}_{}".format(user, tweet)
             G.add_node(node, type="tweet", lda_cluster=topic)
             G.add_edge(user, node)
-            pbar.update(1)
+            if verbose: pbar.update(1)
 
     # initialize the probability array
     topic_history = np.zeros(k)
@@ -75,8 +75,8 @@ def init_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000):
         # add a new user
         username = "user_{}".format(new_user)
         G.add_node(username, type="retweet",topic_history=topic_history, leader_history=leader_history)
-        pbar.update(1)
-    pbar.close()
+        if verbose: pbar.update(1)
+    if verbose: pbar.close()
     return G
 
 def draw_graph(G, save=False, file_name="stochastic_block_graph", file_type='png', transparent=False, title="Stochastic Block Model"):
@@ -142,7 +142,7 @@ def draw_graph(G, save=False, file_name="stochastic_block_graph", file_type='png
     plt.box(False)
     plt.savefig("../visualizations/random_graphs/{}.{}".format(file_name,file_type),bbox_inches="tight") if save else plt.show()
 
-def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.95, epochs=2.5,use_model=True,**kwargs):
+def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.95, epochs=2.5,use_model=True,verbose=False,**kwargs):
     """
         Build a stochastic block model based off of the prior probability distributions of topic engagment.
         Parameters
@@ -200,20 +200,19 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
     assert tweet_threshold <= 1 and tweet_threshold >= 0, "Tweet threshold must be in the range [0..1]"
     assert epsilon <= 1 and epsilon >= 0, "Epsilon must be in the range [0..1]"
     # Add an extra element in the topics array that when selected the user doesn't retweet anything.
-    print("--- Loading Next Topic Neural Network ---")
-    NEXT_TOPIC_NN = load_model("../neuralnet/dense_next_topic.h5")
+    if verbose and use_model: print("--- Loading Next Topic Neural Network ---")
+    NEXT_TOPIC_NN = load_model("../neuralnet/dense_next_topic.h5") if use_model else None
     topics = [i for i in range(k)]
     G = init_graph(n,tweet_dist,k,m)
     # initialize the probability array
-    pbar = tqdm.tqdm(total=m*epochs)
+    pbar = tqdm.tqdm(total=m*epochs) if verbose else None
     for _ in range(epochs):
         for j in range(m):
-            pbar.update(1)
+            if verbose: pbar.update(1)
             username = "user_{}".format(j)
             topic_history = G.nodes()[username]["topic_history"].copy()
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
-            topic_distribution = predict_next_retweet(
-                topic_history, NEXT_TOPIC_NN, use_model=use_model)
+            topic_distribution = predict_next_retweet(topic_history, NEXT_TOPIC_NN, use_model=use_model)
             winning_topic = np.random.choice(topics, p=topic_distribution)
             if np.random.random() < epsilon and not np.all(topic_history == 0):
                 arg_maxes = np.flatnonzero(
@@ -226,10 +225,10 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
                 topic_history[winning_topic] += 1
                 G.nodes[username]["topic_history"] = topic_history
                 G.add_edge(winning_tweet, username)
-    pbar.close()
+    if verbose: pbar.close()
     return G
 
-def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.9, epochs=2.5,use_model=True, **kwargs):
+def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.9, epochs=2.5,use_model=True,verbose=False, **kwargs):
     """
         Build a stochastic block model based o00 of the prior probability distributions of topic engagment.
         Parameters
@@ -278,17 +277,17 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
     """
     assert tweet_threshold <= 1 and tweet_threshold >= 0, "Tweet threshold must be in the range [0..1]"
     assert epsilon <= 1 and epsilon >= 0, "Epsilon must be in the range [0..1]"
-    print("--- Loading Next leader Neural Network ---")
-    NEXT_LEADER_NN = load_model("../neuralnet/dense_next_leader.h5")
+    if verbose and use_model: print("--- Loading Next leader Neural Network ---")
+    NEXT_LEADER_NN = load_model("../neuralnet/dense_next_leader.h5") if use_model else None
     # Add an extra element in the topics array that when selected the user doesn't retweet anything.
     topics = [i for i in range(k)]
     leaders = [i for i in range(n)]
     G = init_graph(n,tweet_dist,k,m)
-    pbar = tqdm.tqdm(total=m*epochs)
+    pbar = tqdm.tqdm(total=m*epochs) if verbose else None
     for _ in range(epochs):
         edges_added = 0
         for j in range(m):
-            pbar.update(1)
+            if verbose: pbar.update(1)
             username = "user_{}".format(j)
             leader_history = G.nodes()[username]["leader_history"].copy()
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
@@ -307,12 +306,12 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
                 G.add_edge(winning_tweet, username)
                 edges_added += 1
         if not edges_added:
-            print("--- no new edges added ---")
+            if verbose: print("--- no new edges added ---")
             break
-    pbar.close()
+    if verbose: pbar.close()
     return G
 
-def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.4, epsilon=0.9, epochs=5,use_model=True, **kwargs):
+def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.4, epsilon=0.9, epochs=5,use_model=True,verbose=False, **kwargs):
     """
         Build a stochastic block model based off of the prior probability distributions of topic and leader engagment.
         Parameters
@@ -369,19 +368,19 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
     assert tweet_threshold <= 1 and tweet_threshold >= 0, "Tweet threshold must be in the range [0..1]"
     assert epsilon <= 1 and epsilon >= 0, "Epsilon must be in the range [0..1]"
     # Add an extra element in the topics array that when selected the user doesn't retweet anything.
-    print("--- Loading Next Topic Neural Network ---")
-    NEXT_TOPIC_NN = load_model("../neuralnet/dense_next_topic.h5")
-    print("--- Loading Next Leader Neural Network ---")
-    NEXT_LEADER_NN = load_model("../neuralnet/dense_next_leader.h5")
+    if verbose and use_model: print("--- Loading Next Topic Neural Network ---")
+    NEXT_TOPIC_NN = load_model("../neuralnet/dense_next_topic.h5") if use_model else None
+    if verbose and use_model: print("--- Loading Next Leader Neural Network ---")
+    NEXT_LEADER_NN = load_model("../neuralnet/dense_next_leader.h5") if use_model else None
     topics = [i for i in range(k)]
     G = init_graph(n,tweet_dist,k,m)
-    print("--- Adding Retweets ---")
-    pbar = tqdm.tqdm(total=m*epochs)
+    if verbose: print("--- Adding Retweets ---")
+    pbar = tqdm.tqdm(total=m*epochs) if verbose else None
     topic_leader = [i for i in range(n*k)]
     for _ in range(epochs):
         edges_added = 0
         for j in range(m):
-            pbar.update(1)
+            if verbose: pbar.update(1)
             username = "user_{}".format(j)
             topic_history = G.nodes()[username]["topic_history"].copy()
             leader_history = G.nodes()[username]["leader_history"].copy()
@@ -416,9 +415,9 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
                 G.add_edge(winning_tweet, username)
                 edges_added += 1
         if not edges_added:
-            print("--- no new edges added ---")
+            if verbose: print("--- no new edges added ---")
             break
-    pbar.close()
+    if verbose: pbar.close()
     return G
 
 
@@ -452,6 +451,3 @@ if __name__ == "__main__":
         hybrid_file_name = "stochastic_hybrid_graph_alpha={}_{}".format(alpha,str(kwargs))
         hybrid_G = stochastic_hybrid_graph(alpha=alpha,**kwargs)
         draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
-    draw_graph(hybrid_G, save=True, file_name="transparent_"+hybrid_file_name,transparent=True, title="Hybrid Model. Alpha={}".format(alpha))
-    party_G = stochastic_party_leader_graph(**kwargs)
-    draw_graph(party_G)
