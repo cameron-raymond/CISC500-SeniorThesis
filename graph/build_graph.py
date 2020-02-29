@@ -177,6 +177,9 @@ class Graph(object):
         print("Diameter: {}".format(d))
         return d
 
+    def __len__(self):
+        return len(self.G)
+
 if __name__ == '__main__':
     # Read in CSV file for that twitter user (these are the original tweets)
     topics = range(0,8)
