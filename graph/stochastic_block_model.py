@@ -6,16 +6,36 @@ from tensorflow.keras.models import load_model
 from build_graph import return_colour, return_legend
 from networkx.drawing.nx_agraph import graphviz_layout
 import matplotlib.pyplot as plt
+from build_graph import Graph
 from matplotlib.lines import Line2D
+import sys
 import tqdm
 from centrality_measures import centrality_per_topic, plot_dual_centralities
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+
 def softmax(x):
     """
         Compute softmax values for each sets of scores in x.
     """
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=0)  # only difference
+
+def sample_from_histogram(histogram,n=100):
+    """ 
+        Creates a sample of retweet counts based on the histogram given.
+        Parameters
+        ----------
+        :param histogram:
+            The bin and count values that denote the frequency of different retweet counts.
+    """
+    hist,bins = histogram
+    bin_midpoints = bins[:-1] + np.diff(bins)/2
+    cdf = np.cumsum(hist)
+    cdf = cdf / cdf[-1]
+    values = np.random.rand(n)
+    value_bins = np.searchsorted(cdf, values)
+    random_from_cdf = bin_midpoints[value_bins]
+    return np.round(random_from_cdf).astype(int)
 
 def possible_tweets(G, aUser, topic=None, leader=None):
     """
@@ -142,7 +162,7 @@ def draw_graph(G, save=False, file_name="stochastic_block_graph", file_type='png
     plt.box(False)
     plt.savefig("../visualizations/random_graphs/{}.{}".format(file_name,file_type),bbox_inches="tight") if save else plt.show()
 
-def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.95, epochs=2.5,use_model=True,verbose=False,**kwargs):
+def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000,retweet_histogram=None, epsilon=0.95,use_model=True,verbose=False,**kwargs):
     """
         Build a stochastic block model based off of the prior probability distributions of topic engagment.
         Parameters
@@ -171,9 +191,9 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
         
         The default probability of a retweeter tweeting any tweet. 
 
-        :param tweet_threshold: 
+        :param retweet_histogram: 
         
-        A float on in the range [0..1]. A user will retweet any tweet this percent of the time.
+        The bin and count values that denote the frequency of different retweet counts.
 
         :param epsilon: 
         
@@ -187,17 +207,13 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
         ---------
         1) Place n "party leader" (those who tweet) vertices on the graph. 
         2) For each of the n tweeters, assign x number of tweets to each (with some distribution of topics), based off of the tweet_dist parameter.
-        3) Place a "user" (those who retweet) vertice on the graph. Form an edge based off of the probability distribution, softmax(P) where P is a
-            k dimensional vector where all elements are initialized to p). For the winning topic place an edge to one of the tweets of that topic randomly 
-            (regardless of who tweeted it). 
-        4) On each iteration, for each user in the graph:
-            a) Calcualte the k dimensional probability vector,P, where P(topic i) = epsilon*P(topic i | past topic retweet counts) for all i in k.
-            b) Of the possible edges, add one ot the winning topic based on the calcualted probability distribution. 
+        3) Place all the "user" (those who retweet) vertices on the graph.
+        4) Generate retweet_counts array (size m) based on `retweet_histogram`, element `i` in this array corresponds to the number of retweets user i will make.
+        5) For each user in the graph, repeat retweet_counts[i] times:
+            a) Calcualte the k dimensional probability vector,P1, based on the predfined neural network with the user's topic tweet history fed through.
+            b) Of the possible edges, add one to the winning topic based on the calcualted probability distribution. 
                 i) Update posteriors. 
-        5) Repeat step 3-4 with a new user.
-        6) Repeat until steps 3-5, until there are m retweeters have been placed on the graph or network has converged (no new edges added).
     """
-    assert tweet_threshold <= 1 and tweet_threshold >= 0, "Tweet threshold must be in the range [0..1]"
     assert epsilon <= 1 and epsilon >= 0, "Epsilon must be in the range [0..1]"
     # Add an extra element in the topics array that when selected the user doesn't retweet anything.
     if verbose and use_model: print("--- Loading Next Topic Neural Network ---")
@@ -205,22 +221,22 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
     topics = [i for i in range(k)]
     G = init_graph(n,tweet_dist,k,m)
     # initialize the probability array
-    pbar = tqdm.tqdm(total=m*epochs) if verbose else None
-    for _ in range(epochs):
-        for j in range(m):
-            if verbose: pbar.update(1)
-            username = "user_{}".format(j)
-            topic_history = G.nodes()[username]["topic_history"].copy()
-            # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
+    pbar = tqdm.tqdm(total=m) if verbose else None
+    retweets_per_user = sample_from_histogram(retweet_histogram,m) 
+    for j,d in enumerate(retweets_per_user):
+        if verbose: pbar.update(1)
+        username = "user_{}".format(j)
+        topic_history = G.nodes()[username]["topic_history"].copy()
+        # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
+        for _ in range(d):
             topic_distribution = predict_next_retweet(topic_history, NEXT_TOPIC_NN, use_model=use_model)
             winning_topic = np.random.choice(topics, p=topic_distribution)
             if np.random.random() < epsilon and not np.all(topic_history == 0):
                 arg_maxes = np.flatnonzero(
                     topic_distribution == topic_distribution.max())
                 winning_topic = np.random.choice(arg_maxes)
-            odds = np.random.random()
             pos_tweets = possible_tweets(G, username, topic=winning_topic)
-            if len(pos_tweets) > 0 and odds > tweet_threshold:
+            if len(pos_tweets) > 0:
                 winning_tweet = np.random.choice(pos_tweets)
                 topic_history[winning_topic] += 1
                 G.nodes[username]["topic_history"] = topic_history
@@ -228,7 +244,7 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
     if verbose: pbar.close()
     return G
 
-def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.9, epochs=2.5,use_model=True,verbose=False, **kwargs):
+def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000,retweet_histogram=None, epsilon=0.95,use_model=True,verbose=False,**kwargs):
     """
         Build a stochastic block model based o00 of the prior probability distributions of topic engagment.
         Parameters
@@ -249,9 +265,9 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
         
         The max number of retweeters in the system. 
 
-        :param tweet_threshold: 
+        :param retweet_histogram: 
         
-        A float on in the range [0..1]. A user will retweet any tweet this percent of the time.
+        The bin and count values that denote the frequency of different retweet counts.
 
         :param epsilon: 
         
@@ -265,17 +281,13 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
         ---------
         1) Place n "party leader" (those who tweet) vertices on the graph. 
         2) For each of the n tweeters, assign x number of tweets to each (with some distribution of topics), based off of the tweet_dist parameter.
-        3) Place a "user" (those who retweet) vertice on the graph. Form an edge based off of the probability distribution, softmax(P) where P is a
-            k dimensional vector where all elements are initialized to p). For the winning topic place an edge to one of the tweets of that topic randomly 
-            (regardless of who tweeted it). 
-        4) On each iteration, for each user in the graph:
-            a) Calcualte the k dimensional probability vector,P, based on the predfined neural network with the users tweet history fed through.
-            b) Of the possible edges, add one ot the winning leader based on the calcualted probability distribution. 
+        3) Place all the "user" (those who retweet) vertices on the graph.
+        4) Generate retweet_counts array (size m) based on `retweet_histogram`, element `i` in this array corresponds to the number of retweets user i will make.
+        5) For each user in the graph, repeat retweet_counts[i] times:
+            a) Calcualte the n dimensional probability vector,P, based on the predfined neural network with the user's leader tweet history fed through.
+            b) Of the possible edges, add one to the winning leader based on the calcualted probability distribution. 
                 i) Update posteriors. 
-        5) Repeat step 3-4 with a new user.
-        6) Repeat until steps 3-5, until there are m retweeters have been placed on the graph or network has converged (no new edges added).
     """
-    assert tweet_threshold <= 1 and tweet_threshold >= 0, "Tweet threshold must be in the range [0..1]"
     assert epsilon <= 1 and epsilon >= 0, "Epsilon must be in the range [0..1]"
     if verbose and use_model: print("--- Loading Next leader Neural Network ---")
     NEXT_LEADER_NN = load_model("../neuralnet/dense_next_leader.h5") if use_model else None
@@ -283,13 +295,13 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
     topics = [i for i in range(k)]
     leaders = [i for i in range(n)]
     G = init_graph(n,tweet_dist,k,m)
-    pbar = tqdm.tqdm(total=m*epochs) if verbose else None
-    for _ in range(epochs):
-        edges_added = 0
-        for j in range(m):
-            if verbose: pbar.update(1)
-            username = "user_{}".format(j)
-            leader_history = G.nodes()[username]["leader_history"].copy()
+    pbar = tqdm.tqdm(total=m) if verbose else None
+    retweets_per_user = sample_from_histogram(retweet_histogram,m) 
+    for j,d in enumerate(retweets_per_user):
+        if verbose: pbar.update(1)
+        username = "user_{}".format(j)
+        leader_history = G.nodes()[username]["leader_history"].copy()
+        for _ in range(d):
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
             leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=use_model)
             winning_leader = np.random.choice(leaders, p=leader_distribution)
@@ -297,21 +309,15 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
                 arg_maxes = np.flatnonzero(leader_distribution == leader_distribution.max())
                 winning_leader = np.random.choice(arg_maxes)
             pos_tweets = possible_tweets(G, username, leader=winning_leader)
-            odds = np.random.random()
-            if len(pos_tweets) > 0 and odds > tweet_threshold:
-                # print(winning_leader,leader_distribution)
+            if len(pos_tweets) > 0:
                 winning_tweet = np.random.choice(pos_tweets)
                 leader_history[winning_leader] += 1
                 G.nodes[username]["leader_history"] = leader_history
                 G.add_edge(winning_tweet, username)
-                edges_added += 1
-        if not edges_added:
-            if verbose: print("--- no new edges added ---")
-            break
     if verbose: pbar.close()
     return G
 
-def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.4, epsilon=0.9, epochs=5,use_model=True,verbose=False, **kwargs):
+def stochastic_hybrid_graph(alpha=0.8,n=5, tweet_dist=(1000, 300), k=7, m=60000,retweet_histogram=None, epsilon=0.95,use_model=True,verbose=False,**kwargs):
     """
         Build a stochastic block model based off of the prior probability distributions of topic and leader engagment.
         Parameters
@@ -336,36 +342,28 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
         
         The max number of retweeters in the system. 
 
-        :param tweet_threshold: 
+        :param retweet_histogram: 
         
-        A float on in the range [0..1]. A user will retweet any tweet this percent of the time.
+        The bin and count values that denote the frequency of different retweet counts.
 
         :param epsilon: 
         
         What % of the time you will choose the highest activated leader from the ANN.
 
-        :param epochs: 
-        
-        How many times to give each user an opportunity to retweet something.
-
         Algorithm
         ---------
         1) Place n "party leader" (those who tweet) vertices on the graph. 
         2) For each of the n tweeters, assign x number of tweets to each (with some distribution of topics), based off of the tweet_dist parameter.
-        3) Place a "user" (those who retweet) vertice on the graph. Form an edge based off of the probability distribution, softmax(P) where P is a
-            k dimensional vector where all elements are initialized to p). For the winning topic place an edge to one of the tweets of that topic randomly 
-            (regardless of who tweeted it). 
-        4) On each iteration, for each user in the graph:
+        3) Place all the "user" (those who retweet) vertices on the graph.
+        4) Generate retweet_counts array (size m) based on `retweet_histogram`, element `i` in this array corresponds to the number of retweets user i will make.
+        5) For each user in the graph, repeat retweet_counts[i] times:
             a) Calcualte the k dimensional probability vector,P1, based on the predfined neural network with the user's topic tweet history fed through.
             b) Calcualte the n dimensional probability vector,P2, based on the predfined neural network with the user's leader tweet history fed through.
             c) Sum (P1.T*(1-alpha))+(P2*alpha) to get a kxn dimensional matrix
             d) Using these relative weightings, select an element (i,j) where i is the topic selected, and j is the party leader selected.
             c) Of the possible edges, add one to the winning leader/topic intersection. 
                 i) Update posteriors. 
-        5) Repeat step 3-4 with a new user.
-        6) Repeat until steps 3-5, until there are m retweeters have been placed on the graph or network has converged (no new edges added).
     """
-    assert tweet_threshold <= 1 and tweet_threshold >= 0, "Tweet threshold must be in the range [0..1]"
     assert epsilon <= 1 and epsilon >= 0, "Epsilon must be in the range [0..1]"
     # Add an extra element in the topics array that when selected the user doesn't retweet anything.
     if verbose and use_model: print("--- Loading Next Topic Neural Network ---")
@@ -375,15 +373,15 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
     topics = [i for i in range(k)]
     G = init_graph(n,tweet_dist,k,m)
     if verbose: print("--- Adding Retweets ---")
-    pbar = tqdm.tqdm(total=m*epochs) if verbose else None
+    pbar = tqdm.tqdm(total=m) if verbose else None
+    retweets_per_user = sample_from_histogram(retweet_histogram,m) 
     topic_leader = [i for i in range(n*k)]
-    for _ in range(epochs):
-        edges_added = 0
-        for j in range(m):
-            if verbose: pbar.update(1)
-            username = "user_{}".format(j)
-            topic_history = G.nodes()[username]["topic_history"].copy()
-            leader_history = G.nodes()[username]["leader_history"].copy()
+    for j,d in enumerate(retweets_per_user):    
+        if verbose: pbar.update(1)
+        username = "user_{}".format(j)
+        topic_history = G.nodes()[username]["topic_history"].copy()
+        leader_history = G.nodes()[username]["leader_history"].copy()
+        for _ in range(d):
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
             topic_distribution = predict_next_retweet(topic_history, NEXT_TOPIC_NN, use_model=use_model).reshape((1, k))
             leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=use_model).reshape((1, n))
@@ -404,8 +402,7 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
                 topic_leader_ind = np.random.choice(arg_maxes)
             winning_topic, winning_leader = np.unravel_index(topic_leader_ind, (k, n))
             pos_tweets = possible_tweets(G, username, leader=winning_leader, topic=winning_topic)
-            odds = np.random.random()
-            if len(pos_tweets) > 0 and odds > tweet_threshold:
+            if len(pos_tweets) > 0:
                 # print(winning_leader,leader_distribution)
                 winning_tweet = np.random.choice(pos_tweets)
                 leader_history[winning_leader] += 1
@@ -413,10 +410,6 @@ def stochastic_hybrid_graph(alpha=0.5, n=5, tweet_dist=(1000, 300), k=7, m=60000
                 G.nodes()[username]["topic_history"] = topic_history
                 G.nodes()[username]["leader_history"] = leader_history
                 G.add_edge(winning_tweet, username)
-                edges_added += 1
-        if not edges_added:
-            if verbose: print("--- no new edges added ---")
-            break
     if verbose: pbar.close()
     return G
 
@@ -426,28 +419,30 @@ Twitter Data
     * Num Tweets:           7978
     * Num Retweet Users:    36450
     * Num Total Retweets:   113293
-
-Retweets Per Retweeter: 3.11       (epochs*(1-tweet_threshold)=3.11)
-Retweeters Per Tweet:   4.57       (m/tweet_dist = 4.57)
 """
 if __name__ == "__main__":
+    usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
+    retweet_histogram = Graph(usernames).retweet_histogram()
+    sample_g = Graph(usernames,n=50)
+    sample_g.draw_graph(save=True)
     kwargs = {
-        "tweet_dist": (200, 70),
+        "tweet_dist": (sample_g.num_tweets, sample_g.num_tweets//5),
         "n": 5,
-        "m": 914,
-        "epochs": 9,
-        "tweet_threshold": 0.37,
+        "m": sample_g.num_retweeters,
         "epsilon": 0.9,
-        "use_model": False
-    }
-    party_file_name="stochastic_party_leader_{}".format(str(kwargs))
+        "use_model": False,
+        "verbose": True,
+        "retweet_histogram": retweet_histogram
+    } 
+    str_args = str({i:kwargs[i] for i in kwargs if i!='retweet_histogram'})
+    party_file_name="stochastic_party_leader_{}".format(str_args)
     party_G = stochastic_party_leader_graph(**kwargs)
     draw_graph(party_G,save=True,file_name=party_file_name,title="Party Leader Graph")
-    topic_file_name="stochastic_topic_{}".format(str(kwargs))
+    topic_file_name="stochastic_topic_{}".format(str_args)
     topic_G = stochastic_topic_graph(**kwargs)
     draw_graph(topic_G,save=True,file_name=topic_file_name,title="Topic Graph")
     for alpha in np.round(np.arange(1,-0.01,-0.1),3).tolist():
         print("--- alpha {} --".format(alpha))
-        hybrid_file_name = "stochastic_hybrid_graph_alpha={}_{}".format(alpha,str(kwargs))
+        hybrid_file_name = "stochastic_hybrid_graph_alpha={}_{}".format(alpha,str_args)
         hybrid_G = stochastic_hybrid_graph(alpha=alpha,**kwargs)
         draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))

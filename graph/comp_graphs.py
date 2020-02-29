@@ -188,27 +188,26 @@ def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0
     
 if __name__ == "__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-    sample_g = Graph(usernames,n=10)
-    num_tweets = sample_g.num_tweets
-    num_retweeters = sample_g.num_retweeters
-    num_retweets = sample_g.num_retweets
-    sample_g = sample_g.G
+    retweet_histogram = Graph(usernames).retweet_histogram()
+    sample_g = Graph(usernames,n=50)
     kwargs = {
-        "tweet_dist": (num_tweets, num_tweets//5),
+        "tweet_dist": (sample_g.num_tweets, sample_g.num_tweets//5),
         "n": 5,
-        "m": num_retweeters,
-        "epochs" : 9,
-        "tweet_threshold": 0.37,
+        "m": sample_g.num_retweeters,
         "epsilon": 0.9,
         "use_model": False,
-        "verbose": False
+        "verbose": False,
+        "retweet_histogram": retweet_histogram
     } 
     graph_dict = {"Original Graph": sample_g}
     alpha_vals = np.round(np.arange(0,1.01,0.05),2)
+    num_per_alpha = 3
+    pbar = tqdm.tqdm(total=len(alpha_vals)*num_per_alpha)
     for alpha in alpha_vals:
-        print("--- generating hybrid (a={}) ---".format(alpha))
-        graph_dict[alpha] = [stochastic_hybrid_graph(alpha,**kwargs) for _ in range(3)]
-        # graph_dict[alpha] = stochastic_hybrid_graph(alpha,**kwargs)
+        # print("--- generating hybrid (a={}) ---".format(alpha))
+        graph_dict[alpha] = [stochastic_hybrid_graph(alpha,**kwargs) for _ in range(num_per_alpha)]
+        pbar.update(num_per_alpha)
+    pbar.close()
     heat_dict = calc_heat(graph_dict=graph_dict)
     fig = plt.figure(figsize = (8,8))
     ax = fig.add_subplot(1,1,1)
@@ -220,29 +219,4 @@ if __name__ == "__main__":
             alphas = [alpha for _ in range(len(heat_traces))] if type(heat_traces) is list else alpha
             heat_trace_dif = [compare(heat_dict["Original Graph"],heat_trace) for heat_trace in heat_traces] if type(heat_traces) is list else compare(heat_dict["Original Graph"],heat_traces)
             ax.plot(alphas,heat_trace_dif,'x',c="blue")
-    # ax.legend(loc="best")
-    # plt.show()
-    plt.savefig("../visualizations/heat_traces/hybrid_heat_trace_difference_a={}.png".format(alpha_vals))
-
-# if __name__ == "__main__":
-#     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-#     og_graph = nx.erdos_renyi_graph(1000,0.8)
-#     graph_dict = {"Original Graph": og_graph}
-#     for sample in np.logspace(1,3,10):
-#         sample = int(sample)
-#         print("--- generating ER size {} ---".format(sample))
-#         graph_dict["ER (size={})".format(sample)] = [nx.erdos_renyi_graph(sample,0.8) for _ in range(10)]
-#     heat_dict = calc_heat(graph_dict=graph_dict)
-#     fig = plt.figure(figsize = (8,8))
-#     ax = fig.add_subplot(1,1,1)
-#     ax.set_title("Erdos-Renyi Heat Trace Comaparison (Benchmark m=1000)")
-#     ax.set_xlabel("Size Difference From Benchmark")
-#     ax.set_ylabel("Heat Trace Distance From Benchmark")
-#     for key,heat_traces in heat_dict.items():
-#         if key != "t" and key != "Original Graph":
-#             size_dif = [len(og_graph)-len(graph_dict[key][0]) for _ in range(len(heat_traces))] if type(heat_traces) is list else len(og_graph)-len(graph_dict[key])
-#             heat_trace_dif = [compare(heat_dict["Original Graph"],heat_trace) for heat_trace in heat_traces] if type(heat_traces) is list else compare(heat_dict["Original Graph"],heat_traces)
-#             ax.plot(size_dif,heat_trace_dif,'x',label=key)
-#     ax.legend(loc="best")
-#     plt.savefig("../visualizations/heat_traces/heat_trace_difference.png")
-#     # plot_heat_traces(heat_dict,is_normalized=True,save_fig=True)
+    plt.savefig("../visualizations/heat_traces/hybrid_heat_trace_difference_a={}.png".format(str(alpha_vals)))

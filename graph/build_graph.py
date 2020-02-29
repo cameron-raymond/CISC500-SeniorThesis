@@ -7,6 +7,7 @@ from networkx.drawing.nx_agraph import graphviz_layout
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import pandas as pd
+import numpy as np
 
 
 def return_colour(aNum):
@@ -135,8 +136,7 @@ class Graph(object):
             G.add_edge(username, row['id'])
         # add retweet user nodes (those who retweeted the original tweets) multipl
         user_nodes = retweet_df.drop_duplicates(subset="original_author")
-        user_nodes = user_nodes.set_index(
-            'original_author').to_dict('index').items()
+        user_nodes = user_nodes.set_index('original_author').to_dict('index').items()
         G.add_nodes_from(user_nodes)
         for _, row in retweet_df.iterrows():
             pbar.update(1)
@@ -177,15 +177,21 @@ class Graph(object):
         print("Diameter: {}".format(d))
         return d
 
+    def retweet_histogram(self):
+        degree_sequence = [d for n, d in self.G.degree() if self.G.nodes[n]["type"] == "retweet"]
+        return np.histogram(degree_sequence, bins=max(len(degree_sequence)//30,self.num_tweets))
+
     def __len__(self):
         return len(self.G)
 
 if __name__ == '__main__':
     # Read in CSV file for that twitter user (these are the original tweets)
+    usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
     topics = range(0,8)
-    G = Graph(sys.argv[1:])
-    G.draw_graph(save=True)
-    G.draw_graph(save=True,use_pos=True)
-    for i in topics:
-        removed = G.map_topics([i])
-        G.draw_graph(G=removed,save=True,use_pos=True)
+    G = Graph(usernames)
+    print(G.retweet_histogram())
+    # G.draw_graph(save=True)
+    # G.draw_graph(save=True,use_pos=True)
+    # for i in topics:
+    #     removed = G.map_topics([i])
+    #     G.draw_graph(G=removed,save=True,use_pos=True)
