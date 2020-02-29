@@ -142,7 +142,7 @@ def draw_graph(G, save=False, file_name="stochastic_block_graph", file_type='png
     plt.box(False)
     plt.savefig("../visualizations/random_graphs/{}.{}".format(file_name,file_type),bbox_inches="tight") if save else plt.show()
 
-def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.95, epochs=2.5,**kwargs):
+def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.95, epochs=2.5,use_model=True,**kwargs):
     """
         Build a stochastic block model based off of the prior probability distributions of topic engagment.
         Parameters
@@ -213,7 +213,7 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
             topic_history = G.nodes()[username]["topic_history"].copy()
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
             topic_distribution = predict_next_retweet(
-                topic_history, NEXT_TOPIC_NN, use_model=True)
+                topic_history, NEXT_TOPIC_NN, use_model=use_model)
             winning_topic = np.random.choice(topics, p=topic_distribution)
             if np.random.random() < epsilon and not np.all(topic_history == 0):
                 arg_maxes = np.flatnonzero(
@@ -229,7 +229,7 @@ def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_thre
     pbar.close()
     return G
 
-def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.9, epochs=2.5, **kwargs):
+def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, tweet_threshold=0.5, epsilon=0.9, epochs=2.5,use_model=True, **kwargs):
     """
         Build a stochastic block model based o00 of the prior probability distributions of topic engagment.
         Parameters
@@ -292,7 +292,7 @@ def stochastic_party_leader_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000, twe
             username = "user_{}".format(j)
             leader_history = G.nodes()[username]["leader_history"].copy()
             # Return the independent probabilities of choosing each topic, based on the agent's previous actions.
-            leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=True)
+            leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=use_model)
             winning_leader = np.random.choice(leaders, p=leader_distribution)
             if np.random.random() < epsilon and not np.all(leader_history == 0):
                 arg_maxes = np.flatnonzero(leader_distribution == leader_distribution.max())
@@ -438,17 +438,18 @@ if __name__ == "__main__":
         "m": 914,
         "epochs": 9,
         "tweet_threshold": 0.37,
-        "epsilon": 0.9
+        "epsilon": 0.9,
+        "use_model": False
     }
-    party_file_name="stochastic_party_leader_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
+    party_file_name="stochastic_party_leader_{}".format(str(kwargs))
     party_G = stochastic_party_leader_graph(**kwargs)
-    draw_graph(party_G,save=True,file_name=party_file_name)
-    topic_file_name="stochastic_topic_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(tweet_dist,m,epochs,tweet_threshold)
+    draw_graph(party_G,save=True,file_name=party_file_name,title="Party Leader Graph")
+    topic_file_name="stochastic_topic_{}".format(str(kwargs))
     topic_G = stochastic_topic_graph(**kwargs)
-    draw_graph(topic_G,save=True,file_name=topic_file_name)
+    draw_graph(topic_G,save=True,file_name=topic_file_name,title="Topic Graph")
     for alpha in np.round(np.arange(1,-0.01,-0.1),3).tolist():
         print("--- alpha {} --".format(alpha))
-        hybrid_file_name = "stochastic_hybrid_graph_alpha={}_tweet_dist={}_m={}_epochs={}_tweet_threshold={}".format(alpha, tweet_dist, m, epochs, tweet_threshold)
+        hybrid_file_name = "stochastic_hybrid_graph_alpha={}_{}".format(alpha,str(kwargs))
         hybrid_G = stochastic_hybrid_graph(alpha=alpha,**kwargs)
         draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
     draw_graph(hybrid_G, save=True, file_name="transparent_"+hybrid_file_name,transparent=True, title="Hybrid Model. Alpha={}".format(alpha))

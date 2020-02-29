@@ -10,6 +10,8 @@ import pandas as pd
 # from scipy.spatial.distance import directed_hausdorff
 from netlsd import heat, compare
 from math import ceil
+import tqdm
+
 
 def log_bin_frequency(G):
     degree_list = [d for n, d in G.degree()]
@@ -82,65 +84,147 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False):
     file_name = "normalized_"+file_name if is_normalized else file_name
     plt.savefig("../visualizations/heat_traces/{}.png".format(file_name)) if save_fig else plt.show()
 
-if __name__=="__main__":
+# if __name__=="__main__":
+#     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
+#     sampled_graphs = [Graph(usernames,n=15).G for _ in range (10)]
+#     avg_size = int(np.mean([len(G) for G in sampled_graphs]))
+#     graph_dict = {"Original Graph": sampled_graphs}
+#     normalize = True
+#     normalization = "empty" if normalize else None
+#     for alpha in np.round(np.arange(1,-0.01,-0.5),2):
+#         print("a is {}".format(alpha))
+#         # graph_dict["Hybrid Graph (a={})".format(alpha)] = [stochastic_hybrid_graph(alpha=alpha,**kwargs) for _ in range(10)]
+#         # graph_dict["Erdos Renyi (p = {})".format(alpha)] = [nx.erdos_renyi_graph(avg_size,alpha) for _ in range(10)]
+#         graph_dict["Hybrid Graph (a={})".format(alpha)] = stochastic_hybrid_graph(alpha=alpha,**kwargs)
+#         graph_dict["Erdos Renyi (p = {})".format(alpha)] = nx.erdos_renyi_graph(avg_size,alpha)
+#     heat_dict = calc_heat(graph_dict=graph_dict,normalization=normalization)
+#     plot_heat_traces(heat_dict,is_normalized=normalize,save_fig=True)
+
+def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0.0001,**kwargs):
+    """
+        Fits a stochastic block model's alpha parameter to best model the heat trace of a target graph. 
+        Parameters
+        ----------
+        :param target_graph: 
+        
+        A networkx graph that is to be modelled.
+
+        :param num_epochs: 
+        
+        The number of epochs to attempt and fit the model to.
+
+        :param learning_rate: 
+        
+        How much to scale the nudge to the alpha value on each iteration rate.
+
+        :param min_delta: 
+        
+        The minimum change in the alpha value to be observed before exiting training.
+
+        Algorithm
+        ---------
+        1) Initialize the hybrid model with some alpha value. 
+        2) Calculate the difference in heat trace between that model and the target.
+        3) Create a = learning_rate*difference and a2 = -learning_rate*difference.
+            i) Recalculate heat trace difference, whichever one diminishes difference more make that the new alpha
+            ii) Error = heat trace difference before - heat trace difference after
+        3) On each epoch
+            i) Calculate new model/heat trace difference with alpha
+            ii) Calculate new error = difference before - difference after
+            iii) alpha = alpha + learning_rate*error
+        4) Repeat until epoch>=num_epochs or delta is sufficiently small.
+    """
+    size = 100
+    target_trace = calc_heat(G=target_graph)["graph"]
+    alpha = 0.8
+    # alpha = np.random.uniform(0,1)
+    history = []
+    pbar = tqdm.tqdm(total=num_epochs)
+    for epoch in range(num_epochs):
+        hybrid_model = stochastic_hybrid_graph(alpha=alpha,**kwargs)
+        hybrid_trace = calc_heat(G=hybrid_model)["graph"]
+        heat_difference = compare(target_trace,hybrid_trace)
+        a1,a2 = alpha + learning_rate*heat_difference, alpha - learning_rate*heat_difference
+        a1_trace, a2_trace = calc_heat(nx.erdos_renyi_graph(size,a1))["graph"],calc_heat(nx.erdos_renyi_graph(size,a2))["graph"]
+        e1, e2 = compare(target_trace,a1_trace),compare(target_trace,a2_trace)
+        # a = alpha
+        error = heat_difference
+        if e1 < e2 and e1 < heat_difference:
+            error = e1
+            alpha = a1
+        elif e2 < e1 and e2 < heat_difference:
+            error = e2
+            alpha = a2
+        else:
+            alpha = alpha + np.random.uniform(-0.01,0.01)*heat_difference
+        history.append([epoch,alpha,error])
+        # print("Epoch: {}".format(epoch))
+        # if error < min_delta:
+        #     return alpha
+        # if a > alpha:
+        #     print("Alpha from {:.10f} -> {:.10f}. Error: {}".format(a,alpha,error))
+        pbar.update(1)
+    pbar.close()
+
+    return np.matrix(history)
+
+if __name__ == "__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-    sampled_graphs = [Graph(usernames,n=15).G for _ in range (10)]
-    avg_size = int(np.mean([len(G) for G in sampled_graphs]))
-    graph_dict = {"Original Graph": sampled_graphs}
+    og_graph = Graph(usernames=usernames,n=50)
     kwargs = {
-        "tweet_dist": (100, 20),
+        "tweet_dist": (50, 20),
         "n": 5,
-        "m": 407,
-        "epochs" : 9,
-        "tweet_threshold": 0.37,
+        "m": 2686,
+        "epochs" : 2,
+        "tweet_threshold": 0.33,
         "epsilon": 0.9,
-        "use_model": False
-    }
-    normalize = True
-    normalization = "empty" if normalize else None
-    for alpha in np.round(np.arange(1,-0.01,-0.5),2):
-        print("a is {}".format(alpha))
-        # graph_dict["Hybrid Graph (a={})".format(alpha)] = [stochastic_hybrid_graph(alpha=alpha,**kwargs) for _ in range(10)]
-        # graph_dict["Erdos Renyi (p = {})".format(alpha)] = [nx.erdos_renyi_graph(avg_size,alpha) for _ in range(10)]
-        graph_dict["Hybrid Graph (a={})".format(alpha)] = stochastic_hybrid_graph(alpha=alpha,**kwargs)
-        graph_dict["Erdos Renyi (p = {})".format(alpha)] = nx.erdos_renyi_graph(avg_size,alpha)
-    heat_dict = calc_heat(graph_dict=graph_dict,normalization=normalization)
-    plot_heat_traces(heat_dict,is_normalized=normalize,save_fig=True)
+        "use_model": False,
+        "verbose": True
+    } 
+    print(og_graph.num_tweets,og_graph.num_retweeters,og_graph.num_retweets)
+    og_graph = og_graph.G
+    history = fit_hybrid_model(og_graph,num_epochs=5000,**kwargs)
+    epochs = history[:,0]
+    alphas = history[:,1]
+    errors = history[:,2]
+
+    print(epochs.shape,alphas.shape,errors.shape)
+    plt.subplot(3,1,1)
+    plt.title("Error/Alpha Breakdowns")
+    plt.plot(epochs,errors)
+    plt.xlabel('Epoch')
+    plt.ylabel('Error')
+    plt.subplot(3,1,2)
+    plt.plot(epochs,alphas)
+    plt.xlabel('Epoch')
+    plt.ylabel('Alpha')
+    plt.subplot(3,1,3)
+    plt.ylabel('Error')
+    plt.xlabel('Alpha')
+    plt.plot(alphas,errors,'x')
+    plt.show()
+
     
 
 # if __name__ == "__main__":
-#     m = 3
-#     N = 100000
-#     # usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-#     # G = Graph(usernames,n=100).G   
-#     # graph_spectrum_laplacian(G,None)
-#     tweet_dist = (50,0)
-#     n       = 5
-#     m       = 200
-#     epochs  = 9
-#     tweet_threshold = 0.37
-#     epsilon = 0.95
-#     frames = []
-#     alphas = []
-#     for i in range(2):
-#         alphas += np.round(np.arange(1,-0.01,-0.1),3).tolist()
-#     for alpha in alphas:
-#         print("--- alpha: {} ---".format(alpha))
-#         frames.append(graph_spectrum_laplacian(stochastic_hybrid_graph(alpha=alpha, tweet_dist=tweet_dist, n=n,m=m, tweet_threshold=tweet_threshold, epochs=epochs, epsilon=epsilon,use_model=False)))
-    # frames = np.matrix(frames)
-    # pca = PCA(n_components=2)
-    # principalComponents = pca.fit_transform(frames)
-    # principal_df = pd.DataFrame(data=principalComponents,columns = ['pc1', 'pc2'])
-    # principal_df = principal_df.assign(alpha=pd.Series(alphas).values)
-    # principal_df.set_index('alpha', inplace=True)
-    # fig = plt.figure(figsize = (8,8))
-    # ax = fig.add_subplot(1,1,1) 
-    # ax.set_xlabel('Principal Component 1', fontsize = 15)
-    # ax.set_ylabel('Principal Component 2', fontsize = 15)
-    # ax.set_title('2 component PCA', fontsize = 20)
-    # principal_df.plot(kind='scatter',x='pc1',y='pc2',ax=ax)
-    # for k, v in principal_df.iterrows():
-    #     ax.annotate("a: {}".format(k), v)
-    # ax.grid()
-    # plt.show()
-    
+#     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
+#     og_graph = nx.erdos_renyi_graph(1000,0.8)
+#     graph_dict = {"Original Graph": og_graph}
+#     for sample in np.logspace(1,3,10):
+#         sample = int(sample)
+#         print("--- generating ER size {} ---".format(sample))
+#         graph_dict["ER (size={})".format(sample)] = [nx.erdos_renyi_graph(sample,0.8) for _ in range(10)]
+#     heat_dict = calc_heat(graph_dict=graph_dict)
+#     fig = plt.figure(figsize = (8,8))
+#     ax = fig.add_subplot(1,1,1)
+#     ax.set_title("Erdos-Renyi Heat Trace Comaparison (Benchmark m=1000)")
+#     ax.set_xlabel("Size Difference From Benchmark")
+#     ax.set_ylabel("Heat Trace Distance From Benchmark")
+#     for key,heat_traces in heat_dict.items():
+#         if key != "t" and key != "Original Graph":
+#             size_dif = [len(og_graph)-len(graph_dict[key][0]) for _ in range(len(heat_traces))] if type(heat_traces) is list else len(og_graph)-len(graph_dict[key])
+#             heat_trace_dif = [compare(heat_dict["Original Graph"],heat_trace) for heat_trace in heat_traces] if type(heat_traces) is list else compare(heat_dict["Original Graph"],heat_traces)
+#             ax.plot(size_dif,heat_trace_dif,'x',label=key)
+#     ax.legend(loc="best")
+#     plt.savefig("../visualizations/heat_traces/heat_trace_difference.png")
+#     plot_heat_traces(heat_dict,is_normalized=True,save_fig=True)
