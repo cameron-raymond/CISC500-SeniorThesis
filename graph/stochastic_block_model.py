@@ -1,16 +1,14 @@
-import networkx as nx
+import sys
+import tqdm
 import numpy as np
-from numpy.random import normal, random
+import networkx as nx
 import tensorflow as tf
+import matplotlib.pyplot as plt
+from build_graph import Graph
+from numpy.random import normal, random
 from tensorflow.keras.models import load_model
 from build_graph import return_colour, return_legend
 from networkx.drawing.nx_agraph import graphviz_layout
-import matplotlib.pyplot as plt
-from build_graph import Graph
-from matplotlib.lines import Line2D
-import sys
-import tqdm
-from centrality_measures import centrality_per_topic, plot_dual_centralities
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 
 def softmax(x):
@@ -161,7 +159,8 @@ def draw_graph(G, save=False, file_name="stochastic_block_graph", file_type='png
     # Turn off borders
     plt.box(False)
     plt.savefig("../visualizations/random_graphs/{}.{}".format(file_name,file_type),bbox_inches="tight") if save else plt.show()
-
+    plt.cla()
+    
 def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000,retweet_histogram=None, epsilon=0.95,use_model=True,verbose=False,**kwargs):
     """
         Build a stochastic block model based off of the prior probability distributions of topic engagment.
@@ -389,11 +388,6 @@ def stochastic_hybrid_graph(alpha=0.8,n=5, tweet_dist=(1000, 300), k=7, m=60000,
             leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=use_model).reshape((1, n))
             topic_distribution *= (1-alpha)
             leader_distribution *= alpha
-            # # normalize 
-            # if k>n:
-            #     topic_distribution *= (k/n)
-            # else:
-            #     leader_distribution *= (n/k)
             # Add the weighted distributions together. Element (i,j) in this
             # matrix means the weight of choosing a tweet about topic i from party leader j
             topic_leader_matrix = topic_distribution.T+leader_distribution
@@ -424,9 +418,10 @@ Twitter Data
 if __name__ == "__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
     retweet_histogram = Graph(usernames).retweet_histogram()
-    sample_g = Graph(usernames,n=100)
+    n = 100
+    sample_g = Graph(usernames,n=n)
     kwargs = {
-        "tweet_dist": (sample_g.num_tweets, sample_g.num_tweets//5),
+        "tweet_dist": (n, n//5),
         "n": 5,
         "m": sample_g.num_retweeters,
         "epsilon": 0.9,

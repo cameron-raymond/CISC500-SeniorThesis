@@ -1,11 +1,11 @@
 import sys
 import os
 import tqdm
-from get_user_tweets import write_to_file
-from tweet_config import * 
+import tweepy
 import pandas as pd
 from datetime import datetime, date
-import tweepy
+from tweet_config import * 
+from get_user_tweets import write_to_file
 
 class Retweet_Grabber(object):
 	def __init__(self, screen_name, *args, **kwargs):

@@ -1,45 +1,12 @@
 import sys
-import networkx as nx
-import collections
-import matplotlib.pyplot as plt
-import numpy as np
-from build_graph import Graph
-from stochastic_block_model import stochastic_hybrid_graph, draw_graph
-from sklearn.decomposition import PCA
-import pandas as pd
-from netlsd import heat, compare
-from math import ceil
+import json
 import tqdm
-
-def log_bin_frequency(G):
-    degree_list = [d for n, d in G.degree()]
-    degree_sequence = sorted([d for n, d in G.degree()], reverse=True)  # degree sequence
-    degree_count = collections.Counter(degree_sequence)
-    # print(list(degree_list))
-    kmin=min(degree_count.values())
-    kmax=max(degree_count.values())
-    log_bins = np.logspace(np.log10(kmin), np.log10(kmax),num=20)
-    log_bin_density, _ = np.histogram(degree_list, bins=log_bins, density=True)
-    log_bins = np.delete(log_bins, -1)
-    for x in range(len(log_bins)):
-        log_bins[x] = ceil(log_bins[x])
-    return log_bins, log_bin_density
-
-def plot_log_bin_frequency(G,G2=None,title="Log-Log Histogram Plot",type=None):
-    log_bins, log_bin_density = log_bin_frequency(G)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    plt.title=(title)
-    plt.xlabel("Log Degree")
-    plt.ylabel("Log Frequency")
-    plt.plot(log_bins,log_bin_density,'x',color='blue',label="Original Graph")
-    if G2 is not None:
-        log_bins,log_bin_density = log_bin_frequency(G2)
-        plt.plot(log_bins,log_bin_density,'x',color='pink',label="Model Graph")
-    plt.legend(loc="best")
-    plt.show()
+import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
+from build_graph import Graph
+from netlsd import heat, compare
+from stochastic_block_model import stochastic_hybrid_graph, draw_graph
 
 def calc_heat(G=None,graph_dict=None,start=-3,end=2,normalization="empty"):
     assert G is not None or graph_dict is not None, "Need to supply a graph, or graphs, via the parameters G or graph_dict"
@@ -148,43 +115,6 @@ def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0
         pbar.update(1)
     pbar.close()
     return np.matrix(history)
-
-# if __name__ == "__main__":
-#     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-#     og_graph = Graph(usernames=usernames,n=50)
-#     kwargs = {
-#         "tweet_dist": (50, 20),
-#         "n": 5,
-#         "m": 2686,
-#         "epochs" : 2,
-#         "tweet_threshold": 0.33,
-#         "epsilon": 0.9,
-#         "use_model": False,
-#         "verbose": True
-#     } 
-#     print(og_graph.num_tweets,og_graph.num_retweeters,og_graph.num_retweets)
-#     og_graph = og_graph.G
-#     history = fit_hybrid_model(og_graph,num_epochs=5000,**kwargs)
-#     epochs = history[:,0]
-#     alphas = history[:,1]
-#     errors = history[:,2]
-
-#     print(epochs.shape,alphas.shape,errors.shape)
-#     plt.subplot(3,1,1)
-#     plt.title("Error/Alpha Breakdowns")
-#     plt.plot(epochs,errors)
-#     plt.xlabel('Epoch')
-#     plt.ylabel('Error')
-#     plt.subplot(3,1,2)
-#     plt.plot(epochs,alphas)
-#     plt.xlabel('Epoch')
-#     plt.ylabel('Alpha')
-#     plt.subplot(3,1,3)
-#     plt.ylabel('Error')
-#     plt.xlabel('Alpha')
-#     plt.plot(alphas,errors,'x')
-#     plt.show()
-
     
 if __name__ == "__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
@@ -207,44 +137,58 @@ if __name__ == "__main__":
     pbar = tqdm.tqdm(total=len(alpha_vals)*num_per_alpha)
     for alpha in alpha_vals:
         graph_dict[alpha] = [stochastic_hybrid_graph(alpha,**kwargs) for _ in range(num_per_alpha)]
-        draw_graph(graph_dict[alpha][-1],save=True,file_name="stochastic_hybrid_graph_alpha={}".format(alpha),title="Hybrid Graph. Alpha={}".format(alpha))
+        draw_graph(graph_dict[alpha][-1],save=True,file_name="stochastic_hybrid_graph_alpha={:.3f}".format(alpha),title="Hybrid Graph. Alpha={}".format(alpha))
         pbar.update(num_per_alpha)
     pbar.close()
     heat_dict = calc_heat(graph_dict=graph_dict)
+    with open("heat_traces.json",'w') as fp:
+        json.dump(heat_dict,fp)
     plot_heat_traces(heat_dict,save_fig=True)
     fig = plt.figure(figsize = (8,8))
     ax = fig.add_subplot(1,1,1)
-    ax.set_title("Hybrid Model Comparison (Benchmark n=10)")
+    ax.set_title("Hybrid Model Comparison (Benchmark n={})".format(n))
     ax.set_xlabel("Alpha Value")
     ax.set_ylabel("Heat Trace Distance From Benchmark")
     for alpha,heat_traces in heat_dict.items():
         if alpha != "t" and alpha != "Original Graph":
-            alphas = [alpha for _ in range(len(heat_traces))] if type(heat_traces) is list else alpha
-            heat_trace_dif = [compare(heat_dict["Original Graph"],heat_trace) for heat_trace in heat_traces] if type(heat_traces) is list else compare(heat_dict["Original Graph"],heat_traces)
+            is_list = type(heat_traces) is list
+            alphas = list(np.full(len(heat_traces),alpha)) if is_list else alpha
+            heat_trace_dif = [compare(heat_dict["Original Graph"],ht) for ht in heat_traces] if is_list else compare(heat_dict["Original Graph"],heat_traces)
             ax.plot(alphas,heat_trace_dif,'x',c="blue")
     plt.savefig("../visualizations/heat_traces/hybrid_heat_trace_difference_a={}_n={}.png".format('_'.join(map(str, alpha_vals)),n))
 
 # if __name__ == "__main__":
 #     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-#     og_graph = Graph(usernames)
-#     num_tweets = int(np.log10(og_graph.num_tweets//len(usernames)))
-#     graph_dict = {"Original Graph": og_graph.G}
-#     n_vals = np.unique(np.round(np.logspace(1,num_tweets,10)))
-#     for sample in np.unique(np.round(np.logspace(0,num_tweets,10))):
-#         sample = int(sample)
-#         print("--- generating sample size size {} ---".format(sample))
-#         graph_dict[sample] = [Graph(usernames,n=sample).G for _ in range(2)]
-#     heat_dict = calc_heat(graph_dict=graph_dict)
-#     fig = plt.figure(figsize = (8,8))
-#     ax = fig.add_subplot(1,1,1)
-#     ax.set_title("Sample Heat Trace Comaparison (Benchmark n={})".format(int(og_graph.num_tweets//len(usernames))))
-#     ax.set_xlabel("Num Tweets Per PL")
-#     ax.set_ylabel("Heat Trace Distance From Benchmark")
-#     for (key,heat_traces) in heat_dict.items():
-#         if key != "t" and key != "Original Graph":
-#             size_dif = [key for _ in range(len(heat_traces))] if type(heat_traces) is list else key
-#             heat_trace_dif = [compare(heat_dict["Original Graph"],heat_trace) for heat_trace in heat_traces] if type(heat_traces) is list else compare(heat_dict["Original Graph"],heat_traces)
-#             ax.plot(size_dif,heat_trace_dif,'x')
-#     ax.legend(loc="best")
-#     plt.savefig("../visualizations/heat_traces/heat_trace_difference.png")
-#     # plot_heat_traces(heat_dict,is_normalized=True,save_fig=True)
+#     retweet_histogram = Graph(usernames).retweet_histogram()
+#     n=215
+#     og_graph = Graph(usernames,n=n)
+#     kwargs = {
+#         "tweet_dist": (n,n//5),
+#         "n": 5,
+#         "m": og_graph.num_retweeters,
+#         "epsilon": 0.9,
+#         "use_model": False,
+#         "verbose": False,
+#         "retweet_histogram": retweet_histogram
+#     } 
+#     print(og_graph.num_tweets,og_graph.num_retweeters,og_graph.num_retweets)
+#     og_graph = og_graph.G
+#     history = fit_hybrid_model(og_graph,num_epochs=5000,**kwargs)
+#     epochs = history[:,0]
+#     alphas = history[:,1]
+#     errors = history[:,2]
+#     print(epochs.shape,alphas.shape,errors.shape)
+#     plt.subplot(3,1,1)
+#     plt.title("Error/Alpha Breakdowns")
+#     plt.plot(epochs,errors)
+#     plt.xlabel('Epoch')
+#     plt.ylabel('Error')
+#     plt.subplot(3,1,2)
+#     plt.plot(epochs,alphas)
+#     plt.xlabel('Epoch')
+#     plt.ylabel('Alpha')
+#     plt.subplot(3,1,3)
+#     plt.ylabel('Error')
+#     plt.xlabel('Alpha')
+#     plt.plot(alphas,errors,'x')
+#     plt.show()

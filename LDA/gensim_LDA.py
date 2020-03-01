@@ -1,15 +1,15 @@
 import sys
 import os
-import gensim
-import gensim.corpora as corpora
-from gensim.models import CoherenceModel
-from gensim.test.utils import datapath
-import pandas as pd
-import numpy as np
 import tqdm
-from mpl_toolkits.mplot3d import Axes3D
+import gensim
+import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+import gensim.corpora as corpora
 from matplotlib import cm
+from gensim.test.utils import datapath
+from mpl_toolkits.mplot3d import Axes3D
+from gensim.models import CoherenceModel
 
 def make_bigrams(texts, bigram_mod):
     return [bigram_mod[doc] for doc in texts]
@@ -152,7 +152,6 @@ def return_hyperparams(corpus,word_dict,text_data,use_existing=True,**kwargs):
     best_val = params["Coherence"].idxmax()
     return params["Coherence"].loc[best_val],params["Alpha"].loc[best_val],params["Beta"].loc[best_val],params["Topics"].loc[best_val]
 
-
 def predict(new_doc,lda_model,word_dict):
     try:
         new_doc = new_doc.split()
@@ -162,7 +161,6 @@ def predict(new_doc,lda_model,word_dict):
     except:
         # Some rows may have null clean text (example: every token in the tweet is <3 character long). If that's the case return -1 (we want to discard these)
         return -1
-
 
 def add_cluster(username,lda_model,word_dict):
     """
@@ -180,7 +178,6 @@ def add_cluster(username,lda_model,word_dict):
     timeline_df["lda_cluster"] = timeline_df["clean_text"].apply(lambda x : predict(x,lda_model,word_dict))
     csvFile = open(file_path, 'w' ,encoding='utf-8')
     timeline_df.to_csv(csvFile, mode='w', index=False, encoding="utf-8")
-
 
 if __name__ == "__main__":
     # Put all of the party leaders into one data frame

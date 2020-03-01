@@ -1,20 +1,16 @@
 import sys
-import operator
-import collections
-import networkx as nx
 import tqdm
-from networkx.drawing.nx_agraph import graphviz_layout
+import numpy as np
+import pandas as pd
+import networkx as nx
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-import pandas as pd
-import numpy as np
-
+from networkx.drawing.nx_agraph import graphviz_layout
 
 def return_colour(aNum):
     colours = ["#006816","#8d34e4","#c9a738","#0163d0","#ee5700", "#00937e", "#ff4284", "#4b5400", "#ea80ff","#9f0040"]
     assert aNum < len(colours)
     return colours[aNum], aNum+1
-
 
 def return_legend(legend):
     legends = [Line2D([0], [0], marker='o', color='w', label='Party Leader', markerfacecolor='r', markersize=10), Line2D([0], [0], marker='o', color='w', label='Retweet', markerfacecolor='#79BFD3', markersize=10)]
@@ -190,8 +186,8 @@ if __name__ == '__main__':
     topics = range(0,8)
     G = Graph(usernames)
     print(G.retweet_histogram())
-    # G.draw_graph(save=True)
-    # G.draw_graph(save=True,use_pos=True)
-    # for i in topics:
-    #     removed = G.map_topics([i])
-    #     G.draw_graph(G=removed,save=True,use_pos=True)
+    G.draw_graph(save=True)
+    G.draw_graph(save=True,use_pos=True)
+    for i in topics:
+        removed = G.map_topics([i])
+        G.draw_graph(G=removed,save=True,use_pos=True)
