@@ -146,12 +146,12 @@ def draw_graph(G, save=False, file_name="stochastic_block_graph", file_type='png
     print("--- Drawing {} nodes and {} edges ---".format(len(G.nodes()),
                                                          G.number_of_edges()))
     width = 0.2 if not transparent else 0
-    # node_size = 20 if not transparent else 200
+    node_size = 20 if not transparent else 200
     nx.draw_networkx(G, pos,
                      node_color=colors,
                      with_labels=False,
                      alpha=0.75,
-                     node_size=200,
+                     node_size=node_size,
                      width=width,
                      arrows=False
                      )
@@ -376,8 +376,10 @@ def stochastic_hybrid_graph(alpha=0.8,n=5, tweet_dist=(1000, 300), k=7, m=60000,
     pbar = tqdm.tqdm(total=m) if verbose else None
     retweets_per_user = sample_from_histogram(retweet_histogram,m) 
     topic_leader = [i for i in range(n*k)]
+    # assert np.min(retweets_per_user) > 0, str(retweets_per_user)
     for j,d in enumerate(retweets_per_user):    
         if verbose: pbar.update(1)
+        assert d >0, "retweets per user {}".format(retweets_per_user)
         username = "user_{}".format(j)
         topic_history = G.nodes()[username]["topic_history"].copy()
         leader_history = G.nodes()[username]["leader_history"].copy()
@@ -387,11 +389,11 @@ def stochastic_hybrid_graph(alpha=0.8,n=5, tweet_dist=(1000, 300), k=7, m=60000,
             leader_distribution = predict_next_retweet(leader_history, NEXT_LEADER_NN, use_model=use_model).reshape((1, n))
             topic_distribution *= (1-alpha)
             leader_distribution *= alpha
-            # normalize 
-            if k>n:
-                topic_distribution *= (k/n)
-            else:
-                leader_distribution *= (n/k)
+            # # normalize 
+            # if k>n:
+            #     topic_distribution *= (k/n)
+            # else:
+            #     leader_distribution *= (n/k)
             # Add the weighted distributions together. Element (i,j) in this
             # matrix means the weight of choosing a tweet about topic i from party leader j
             topic_leader_matrix = topic_distribution.T+leader_distribution
@@ -403,7 +405,6 @@ def stochastic_hybrid_graph(alpha=0.8,n=5, tweet_dist=(1000, 300), k=7, m=60000,
             winning_topic, winning_leader = np.unravel_index(topic_leader_ind, (k, n))
             pos_tweets = possible_tweets(G, username, leader=winning_leader, topic=winning_topic)
             if len(pos_tweets) > 0:
-                # print(winning_leader,leader_distribution)
                 winning_tweet = np.random.choice(pos_tweets)
                 leader_history[winning_leader] += 1
                 topic_history[winning_topic] += 1
@@ -423,8 +424,7 @@ Twitter Data
 if __name__ == "__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
     retweet_histogram = Graph(usernames).retweet_histogram()
-    sample_g = Graph(usernames,n=50)
-    sample_g.draw_graph(save=True)
+    sample_g = Graph(usernames,n=100)
     kwargs = {
         "tweet_dist": (sample_g.num_tweets, sample_g.num_tweets//5),
         "n": 5,
@@ -437,12 +437,12 @@ if __name__ == "__main__":
     str_args = str({i:kwargs[i] for i in kwargs if i!='retweet_histogram'})
     party_file_name="stochastic_party_leader_{}".format(str_args)
     party_G = stochastic_party_leader_graph(**kwargs)
-    draw_graph(party_G,save=True,file_name=party_file_name,title="Party Leader Graph")
+    draw_graph(party_G,save=False,file_name=party_file_name,title="Party Leader Graph")
     topic_file_name="stochastic_topic_{}".format(str_args)
     topic_G = stochastic_topic_graph(**kwargs)
-    draw_graph(topic_G,save=True,file_name=topic_file_name,title="Topic Graph")
+    draw_graph(topic_G,save=False,file_name=topic_file_name,title="Topic Graph")
     for alpha in np.round(np.arange(1,-0.01,-0.1),3).tolist():
         print("--- alpha {} --".format(alpha))
         hybrid_file_name = "stochastic_hybrid_graph_alpha={}_{}".format(alpha,str_args)
         hybrid_G = stochastic_hybrid_graph(alpha=alpha,**kwargs)
-        draw_graph(hybrid_G, save=True, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
+        draw_graph(hybrid_G, save=False, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))

@@ -179,7 +179,7 @@ class Graph(object):
 
     def retweet_histogram(self):
         degree_sequence = [d for n, d in self.G.degree() if self.G.nodes[n]["type"] == "retweet"]
-        return np.histogram(degree_sequence, bins=max(len(degree_sequence)//30,self.num_tweets))
+        return np.histogram(degree_sequence, bins=len(degree_sequence)//2)
 
     def __len__(self):
         return len(self.G)

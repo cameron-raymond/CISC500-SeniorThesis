@@ -77,7 +77,7 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False):
             ax.fill_between(times, heat_traces+std_dev, heat_traces-std_dev, alpha=0.5)
         ax.plot(times,heat_traces,label=label)
     ax.legend()
-    file_name = "_".join(heat_dict.keys()).replace(" ", "_").lower()
+    file_name = '_'.join(map(str, heat_dict.keys())).replace(" ", "_").lower()
     file_name += "_heat_trace_plot"
     file_name = "normalized_"+file_name if is_normalized else file_name
     plt.savefig("../visualizations/heat_traces/{}.png".format(file_name)) if save_fig else plt.show()
@@ -189,9 +189,10 @@ def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0
 if __name__ == "__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
     retweet_histogram = Graph(usernames).retweet_histogram()
-    sample_g = Graph(usernames,n=50)
+    n=215
+    sample_g = Graph(usernames,n=n)
     kwargs = {
-        "tweet_dist": (sample_g.num_tweets, sample_g.num_tweets//5),
+        "tweet_dist": (n,n//5),
         "n": 5,
         "m": sample_g.num_retweeters,
         "epsilon": 0.9,
@@ -199,16 +200,18 @@ if __name__ == "__main__":
         "verbose": False,
         "retweet_histogram": retweet_histogram
     } 
+    sample_g = sample_g.G
     graph_dict = {"Original Graph": sample_g}
     alpha_vals = np.round(np.arange(0,1.01,0.05),2)
     num_per_alpha = 3
     pbar = tqdm.tqdm(total=len(alpha_vals)*num_per_alpha)
     for alpha in alpha_vals:
-        # print("--- generating hybrid (a={}) ---".format(alpha))
         graph_dict[alpha] = [stochastic_hybrid_graph(alpha,**kwargs) for _ in range(num_per_alpha)]
+        draw_graph(graph_dict[alpha][-1],save=True,file_name="stochastic_hybrid_graph_alpha={}".format(alpha),title="Hybrid Graph. Alpha={}".format(alpha))
         pbar.update(num_per_alpha)
     pbar.close()
     heat_dict = calc_heat(graph_dict=graph_dict)
+    plot_heat_traces(heat_dict,save_fig=True)
     fig = plt.figure(figsize = (8,8))
     ax = fig.add_subplot(1,1,1)
     ax.set_title("Hybrid Model Comparison (Benchmark n=10)")
@@ -219,4 +222,29 @@ if __name__ == "__main__":
             alphas = [alpha for _ in range(len(heat_traces))] if type(heat_traces) is list else alpha
             heat_trace_dif = [compare(heat_dict["Original Graph"],heat_trace) for heat_trace in heat_traces] if type(heat_traces) is list else compare(heat_dict["Original Graph"],heat_traces)
             ax.plot(alphas,heat_trace_dif,'x',c="blue")
-    plt.savefig("../visualizations/heat_traces/hybrid_heat_trace_difference_a={}.png".format(str(alpha_vals)))
+    plt.savefig("../visualizations/heat_traces/hybrid_heat_trace_difference_a={}_n={}.png".format('_'.join(map(str, alpha_vals)),n))
+
+# if __name__ == "__main__":
+#     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
+#     og_graph = Graph(usernames)
+#     num_tweets = int(np.log10(og_graph.num_tweets//len(usernames)))
+#     graph_dict = {"Original Graph": og_graph.G}
+#     n_vals = np.unique(np.round(np.logspace(1,num_tweets,10)))
+#     for sample in np.unique(np.round(np.logspace(0,num_tweets,10))):
+#         sample = int(sample)
+#         print("--- generating sample size size {} ---".format(sample))
+#         graph_dict[sample] = [Graph(usernames,n=sample).G for _ in range(2)]
+#     heat_dict = calc_heat(graph_dict=graph_dict)
+#     fig = plt.figure(figsize = (8,8))
+#     ax = fig.add_subplot(1,1,1)
+#     ax.set_title("Sample Heat Trace Comaparison (Benchmark n={})".format(int(og_graph.num_tweets//len(usernames))))
+#     ax.set_xlabel("Num Tweets Per PL")
+#     ax.set_ylabel("Heat Trace Distance From Benchmark")
+#     for (key,heat_traces) in heat_dict.items():
+#         if key != "t" and key != "Original Graph":
+#             size_dif = [key for _ in range(len(heat_traces))] if type(heat_traces) is list else key
+#             heat_trace_dif = [compare(heat_dict["Original Graph"],heat_trace) for heat_trace in heat_traces] if type(heat_traces) is list else compare(heat_dict["Original Graph"],heat_traces)
+#             ax.plot(size_dif,heat_trace_dif,'x')
+#     ax.legend(loc="best")
+#     plt.savefig("../visualizations/heat_traces/heat_trace_difference.png")
+#     # plot_heat_traces(heat_dict,is_normalized=True,save_fig=True)
