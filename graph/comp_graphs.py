@@ -166,6 +166,8 @@ if __name__ == "__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
     retweet_histogram = Graph(usernames).retweet_histogram()
     n=215
+    save = True
+    num_per_alpha = 4
     sample_g = Graph(usernames,n=n)
     kwargs = {
         "tweet_dist": (n,n//5),
@@ -180,16 +182,18 @@ if __name__ == "__main__":
     graph_dict = {"Original Graph": sample_g}
     alpha_vals = np.round(np.arange(0,1.01,0.05),2)
     alpha_str = '_'.join(map(str, alpha_vals))
-    num_per_alpha = 3
     pbar = tqdm.tqdm(total=len(alpha_vals)*num_per_alpha)
     for alpha in alpha_vals:
-        graph_dict[alpha] = [stochastic_hybrid_graph(alpha,**kwargs) for _ in range(num_per_alpha)]
-        draw_graph(graph_dict[alpha][-1],save=True,file_name="stochastic_hybrid_graph_alpha={:.3f}".format(alpha),title="Hybrid Graph. Alpha={}".format(alpha))
-        pbar.update(num_per_alpha)
+        gs = []
+        for _ in range(num_per_alpha):
+            gs.append(stochastic_hybrid_graph(alpha,**kwargs))
+            pbar.update(1)
+        graph_dict[alpha] = gs
+        draw_graph(graph_dict[alpha][-1],save=save,file_name="stochastic_hybrid_graph_alpha={:.3f}".format(alpha),title="Hybrid Graph. Alpha={}".format(alpha))
     pbar.close()
     heat_dict = calc_heat(graph_dict=graph_dict)
-    dump_dict(heat_dict,"heat_traces_alphas={}_n={}.json".format(alpha_str,n))
-    plot_heat_traces(heat_dict,save_fig=True,benchmark="Original Graph",n=n)
+    dump_dict(heat_dict,"heat_traces_alphas={}_n={}.json".format(alpha_str,n)) if save else None
+    plot_heat_traces(heat_dict,save_fig=save,benchmark="Original Graph",n=n)
 
 # if __name__ == "__main__":
 #     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
