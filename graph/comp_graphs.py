@@ -1,14 +1,16 @@
 import sys
 import json
 import tqdm
+import pickle
 import numpy as np
 import networkx as nx
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from build_graph import Graph
 from netlsd import heat, compare
 from stochastic_block_model import stochastic_hybrid_graph, draw_graph
 
-def calc_heat(G=None,graph_dict=None,start=-3,end=2,normalization="empty"):
+def calc_heat(G=None,graph_dict=None,start=-2,end=2,normalization="empty"):
     assert G is not None or graph_dict is not None, "Need to supply a graph, or graphs, via the parameters G or graph_dict"
     # Create a set of times ranging from 10**-4, to 10**2 on a logarithmic scale
     times = np.logspace(start,end,250)
@@ -27,26 +29,51 @@ def calc_heat(G=None,graph_dict=None,start=-3,end=2,normalization="empty"):
                 heat_dict[label] = heats            
     return heat_dict
 
-def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False):
+def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,n=None):
+    assert benchmark is None and n is None or benchmark is not None and n is not None
+    __is_numeric = lambda x : isinstance(x, (int, float, complex))
+    heat_dict = heat_dict.copy()
     fig = plt.figure(figsize = (8,8))
-    ax = fig.add_subplot(1,1,1)  
+    ax = fig.add_subplot(2,1,1) if benchmark else fig.add_subplot(1,1,1) 
     title = "Heat Trace (Normalized)" if is_normalized else "Heat Trace"
     ax.set_title(title)
     ax.set_ylabel('h(t)', fontsize = 15)
     ax.set_xscale('log')
     ax.grid()
     times = heat_dict.pop("t")
+    numeric_keys = np.array([nk for nk in heat_dict.keys() if __is_numeric(nk)])
+    if len(numeric_keys):
+        cmap = mpl.cm.bwr
+        norm = mpl.colors.Normalize(vmin=np.min(numeric_keys), vmax=np.max(numeric_keys))
+        axcb = fig.colorbar(plt.cm.ScalarMappable(norm=norm, cmap=cmap), ax=ax)
+        axcb.set_label('Alpha')
     for label,heat_traces in heat_dict.items():
         if type(heat_traces) is list:
             heat_traces = np.matrix(heat_traces)
             std_dev = np.array(heat_traces.std(axis=0)).flatten() * 2
             heat_traces = np.array(heat_traces.mean(axis=0)).flatten()
             ax.fill_between(times, heat_traces+std_dev, heat_traces-std_dev, alpha=0.5)
-        ax.plot(times,heat_traces,label=label)
-    ax.legend()
+        if __is_numeric(label):
+            ax.plot(times,heat_traces,c=plt.cm.bwr(label))
+        else:            
+            ax.plot(times,heat_traces,label=label)
+    ax.legend(loc="best")
+    if benchmark:
+        ax = fig.add_subplot(2,1,2)
+        ax.set_title("Hybrid Model Comparison (Benchmark n={})".format(n))
+        ax.set_xlabel("Alpha Value")
+        ax.set_ylabel("Heat Trace Distance From Benchmark")
+        for alpha,heat_traces in heat_dict.items():
+            if alpha != benchmark:
+                is_list = type(heat_traces) is list
+                alphas = list(np.full(len(heat_traces),alpha)) if is_list else alpha
+                heat_trace_dif = [compare(heat_dict[benchmark],ht) for ht in heat_traces] if is_list else compare(heat_dict[benchmark],heat_traces)
+                ax.plot(alphas,heat_trace_dif,'x',c="blue")
+    plt.tight_layout()
     file_name = '_'.join(map(str, heat_dict.keys())).replace(" ", "_").lower()
     file_name += "_heat_trace_plot"
     file_name = "normalized_"+file_name if is_normalized else file_name
+    file_name = "comparison_"+file_name if benchmark is not None else file_name
     plt.savefig("../visualizations/heat_traces/{}.png".format(file_name)) if save_fig else plt.show()
 
 def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0.0001,**kwargs):
@@ -116,6 +143,15 @@ def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0
     pbar.close()
     return np.matrix(history)
     
+def dump_dict(a_dict,file_name="heat_traces"):
+    with open(file_name,'wb') as fp:
+        pickle.dump(a_dict, fp)
+
+def load_dict(file_name):
+    with open(file_name, 'rb') as fp:
+        ret_dict = pickle.load(fp)
+    return ret_dict
+        
 if __name__ == "__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
     retweet_histogram = Graph(usernames).retweet_histogram()
@@ -133,6 +169,7 @@ if __name__ == "__main__":
     sample_g = sample_g.G
     graph_dict = {"Original Graph": sample_g}
     alpha_vals = np.round(np.arange(0,1.01,0.05),2)
+    alpha_str = '_'.join(map(str, alpha_vals))
     num_per_alpha = 3
     pbar = tqdm.tqdm(total=len(alpha_vals)*num_per_alpha)
     for alpha in alpha_vals:
@@ -141,21 +178,8 @@ if __name__ == "__main__":
         pbar.update(num_per_alpha)
     pbar.close()
     heat_dict = calc_heat(graph_dict=graph_dict)
-    with open("heat_traces.json",'w') as fp:
-        json.dump(heat_dict,fp)
-    plot_heat_traces(heat_dict,save_fig=True)
-    fig = plt.figure(figsize = (8,8))
-    ax = fig.add_subplot(1,1,1)
-    ax.set_title("Hybrid Model Comparison (Benchmark n={})".format(n))
-    ax.set_xlabel("Alpha Value")
-    ax.set_ylabel("Heat Trace Distance From Benchmark")
-    for alpha,heat_traces in heat_dict.items():
-        if alpha != "t" and alpha != "Original Graph":
-            is_list = type(heat_traces) is list
-            alphas = list(np.full(len(heat_traces),alpha)) if is_list else alpha
-            heat_trace_dif = [compare(heat_dict["Original Graph"],ht) for ht in heat_traces] if is_list else compare(heat_dict["Original Graph"],heat_traces)
-            ax.plot(alphas,heat_trace_dif,'x',c="blue")
-    plt.savefig("../visualizations/heat_traces/hybrid_heat_trace_difference_a={}_n={}.png".format('_'.join(map(str, alpha_vals)),n))
+    dump_dict(heat_dict,"heat_traces_alphas={}_n={}.json".format(alpha_str,n))
+    plot_heat_traces(heat_dict,save_fig=True,benchmark="Original Graph",n=n)
 
 # if __name__ == "__main__":
 #     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
