@@ -49,8 +49,8 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,
         axcb.set_label('Alpha')
     for label,heat_traces in heat_dict.items():
         if type(heat_traces) is list:
-            heat_traces = np.matrix(heat_traces)
-            std_dev = np.array(heat_traces.std(axis=0)).flatten() * 2
+            heat_traces = np.array(heat_traces)
+            std_dev = np.array(heat_traces.std(axis=0)).flatten()
             heat_traces = np.array(heat_traces.mean(axis=0)).flatten()
             ax.fill_between(times, heat_traces+std_dev, heat_traces-std_dev, alpha=0.5)
         if __is_numeric(label):
@@ -63,12 +63,22 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,
         ax.set_title("Hybrid Model Comparison (Benchmark n={})".format(n))
         ax.set_xlabel("Alpha Value")
         ax.set_ylabel("Heat Trace Distance From Benchmark")
+        distances = []
+        t_alphas = []
         for alpha,heat_traces in heat_dict.items():
             if alpha != benchmark:
                 is_list = type(heat_traces) is list
                 alphas = list(np.full(len(heat_traces),alpha)) if is_list else alpha
                 heat_trace_dif = [compare(heat_dict[benchmark],ht) for ht in heat_traces] if is_list else compare(heat_dict[benchmark],heat_traces)
+                distances.append(heat_trace_dif)
+                t_alphas.append(alpha)
                 ax.plot(alphas,heat_trace_dif,'x',c="blue")
+        distances,t_alphas = np.array(distances),np.array(t_alphas)
+        std_dev = np.array(distances.std(axis=1)).flatten()
+        distances = np.array(distances.mean(axis=1)).flatten()
+        ax.fill_between(t_alphas, distances+std_dev, distances-std_dev, alpha=0.5,color='pink')
+        ax.plot(t_alphas, distances,color='pink')
+
     plt.tight_layout()
     file_name = '_'.join(map(str, heat_dict.keys())).replace(" ", "_").lower()
     file_name += "_heat_trace_plot"
@@ -142,7 +152,7 @@ def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0
         pbar.update(1)
     pbar.close()
     return np.matrix(history)
-    
+
 def dump_dict(a_dict,file_name="heat_traces"):
     with open(file_name,'wb') as fp:
         pickle.dump(a_dict, fp)
