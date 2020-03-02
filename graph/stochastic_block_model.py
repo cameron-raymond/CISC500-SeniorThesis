@@ -160,6 +160,7 @@ def draw_graph(G, save=False, file_name="stochastic_block_graph", file_type='png
     plt.box(False)
     plt.savefig("../visualizations/random_graphs/{}.{}".format(file_name,file_type),bbox_inches="tight") if save else plt.show()
     plt.cla()
+    plt.close()
     
 def stochastic_topic_graph(n=5, tweet_dist=(1000, 300), k=7, m=60000,retweet_histogram=None, epsilon=0.95,use_model=True,verbose=False,**kwargs):
     """

@@ -190,7 +190,7 @@ if __name__ == "__main__":
             gs.append(stochastic_hybrid_graph(alpha,**kwargs))
             pbar.update(1)
         graph_dict[alpha] = gs
-        # draw_graph(graph_dict[alpha][-1],save=save,file_name="stochastic_hybrid_graph_alpha={:.3f}_{}".format(alpha,str_args),title="Hybrid Graph. Alpha={}".format(alpha))
+        draw_graph(graph_dict[alpha][-1],save=save,file_name="stochastic_hybrid_graph_alpha={:.3f}_{}".format(alpha,str_args),title="Hybrid Graph. Alpha={}".format(alpha))
     pbar.close()
     heat_dict = calc_heat(graph_dict=graph_dict)
     dump_dict(heat_dict,"heat_traces_alphas={}_n={}_{}.json".format(alpha_str,n,str_args)) if save else None
