@@ -165,7 +165,7 @@ def load_dict(file_name):
 if __name__ == "__main__":
     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
     retweet_histogram = Graph(usernames).retweet_histogram()
-    n=2
+    n=215
     save = True
     num_per_alpha = 4
     sample_g = Graph(usernames,n=n)
