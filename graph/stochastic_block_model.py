@@ -4,6 +4,7 @@ import numpy as np
 import networkx as nx
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from config import config
 from build_graph import Graph
 from numpy.random import normal, random
 from tensorflow.keras.models import load_model
@@ -375,11 +376,11 @@ def stochastic_hybrid_graph(alpha=0.8,n=5, tweet_dist=(1000, 300), k=7, m=60000,
     if verbose: print("--- Adding Retweets ---")
     pbar = tqdm.tqdm(total=m) if verbose else None
     retweets_per_user = sample_from_histogram(retweet_histogram,m) 
+    print(retweets_per_user)
     topic_leader = [i for i in range(n*k)]
     assert np.min(retweets_per_user) > 0 and len(retweets_per_user) == m, str(retweets_per_user)
     for j,d in enumerate(retweets_per_user):    
         if verbose: pbar.update(1)
-        assert d >0, "retweets per user {}".format(retweets_per_user)
         username = "user_{}".format(j)
         topic_history = G.nodes()[username]["topic_history"].copy()
         leader_history = G.nodes()[username]["leader_history"].copy()
@@ -407,8 +408,9 @@ def stochastic_hybrid_graph(alpha=0.8,n=5, tweet_dist=(1000, 300), k=7, m=60000,
                 G.nodes()[username]["leader_history"] = leader_history
                 G.add_edge(winning_tweet, username)
     if verbose: pbar.close()
+    retweet_count = [d for n, d in G.degree() if G.nodes[n]["type"] == "retweet"]
+    print(retweet_count)
     return G
-
 
 """
 Twitter Data
@@ -417,28 +419,17 @@ Twitter Data
     * Num Total Retweets:   113293
 """
 if __name__ == "__main__":
-    usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-    retweet_histogram = Graph(usernames).retweet_histogram()
-    n = 100
-    sample_g = Graph(usernames,n=n)
-    kwargs = {
-        "tweet_dist": (n, n//5),
-        "n": 5,
-        "m": sample_g.num_retweeters,
-        "epsilon": 0.9,
-        "use_model": False,
-        "verbose": True,
-        "retweet_histogram": retweet_histogram
-    } 
-    str_args = str({i:kwargs[i] for i in kwargs if i!='retweet_histogram'})
-    party_file_name="stochastic_party_leader_{}".format(str_args)
-    party_G = stochastic_party_leader_graph(**kwargs)
-    draw_graph(party_G,save=False,file_name=party_file_name,title="Party Leader Graph")
-    topic_file_name="stochastic_topic_{}".format(str_args)
-    topic_G = stochastic_topic_graph(**kwargs)
-    draw_graph(topic_G,save=False,file_name=topic_file_name,title="Topic Graph")
-    for alpha in np.round(np.arange(1,-0.01,-0.1),3).tolist():
+    retweet_histogram = Graph(config["usernames"]).retweet_histogram()
+    sample_g = Graph(config["usernames"],n=config["num_tweets"])
+    m = sample_g.num_retweeters
+    # party_file_name="stochastic_party_leader_{}".format(str(str(config["kwargs"])))
+    # party_G = stochastic_party_leader_graph(m=sample_g.num_retweeters,retweet_histogram=retweet_histogram,**config["kwargs"])
+    # draw_graph(party_G,save=config["save"],file_name=party_file_name,title="Party Leader Graph")
+    # topic_file_name="stochastic_topic_{}".format(str(config["kwargs"]))
+    # topic_G = stochastic_topic_graph(m=sample_g.num_retweeters,retweet_histogram=retweet_histogram,**config["kwargs"])
+    # draw_graph(topic_G,save=config["save"],file_name=topic_file_name,title="Topic Graph")
+    for alpha in config["alphas"]:
         print("--- alpha {} --".format(alpha))
-        hybrid_file_name = "stochastic_hybrid_graph_alpha={}_{}".format(alpha,str_args)
-        hybrid_G = stochastic_hybrid_graph(alpha=alpha,**kwargs)
-        draw_graph(hybrid_G, save=False, file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))
+        hybrid_file_name = "stochastic_hybrid_graph_alpha={}_{}".format(alpha,str(config["kwargs"]))
+        hybrid_G = stochastic_hybrid_graph(alpha=alpha,m=sample_g.num_retweeters,retweet_histogram=retweet_histogram,**config["kwargs"])
+        draw_graph(hybrid_G, save=config["save"], file_name=hybrid_file_name, title="Hybrid Graph. Alpha={}".format(alpha))

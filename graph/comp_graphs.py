@@ -169,9 +169,8 @@ def load_dict(file_name):
         return {}
         
 if __name__ == "__main__":
-    usernames = ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-    retweet_histogram = Graph(usernames).retweet_histogram()
-    sample_g = Graph(usernames,n=config["num_tweets"])
+    retweet_histogram = Graph(config["usernames"]).retweet_histogram()
+    sample_g = Graph(config["usernames"],n=config["num_tweets"])
     graph_dict = {"Original Graph": sample_g.G}
     heat_dict_fn = "heat_traces_num_tweets={}_{}.json".format(config["num_tweets"],str(config["kwargs"]))
     heat_dict = load_dict(heat_dict_fn)
@@ -194,10 +193,10 @@ if __name__ == "__main__":
     plot_heat_traces(heat_dict,save_fig=config["save"],benchmark="Original Graph",n=config["num_tweets"])
 
 # if __name__ == "__main__":
-#     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-#     retweet_histogram = Graph(usernames).retweet_histogram()
+#     config["usernames"] = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
+#     retweet_histogram = Graph(config["usernames"]).retweet_histogram()
 #     n=215
-#     og_graph = Graph(usernames,n=n)
+#     og_graph = Graph(config["usernames"],n=n)
 #     kwargs = {
 #         "tweet_dist": (n,n//5),
 #         "n": 5,
