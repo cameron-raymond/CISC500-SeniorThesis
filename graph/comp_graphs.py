@@ -5,7 +5,9 @@ import pickle
 import numpy as np
 import networkx as nx
 import matplotlib as mpl
+import multiprocessing as mp
 import matplotlib.pyplot as plt
+from config import config
 from build_graph import Graph
 from netlsd import heat, compare
 from stochastic_block_model import stochastic_hybrid_graph, draw_graph
@@ -60,19 +62,19 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,
     ax.legend(loc="best")
     if benchmark:
         ax = fig.add_subplot(2,1,2)
-        ax.set_title("Hybrid Model Comparison (Benchmark n={})".format(n))
+        ax.set_title("Hybrid Model Comparison (Benchmark size={})".format(n))
         ax.set_xlabel("Alpha Value")
         ax.set_ylabel("Heat Trace Distance From Benchmark")
         distances = []
         t_alphas = []
-        for alpha,heat_traces in heat_dict.items():
-            if alpha != benchmark:
-                is_list = type(heat_traces) is list
-                alphas = list(np.full(len(heat_traces),alpha)) if is_list else alpha
-                heat_trace_dif = [compare(heat_dict[benchmark],ht) for ht in heat_traces] if is_list else compare(heat_dict[benchmark],heat_traces)
-                distances.append(heat_trace_dif)
-                t_alphas.append(alpha)
-                ax.plot(alphas,heat_trace_dif,'x',c="blue")
+        benchmark = heat_dict.pop(benchmark)
+        for alpha,heat_traces in sorted(heat_dict.items()):
+            is_list = type(heat_traces) is list
+            alphas = list(np.full(len(heat_traces),alpha)) if is_list else alpha
+            heat_trace_dif = [compare(benchmark,ht) for ht in heat_traces] if is_list else compare(benchmark,heat_traces)
+            distances.append(heat_trace_dif)
+            t_alphas.append(alpha)
+            ax.plot(alphas,heat_trace_dif,'x',c="blue")
         distances,t_alphas = np.array(distances),np.array(t_alphas)
         std_dev = np.array(distances.std(axis=1)).flatten()
         distances = np.array(distances.mean(axis=1)).flatten()
@@ -80,7 +82,7 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,
         ax.plot(t_alphas, distances,color='pink')
 
     plt.tight_layout()
-    file_name = '_'.join(map(str, heat_dict.keys())).replace(" ", "_").lower()
+    file_name = '_'.join(map(str, sorted(heat_dict.keys()))).replace(" ", "_").lower()
     file_name += "_heat_trace_plot"
     file_name = "normalized_"+file_name if is_normalized else file_name
     file_name = "comparison_"+file_name if benchmark is not None else file_name
@@ -153,54 +155,48 @@ def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0
     pbar.close()
     return np.matrix(history)
 
-def dump_dict(a_dict,file_name="heat_traces"):
+def dump_dict(a_dict,file_name="heat_traces.json"):
     with open(file_name,'wb') as fp:
         pickle.dump(a_dict, fp)
+        fp.flush()
 
 def load_dict(file_name):
-    with open(file_name, 'rb') as fp:
-        ret_dict = pickle.load(fp)
-    return ret_dict
+    try:
+        with open(file_name, 'rb') as fp:
+            ret_dict = pickle.load(fp)
+        return ret_dict
+    except:
+        return {}
         
 if __name__ == "__main__":
-    usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-    retweet_histogram = Graph(usernames).retweet_histogram()
-    n=215
-    save = True
-    num_per_alpha = 4
-    sample_g = Graph(usernames,n=n)
-    kwargs = {
-        "tweet_dist": (n,n//5),
-        "n": 5,
-        "m": sample_g.num_retweeters,
-        "epsilon": 0.9,
-        "use_model": False,
-        "verbose": False,
-        "retweet_histogram": retweet_histogram
-    } 
-    str_args = str({i:kwargs[i] for i in kwargs if i!='retweet_histogram'})
-    sample_g = sample_g.G
-    graph_dict = {"Original Graph": sample_g}
-    alpha_vals = np.round(np.arange(0,1.01,0.05),2)
-    alpha_str = '_'.join(map(str, alpha_vals))
-    pbar = tqdm.tqdm(total=len(alpha_vals)*num_per_alpha)
-    for alpha in alpha_vals:
+    retweet_histogram = Graph(config["usernames"]).retweet_histogram()
+    sample_g = Graph(config["usernames"],n=config["num_tweets"])
+    graph_dict = {"Original Graph": sample_g.G}
+    heat_dict_fn = "heat_traces_num_tweets={}_{}.json".format(config["num_tweets"],str(config["kwargs"]))
+    heat_dict = load_dict(heat_dict_fn)
+    alphas = [float(sys.argv[1])] if sys.argv[1] else config["alphas"]
+    pbar = tqdm.tqdm(total=len(alphas)*config["num_per_alpha"])
+    for alpha in alphas:
         gs = []
-        for _ in range(num_per_alpha):
-            gs.append(stochastic_hybrid_graph(alpha,**kwargs))
-            pbar.update(1)
-        graph_dict[alpha] = gs
-        draw_graph(graph_dict[alpha][-1],save=save,file_name="stochastic_hybrid_graph_alpha={:.3f}_{}".format(alpha,str_args),title="Hybrid Graph. Alpha={}".format(alpha))
+        if alpha not in heat_dict:
+            for _ in range(config["num_per_alpha"]):
+                gs.append(stochastic_hybrid_graph(alpha,m=sample_g.num_retweeters,retweet_histogram=retweet_histogram,**config["kwargs"]))
+                pbar.update(1)
+            graph_dict[alpha] = gs
+            draw_graph(graph_dict[alpha][-1],save=config["save"],file_name="stochastic_hybrid_graph_alpha={:.3f}_{}".format(alpha,str(config["kwargs"])),title="Hybrid Graph. Alpha={}".format(alpha))
+        else:
+            pbar.update(config["num_per_alpha"])
+            print("Skipping: {}".format(alpha))
     pbar.close()
-    heat_dict = calc_heat(graph_dict=graph_dict)
-    dump_dict(heat_dict,"heat_traces_alphas={}_n={}_{}.json".format(alpha_str,n,str_args)) if save else None
-    plot_heat_traces(heat_dict,save_fig=save,benchmark="Original Graph",n=n)
+    heat_dict.update(calc_heat(graph_dict=graph_dict))
+    dump_dict(heat_dict,heat_dict_fn) if config["save"] else None
+    plot_heat_traces(heat_dict,save_fig=config["save"],benchmark="Original Graph",n=config["num_tweets"])
 
 # if __name__ == "__main__":
-#     usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-#     retweet_histogram = Graph(usernames).retweet_histogram()
+#     config["usernames"] = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
+#     retweet_histogram = Graph(config["usernames"]).retweet_histogram()
 #     n=215
-#     og_graph = Graph(usernames,n=n)
+#     og_graph = Graph(config["usernames"],n=n)
 #     kwargs = {
 #         "tweet_dist": (n,n//5),
 #         "n": 5,

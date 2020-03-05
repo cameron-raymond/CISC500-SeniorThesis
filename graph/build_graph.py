@@ -113,7 +113,7 @@ class Graph(object):
     def build_graph(self, username, n=None):
         twitter_df = pd.read_csv("../data/{}_data.csv".format(username))
         if n:
-            twitter_df = twitter_df.sample(n=min(n, len(twitter_df)))
+            twitter_df = twitter_df.sample(n=min(n, len(twitter_df)),random_state=1)
         # twitter_df = twitter_df.set_index('id')
         retweet_df = pd.read_csv("../data/{}_retweets.csv".format(username))
         # if we're only taking 20 tweets find all the retweets for those 20
