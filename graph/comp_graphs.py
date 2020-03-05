@@ -158,6 +158,7 @@ def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0
 def dump_dict(a_dict,file_name="heat_traces.json"):
     with open(file_name,'wb') as fp:
         pickle.dump(a_dict, fp)
+        fp.flush()
 
 def load_dict(file_name):
     try:
@@ -168,14 +169,15 @@ def load_dict(file_name):
         return {}
         
 if __name__ == "__main__":
-    usernames = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
+    usernames = ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
     retweet_histogram = Graph(usernames).retweet_histogram()
     sample_g = Graph(usernames,n=config["num_tweets"])
     graph_dict = {"Original Graph": sample_g.G}
     heat_dict_fn = "heat_traces_num_tweets={}_{}.json".format(config["num_tweets"],str(config["kwargs"]))
     heat_dict = load_dict(heat_dict_fn)
-    pbar = tqdm.tqdm(total=len(config["alphas"])*config["num_per_alpha"])
-    for alpha in config["alphas"]:
+    alphas = [float(sys.argv[1])] if sys.argv[1] else config["alphas"]
+    pbar = tqdm.tqdm(total=len(alphas)*config["num_per_alpha"])
+    for alpha in alphas:
         gs = []
         if alpha not in heat_dict:
             for _ in range(config["num_per_alpha"]):
