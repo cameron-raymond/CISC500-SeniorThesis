@@ -31,7 +31,7 @@ def calc_heat(G=None,graph_dict=None,start=-2,end=2,normalization="empty"):
                 heat_dict[label] = heats            
     return heat_dict
 
-def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,n=None):
+def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,n=None,file_name="heat_trace_plot"):
     assert benchmark is None and n is None or benchmark is not None and n is not None
     __is_numeric = lambda x : isinstance(x, (int, float, complex))
     heat_dict = heat_dict.copy()
@@ -80,12 +80,21 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,
         distances = np.array(distances.mean(axis=1)).flatten()
         ax.fill_between(t_alphas, distances+std_dev, distances-std_dev, alpha=0.5,color='pink')
         ax.plot(t_alphas, distances,color='pink')
-
+        ticks = np.round(ax.xaxis.get_majorticklocs(),3)
+        zer_ind = np.where(ticks == 0)[0]
+        one_ind = np.where(ticks == 1)[0]
+        ticks = list(ticks)
+        if zer_ind:
+            zer_ind = zer_ind[0]
+            ticks[zer_ind] = "{} (Only Topic)".format(ticks[zer_ind])
+        if one_ind:
+            one_ind = one_ind[0]
+            ticks[one_ind] = "{} (Only Topic)".format(ticks[one_ind])
+        print(ticks)
+        ax.set_xticklabels(ticks)
     plt.tight_layout()
-    file_name = '_'.join(map(str, sorted(heat_dict.keys()))).replace(" ", "_").lower()
-    file_name += "_heat_trace_plot"
-    file_name = "normalized_"+file_name if is_normalized else file_name
-    file_name = "comparison_"+file_name if benchmark is not None else file_name
+    file_name = "normalized_{}".format(file_name) if is_normalized else file_name
+    file_name = "comparison_{}".format(file_name) if benchmark is not None else file_name
     plt.savefig("../visualizations/heat_traces/{}.png".format(file_name)) if save_fig else plt.show()
 
 def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0.0001,**kwargs):
@@ -155,26 +164,27 @@ def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0
     pbar.close()
     return np.matrix(history)
 
-def dump_dict(a_dict,file_name="heat_traces.json"):
-    with open(file_name,'wb') as fp:
+def dump_dict(a_dict,file_name="heat_traces"):
+    with open("{}.json".format(file_name),'wb') as fp:
         pickle.dump(a_dict, fp)
         fp.flush()
 
 def load_dict(file_name):
     try:
-        with open(file_name, 'rb') as fp:
+        with open("{}.json".format(file_name), 'rb') as fp:
             ret_dict = pickle.load(fp)
         return ret_dict
     except:
         return {}
         
 if __name__ == "__main__":
-    retweet_histogram = Graph(config["usernames"]).retweet_histogram()
+    # retweet_histogram = Graph(config["usernames"]).retweet_histogram()
     sample_g = Graph(config["usernames"],n=config["num_tweets"])
+    retweet_histogram = sample_g.retweet_histogram()
     graph_dict = {"Original Graph": sample_g.G}
-    heat_dict_fn = "heat_traces_num_tweets={}_{}.json".format(config["num_tweets"],str(config["kwargs"]))
+    heat_dict_fn = "heat_traces_{}".format(str(config["kwargs"]))
     heat_dict = load_dict(heat_dict_fn)
-    alphas = [float(sys.argv[1])] if sys.argv[1] else config["alphas"]
+    alphas = [float(sys.argv[1])] if sys.argv[1:] else config["alphas"]
     pbar = tqdm.tqdm(total=len(alphas)*config["num_per_alpha"])
     for alpha in alphas:
         gs = []
@@ -190,7 +200,7 @@ if __name__ == "__main__":
     pbar.close()
     heat_dict.update(calc_heat(graph_dict=graph_dict))
     dump_dict(heat_dict,heat_dict_fn) if config["save"] else None
-    plot_heat_traces(heat_dict,save_fig=config["save"],benchmark="Original Graph",n=config["num_tweets"])
+    plot_heat_traces(heat_dict,save_fig=config["save"],benchmark="Original Graph",n=config["num_tweets"],file_name=heat_dict_fn)
 
 # if __name__ == "__main__":
 #     config["usernames"] = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]

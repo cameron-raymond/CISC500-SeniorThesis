@@ -376,7 +376,6 @@ def stochastic_hybrid_graph(alpha=0.8,n=5, tweet_dist=(1000, 300), k=7, m=60000,
     if verbose: print("--- Adding Retweets ---")
     pbar = tqdm.tqdm(total=m) if verbose else None
     retweets_per_user = sample_from_histogram(retweet_histogram,m) 
-    print(retweets_per_user)
     topic_leader = [i for i in range(n*k)]
     assert np.min(retweets_per_user) > 0 and len(retweets_per_user) == m, str(retweets_per_user)
     for j,d in enumerate(retweets_per_user):    
@@ -409,7 +408,6 @@ def stochastic_hybrid_graph(alpha=0.8,n=5, tweet_dist=(1000, 300), k=7, m=60000,
                 G.add_edge(winning_tweet, username)
     if verbose: pbar.close()
     retweet_count = [d for n, d in G.degree() if G.nodes[n]["type"] == "retweet"]
-    print(retweet_count)
     return G
 
 """
