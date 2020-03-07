@@ -4,8 +4,10 @@ import numpy as np
 import networkx as nx
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import tensorflow.keras.backend as K
 from config import config
 from build_graph import Graph
+# from memory_profiler import profile
 from numpy.random import normal, random
 from tensorflow.keras.models import load_model
 from build_graph import return_colour, return_legend
@@ -58,12 +60,13 @@ def possible_tweets(G, aUser, topic=None, leader=None):
                 possible_tweets.append(node)
     return possible_tweets
 
+# @profile
 def predict_next_retweet(history, model, use_model=True):
     next_decision_distribution = history + np.full(history.shape, 1)
     if use_model:
         history = history.reshape(1, len(history))
-        next_decision_distribution = model.predict(
-            history).reshape(history.shape[1])
+        next_decision_distribution = model.predict(history).reshape(history.shape[1])
+        K.clear_session()
     # Squish it using softmax to make it a probability distribution.
     return softmax(next_decision_distribution)
 

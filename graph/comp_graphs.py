@@ -84,13 +84,12 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,
         zer_ind = np.where(ticks == 0)[0]
         one_ind = np.where(ticks == 1)[0]
         ticks = list(ticks)
-        if zer_ind:
+        if zer_ind.size > 0:
             zer_ind = zer_ind[0]
             ticks[zer_ind] = "{} (Only Topic)".format(ticks[zer_ind])
-        if one_ind:
+        if one_ind.size > 0:
             one_ind = one_ind[0]
             ticks[one_ind] = "{} (Only Topic)".format(ticks[one_ind])
-        print(ticks)
         ax.set_xticklabels(ticks)
     plt.tight_layout()
     file_name = "normalized_{}".format(file_name) if is_normalized else file_name
