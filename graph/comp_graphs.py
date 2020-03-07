@@ -178,9 +178,8 @@ def load_dict(file_name):
         return {}
         
 if __name__ == "__main__":
-    # retweet_histogram = Graph(config["usernames"]).retweet_histogram()
+    retweet_histogram = Graph(config["usernames"]).retweet_histogram()
     sample_g = Graph(config["usernames"],n=config["num_tweets"])
-    retweet_histogram = sample_g.retweet_histogram()
     graph_dict = {"Original Graph": sample_g.G}
     heat_dict_fn = "heat_traces_{}".format(str(config["kwargs"]))
     heat_dict = load_dict(heat_dict_fn)

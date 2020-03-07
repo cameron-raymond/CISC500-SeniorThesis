@@ -6,7 +6,7 @@ config = {
     "alphas": np.round(np.arange(0,1.01,0.05),2),
     "num_tweets": num_tweets,
     "save": True,
-    "num_per_alpha": 4,
+    "num_per_alpha": 1,
     "kwargs": {
         "tweet_dist": (num_tweets,num_tweets//5),
         "n": 5,
