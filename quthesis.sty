@@ -38,7 +38,6 @@ Example of use:
     \title{How to Write Theses\\
         With Two Line Titles}
     \author{John Henry Candidate}
-
     \beforepreface
     \prefacesection{Preface}
         This thesis tells you all you need to know about...
@@ -83,11 +82,13 @@ Documentation:
     \author{author's name}
     \dept{author's department}
         - Electrical and Computer Engineering if omitted
-    \degree{degree expected}
+    \course{course expected}
         - Master of Science if omitted
+    \supervisor{supervisor expected}
+        - Dr. Robin Dawes if omitted
     \submitdate{month year in which submitted to GPO}
         - date LaTeX'd if omitted
-    \copyrightyear{year degree conferred}
+    \copyrightyear{year course conferred}
         - year LaTeX'd if omitted
     \figurespagetrue or \figurespagefalse
         - produce or don't produce a List of Figures page
@@ -178,15 +179,17 @@ quthesis documentation.}}{}
     {\rule{\z@}{\footnotesep}\ignorespaces
       #1\strut}}}
 
-% \author, \title, \dept, \degree are defined in report;
+% \author, \title, \dept, \course are defined in report;
 % here are the rest of the front matter defining macros
 \def\dept#1{\gdef\@dept{#1}}
-\def\degree#1{\gdef\@degree{#1}}
+\def\course#1{\gdef\@course{#1}}
+\def\supervisor#1{\gdef\@supervisor{#1}}
 \def\submitdate#1{\gdef\@submitdate{#1}}
 \def\copyrightyear#1{\gdef\@copyrightyear{#1}} % \author, \title in report
 \def\@title{}\def\@author{}
 \def\@dept{Department of Electrical and Computer Engineering}
-\def\@degree{Master of Science}
+\def\@course{Master of Science}
+\def\@supervisor{Dr. Robin Dawes}
 \def\@submitdate{\ifcase\the\month\or
   January\or February\or March\or April\or May\or June\or
   July\or August\or September\or October\or November\or December\fi
@@ -212,13 +215,17 @@ quthesis documentation.}}{}
         A thesis submitted to the\\
         \@dept\\
         in conformity with the requirements for\\
-        the degree of \@degree\\
+        the course of \@course\\
     \end{center}
     \mbox{}
     \begin{center}
         Queen's University\\
         Kingston, Ontario, Canada\\
         \@submitdate\\
+    \end{center}
+    \mbox{}
+    \begin{center}
+        Supervisor: \@supervisor\\
     \end{center}
     \mbox{}
     \begin{center}
