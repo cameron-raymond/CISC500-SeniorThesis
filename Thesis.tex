@@ -1,0 +1,153 @@
+%*************************************************************************************************************
+% PREAMBLE STUFF
+%*************************************************************************************************************
+% Instead of inserting my \usepackage and defined commands here, I keep them in a separate file
+\include{myPreamble}
+
+%*************************************************************************************************************
+% INCLUDE ONLY
+%*************************************************************************************************************
+% Use if you want to include only certain parts of the document, example \includeonly{introduction}
+% in order to speed up compile time when you're focussing on some particular part.
+%\includeonly{}
+
+%*************************************************************************************************************
+% DOCUMENT
+%*************************************************************************************************************
+
+\begin{document}
+
+%*************************************************************************************************************
+% TITLE
+%*************************************************************************************************************
+
+\title{Thesis Title\\[1ex]Second Line if Necessary}
+
+\author{Author Name}
+
+\dept{School of Computing}
+\degree{Master of Science}
+
+% OPTIONAL HERE
+% ~~~~~~~~~~~~~
+% \submitdate{month year in which submitted to GPO}
+%        - date LaTeX'd if omitted
+% \copyrightyear{ear degree conferred}
+%        - year LaTeX'd if omitted
+% \figurespagetrue or \figurespagefalse
+%        - produce or don't produce a List of Figures page (true by default)
+% \tablespagetrue or \tablespagefalse
+%        - produce or don't produce a List of Tables page (true by default)
+
+\beforepreface
+
+% Adding single spacing so abstract and table of contents is single spaced.
+
+%*************************************************************************************************************
+% ABSTRACT
+%*************************************************************************************************************
+
+\prefacesection{Abstract}
+
+\input{Abstract}
+
+%*************************************************************************************************************
+% CO-AUTHORSHIP (if necessary)
+%*************************************************************************************************************
+
+%\prefacesection{Co-Authorship}
+
+%*************************************************************************************************************
+% ACKNOWLEDGEMENTS
+%*************************************************************************************************************
+
+\prefacesection{Acknowledgments}
+
+Blah blah blah.
+
+%*************************************************************************************************************
+% STATEMENT OF ORIGINALITY (required CHEM, CISC, GEOL, MATH, PHYS (Ph.D. only))
+%*************************************************************************************************************
+
+\prefacesection{Statement of Originality}
+
+Only required by CHEM, COMPUTING, GEOL, MATH and Physics (Ph.D. ONLY!).
+
+
+\singlespacing \afterpreface \doublespacing
+
+%*************************************************************************************************************
+% MEATY CHAPTERS
+%*************************************************************************************************************
+
+%Testing my index\index{index} abilities.  And
+%sub-entry\index{index!subentry} abilities.
+
+% This command can be used to view the page layout for this document
+% \layout
+
+% Here, I'm tweaking how much space is put above and below floats.
+% Comment out if you want the *purest* latex spacing.
+%\setlength{\abovedisplayskip}{3pt plus1pt minus1pt}
+%\setlength{\abovedisplayshortskip}{3pt plus1pt minus1pt}
+%\setlength{\belowdisplayskip}{3pt plus1pt minus1pt}
+%\setlength{\belowdisplayshortskip}{3pt plus1pt minus1pt}
+
+
+% Include my chapter texts - kept separated to make editing easier.
+%\include{Glossary}
+\include{Introduction}
+\include{Background}
+\include{Alloy}
+
+\include{Embee_UserPerspective}
+\include{Embee_Implementation}
+
+\include{Conclusion}
+
+%*************************************************************************************************************
+% BIBLIOGRAPHY
+%*************************************************************************************************************
+% This GATHER command is useful for when you want to use WinEdt's Gather functionality, i.e., type
+% \cite{} and a popup box appears with all of your citations to choose from.  Leave the % on the next line.
+%GATHER{thesis.bib}
+
+% Put in \nocite{*} so all entries in the bibliography are included
+%\nocite{*}
+
+\bibliographystyle{plain}
+\bibliography{thesis}
+
+%*************************************************************************************************************
+% APPENDICES
+%*************************************************************************************************************
+\updatechaptername
+%\appendixpage
+\appendix
+
+\include{App_AnalyzerCode}
+\include{App_ExtraAnalysis}
+%\addappheadtotoc
+
+%*************************************************************************************************************
+% GLOSSARY
+% Using a glossary is more than beginners need to know; leaving the packages, etc. here for now.
+%*************************************************************************************************************
+%\usepackage[nonumberlist]{glossaries}
+%\usepackage[refpages]{gloss}  % for my glossary
+                              % refpages shows the first page where the term occurs
+%-------------------------------------------------------------------------------------------------------------
+% Tell Latex to make a glossary
+%*************************************************************************************************************
+%\makeglossaries  % tell latex to make the glossary
+%\glossarystyle{list}
+
+%*************************************************************************************************************
+% INDEX
+%*************************************************************************************************************
+% Here's where the index would be printed, if you created one.  Remove the % on the next line.
+%\printindex
+
+
+%*************************************************************************************************************
+\end{document}

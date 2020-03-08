@@ -1,0 +1,9 @@
+//import com.sun.jdi.Bootstrap; com.sun.jdi.VirtualMachine; com.sun.jdi.connect.Connector;
+//com.sun.jdi.connect.LaunchingConnector;
+...
+LaunchingConnector connect = Bootstrap.virtualMachineManager().defaultConnector();
+Map connectorArguments = connect.defaultArguments();
+Connector.Argument main = (Connector.Argument) connectorArguments).get("main");
+main.setValue(javaClassName);
+...
+VirtualMachine vm = connect.launch(connectorArguments);

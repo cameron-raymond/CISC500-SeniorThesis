@@ -1,0 +1,228 @@
+\chapter{Additional Analysis}\label{App:Analysis}
+
+\section{Calculation of Arity}\label{AppSec:arity}
+
+
+    Examples of arity calculations are shown in Table~\vref{table:arity}.  These calculations
+    can be performed using either the equations listed in
+    Figure~\vref{fig:arityEquations}...
+
+   \begin{singlespacing}
+    \begin{figure}[ht]
+    \begin{boxedminipage}[h]{433pt}
+        \begin{minipage}{400pt}
+
+        Given:
+            \begin{center}
+            \begin{minipage}{350pt}
+            $v$ is a variable of type \texttt{<var>}, i.e., an \texttt{id} (identifier)\\
+            $m$ is a multiplicity expression of type \texttt{<multexpr> }\\
+            $r$ is a relation of type \texttt{<relation>}, i.e., $r = v : m$ \\
+            $e_1$, $e_2$, ... are expressions of type \texttt{<expr> }in $m$\\
+            $x$ is an optional set multiplicity modifier of type \texttt{<setmult>}\\
+            $y$, $z$ are optional relation multiplicity modifiers of type \texttt{<mult>}
+            \end{minipage}
+            \end{center}
+        The arity equations are:
+        \end{minipage}
+        \begin{equation}
+        \operatorname{arity}(r) = 1 + \operatorname{arity}(m) \text{,~~where $r$ is of the form $v : m$}
+        \label{equation:arity1}
+        \end{equation}
+        \begin{subequations}
+        \begin{numcases}{arity(m)=}
+            1 & if $m$ is of the form $x~v$ \label{equation:arity2a} \\
+            arity(e_1) + arity(e_2) & if $m$ is of the form $e_1 ~y$ \texttt{->} $z~ e_2$ \label{equation:arity2b}
+        \end{numcases}
+        \end{subequations}
+        \begin{subequations}
+        \begin{numcases}{arity(e)=}
+            1 & if $e$ is of the form \texttt{id} \label{equation:arity3a} \\
+            arity(e_1) & if $e$ is of the form $(e_1)$ \label{equation:arity3b} \\
+            arity(e_1) + arity(e_2) & if $e$ is of the form $e_1$ \texttt{->} $e_2$ \label{equation:arity3c}
+        \end{numcases}
+        \end{subequations}
+        \label{equation:arityEquations}
+    \end{boxedminipage}
+    \caption{Equations to compute arity of relations} \label{fig:arityEquations}
+    \end{figure}
+    \end{singlespacing}
+
+        \begin{singlespacing}
+        \begin{table}[H]
+        \begin{center}
+        \caption{Example arity calculations}\label{table:arity}
+        \bigskip
+        \begin{tabular}{|l|c|c|}\hline
+        \multicolumn{1}{|c|}{relation $r_i$} & \multicolumn{1}{c|}{$arity(r_i)$} & \multicolumn{1}{c|}{arity equations used} \\ \hline
+        \verb|f : A |                    & 2 & \eqref{equation:arity1}, \eqref{equation:arity2a} \\ \hline
+        \verb|f : option A|              & 2 & \eqref{equation:arity1}, \eqref{equation:arity2a} \\ \hline
+        \verb|f : A -> A|                & 3 & \eqref{equation:arity1}, \eqref{equation:arity2b}, \eqref{equation:arity3a} \\ \hline
+        \verb|f : A -> ? B|              & 3 & \eqref{equation:arity1}, \eqref{equation:arity2b}, \eqref{equation:arity3a} \\ \hline
+        \verb|f : A -> B -> C|           & 4 & \eqref{equation:arity1}, \eqref{equation:arity2b}, \eqref{equation:arity3c}, \eqref{equation:arity3a} \\ \hline
+        \verb|f : A -> B ? -> ! C|       & 4 & \eqref{equation:arity1}, \eqref{equation:arity2b}, \eqref{equation:arity3a}, \eqref{equation:arity3c} \\ \hline
+        \verb|f : A -> B -> C -> D|      & 5 & \eqref{equation:arity1}, \eqref{equation:arity2b}, \eqref{equation:arity3c}, \eqref{equation:arity3a} \\ \hline
+        \end{tabular}
+        \end{center}
+        \end{table}
+        \end{singlespacing}
+
+\section{Comparison of $N$}\label{AppSec:CompareN}
+
+
+
+\subsection{Reasoning about $N$ in terms of $n$}\label{AppSec:Nandn}
+
+    It is possible to determine an upper bound on the size of $N$, relative to the size
+    of $n$.  To do this, we re-examine Equation~\ref{equation:N}.
+
+    From Equation~\ref{equation:N}, we have:
+    \begin{equation*}
+        N = S \times scope + \sum_{i=1}^R scope ^ {arity(r_i)}
+    \end{equation*}
+
+    In the worst-case, the scope is equal to the total number of objects that exist at a
+    particular breakpoint, i.e., $scope = n$.
+    \begin{equation*}
+        N = S n + \sum_{i=1}^R n ^ {arity(r_i)}
+    \end{equation*}
+
+    We can expand the summation to
+    \begin{equation*}
+        N = S n + n^{arity(r_1)} + n^{arity(r_2)} + ... + n^{arity(r_R)}
+    \end{equation*}
+
+    Because...
+    \begin{equation*}
+        O(N) = O(S n) + O(n^{arity(r_1)}) + O(n^{arity(r_2)}) + ... +
+        O(n^{arity(r_R)})
+    \end{equation*}
+
+    We assume that all $R$ relations in the specification have the same arity, and that this
+    arity is represented by a value $x \geq 2$.  Therefore...
+    \begin{align}
+        O(N) & = O(S n) + R \times O(n^x) \notag \\
+             & = O(S n) + O(R n^x)
+        \label{equation:NwithSR}
+    \end{align}
+
+    Equation~\ref{equation:NwithSR} demonstrates...
+
+    Because both $S$ and $R$ are finite numbers, it is possible to further reduce
+    Equation~\ref{equation:NwithSR} to
+    \begin{align}
+        O(N) & = O(n) + O(n^x) \notag \\
+             & = O(n^x)
+        \label{equation:NwithoutSR}
+    \end{align}
+
+    Therefore...
+
+
+
+
+
+\clearpage
+\section{Estimation of $F$}\label{AppSec:F}
+
+    For example, Table~\vref{table:numOperators} contains the values of $F$...
+
+    \begin{singlespacing}
+    \begin{table}[H]
+    \caption[Estimate of Boolean formula size]{Estimate of Boolean formula size,
+    determined by number of Boolean operators (``and", ``or", ``not")}
+    \label{table:numOperators}
+        \begin{center}
+
+        \bigskip
+
+        % Table generated by Excel2LaTeX from sheet 'formula (extract)'
+        \begin{tabular}{|c|r|r|r|r|}
+        \hline
+            \multicolumn{ 5}{|c|}{\textbf{Example 1 - List}} \\
+        \hline
+            $scope$ & \multicolumn{1}{c|}{$N$} & \multicolumn{1}{c|}{0 Facts} & \multicolumn{1}{c|}{1 Fact} & \multicolumn{1}{c|}{2 Facts} \\
+        \hline
+                1 &  4 &    23  &     34  &     43  \\
+                2 & 12 &   197  &    657  &    729  \\
+                3 & 24 &   671  & 13,799  & 15,200  \\
+                4 & 40 & 1,731  & 91,435  & 96,771  \\
+        \hline
+        \end{tabular}
+
+        \bigskip
+
+        % Table generated by Excel2LaTeX from sheet 'formula (extract)'
+        \begin{tabular}{|c|r|r|r|r|r|}
+        \hline
+            \multicolumn{ 6}{|c|}{\textbf{Example 2 - Graph}} \\
+        \hline
+            $scope$ & \multicolumn{1}{c|}{$N$} & \multicolumn{1}{c|}{Facts} & \multicolumn{1}{c|}{1 Fact} & \multicolumn{1}{c|}{2 Facts} & \multicolumn{1}{c|}{3 Facts} \\
+        \hline
+                1 & ---&   ---  &     ---  &       ---  &       ---  \\
+                2 & 16 &   185  &   1,005  &     1,783  &     2,181  \\
+                3 & 42 &   674  &  66,722  &   118,250  &   142,328  \\
+                4 & 88 & 1,787  & 635,811  & 1,153,063  & 1,319,611  \\
+        \hline
+        \end{tabular}
+
+        \bigskip
+
+        % Table generated by Excel2LaTeX from sheet 'formula (extract)'
+        \begin{tabular}{|c|r|r|r|r|r|r|}
+        \hline
+            \multicolumn{ 7}{|c|}{\textbf{Example 3 - Tree}} \\
+        \hline
+            $scope$ & \multicolumn{1}{c|}{$N$} & \multicolumn{1}{c|}{0 Facts} & \multicolumn{1}{c|}{1 Fact} & \multicolumn{1}{c|}{2 Facts} & \multicolumn{1}{c|}{3 Facts} & \multicolumn{1}{c|}{4 Facts} \\
+        \hline
+                1 &  7 &    39  &      78  &      93  &     103  &     104  \\
+                2 & 22 &   367  &   1,601  &   2,487  &   2,629  &   2,715  \\
+                3 & 45 & 1,283  &  38,528  &  73,472  &  76,196  &  76,568  \\
+                4 & 76 & 3,359  & 234,595  & 456,459  & 466,979  & 468,087  \\
+        \hline
+        \end{tabular}
+        \end{center}
+    \end{table}
+    \end{singlespacing}
+
+
+\clearpage
+\subsection{Test Series}
+
+    Table~\vref{table:tests} summarizes...
+
+    \begin{singlespacing}
+    \begin{table}[H]
+    \begin{center}
+    \caption{Test series for evaluating the running time of conformance checking}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|} \hline
+      % after \\: \hline or \cline{col1-col2} \cline{col3-col4} ...
+      Series &  &  &  &  & Number &  &  & Number \\
+      Name &
+      \raisebox{1.5ex}[0cm][0cm]{Example} &
+      \raisebox{1.5ex}[0cm][0cm]{$S$} &
+      \raisebox{1.5ex}[0cm][0cm]{$R$} &
+      \raisebox{1.5ex}[0cm][0cm]{$\operatorname{arity}(r_i)$} &
+      of Facts &
+      \raisebox{1.5ex}[0cm][0cm]{$scope=n$} &
+      \raisebox{1.5ex}[0cm][0cm]{$N$} &
+      of Tests \\ \hline
+
+      E1F0 & 1            & 2 & 2 & 2, 2        & 0 & 1,2,...,40 & 4 - 3,280   & 40 \\ \cline{1-1} \cline{6-9}
+      E1F1 & \emph{List}  &   &   &             & 1 & 1,2,...,32 & 4 - 1,984   & 32 \\ \cline{1-1} \cline{6-9}
+      E1F2 &              &   &   &             & 2 & 1,2,...,31 & 4 - 1,984   & 31 \\ \hline
+      E2F0 & 2            & 2 & 2 & 2, 3        & 0 & 2,3,...,40 & 16 - 65,680 & 39 \\ \cline{1-1} \cline{6-9}
+      E2F1 & \emph{Graph} &   &   &             & 1 & 2,3,...,40 & 16 - 33,856 & 39 \\ \cline{1-1}\cline{6-9}
+      E2F2 &              &   &   &             & 2 & 2,3,...,34 & 16 - 33,856 & 33 \\ \cline{1-1}\cline{6-9}
+      E2F3 &              &   &   &             & 3 & 2,3,...,24 & 16 - 14,448 & 23 \\ \hline
+      E3F0 & 2            & 3 & 4 & 2, 2, 2, 2  & 0 & 1,2,...,40 & 7 - 6,520   & 40 \\ \cline{1-1} \cline{6-9}
+      E3F1 & \emph{Tree}  &   &   &             & 1 & 1,2,...,40 & 7 - 6,520   & 40 \\ \cline{1-1}\cline{6-9}
+      E3F2 &              &   &   &             & 2 & 1,2,...,32 & 7 - 4,192   & 32 \\ \cline{1-1}\cline{6-9}
+      E3F3 &              &   &   &             & 3 & 1,2,...,32 & 7 - 4,192   & 32 \\ \cline{1-1}\cline{6-9}
+      E3F4 &              &   &   &             & 4 & 1,2,...,32 & 7 - 4,192   & 32 \\ \hline
+      \multicolumn{8}{|r|}{Total Number of Tests (Conformance Checks)} & 412 \\ \hline
+    \end{tabular}
+    \label{table:tests}
+    \end{center}
+    \end{table}
+    \end{singlespacing}

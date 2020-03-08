@@ -1,0 +1,62 @@
+\chapter{Alloy}\label{ch:Alloy}
+
+\section{The Alloy Language}
+
+    %\gloss{Alloy} is...
+    Alloy is...
+
+\paragraph{Quantifiers}
+
+        There are five quantifiers available in Alloy:
+
+        \begin{center}
+        \begin{singlespacing}
+        \begin{tabular}{|l|l|} \hline
+        % after \\: \hline or \cline{col1-col2} \cline{col3-col4} ...
+        \multicolumn{1}{|c|}{Quantifier} & \multicolumn{1}{c|}{Meaning} \\ \hline
+        \texttt{all x :~e | F} & universal, \texttt{F} is true for every \texttt{x} in \texttt{e} \\
+        \texttt{some x :~e | F} & existential, \texttt{F} is true for some \texttt{x} in \texttt{e} \\
+        \texttt{no x :~e | F} & \texttt{F} is true for no \texttt{x} in \texttt{e} \\
+        \texttt{sole x :~e | F} & \texttt{F} is true for at most one \texttt{x} in \texttt{e} \\
+        \texttt{one x :~e | F} & \texttt{F} is true for exactly one \texttt{x} in \texttt{e} \\ \hline
+        \end{tabular}
+        \end{singlespacing}
+        \end{center}
+
+
+\subsubsection{Signatures and Fields}
+
+        The simple signature \verb|sig A {}| introduces \texttt{A} as a basic type with a set
+        of atoms of that type.  \texttt{A} refers to the set of atoms; the type is inferred
+        by Alloy and cannot be referenced explicitly.
+
+        \begin{singlespacing}
+        \begin{verbatim}
+        sig A {}
+        sig B {
+            f : A
+        }        \end{verbatim}
+        \end{singlespacing}
+
+
+\subsection{Example}\label{sec:firstAlloyExample}
+
+    An excerpt from an Alloy
+    specification of a singly-linked list is presented in
+    Listing~\vref{list:simpleLinkedList}.
+
+    \begin{Listing}
+    \begin{singlespacing}
+    {\small
+    \begin{verbatim}
+    sig Node {                    sig List {
+        next : option Node            first : Node
+    }                             }{
+                                      all n : Node | n in first.*next
+                                      no n : Node | n in n.^next
+                                  }    \end{verbatim}
+    }
+    \caption{Excerpt of a simple Alloy specification for a singly-linked list}
+    \label{list:simpleLinkedList}
+    \end{singlespacing}
+    \end{Listing}

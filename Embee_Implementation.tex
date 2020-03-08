@@ -1,0 +1,42 @@
+\chapter{Embee: Implementation and Analysis}\label{ch:Embee2}
+
+
+    \begin{singlespacing}
+    \begin{Listing}[h]
+    \fileinsmall{Examples/connectToVM.txt} \caption[Excerpt from
+    \texttt{StateDumperThreads.java}]{Excerpt from \texttt{StateDumperThreads.java},
+    showing how to connect to a second virtual machine executing the target code.  In
+    this example, the target class is referenced by \texttt{javaClassName}.  The JPDA
+    classes can be accessed by including the \texttt{tools.jar} archive in the program's
+    classpath; this archive is found in the Java installation's \texttt{lib} directory}
+    \label{list:connectToVM}
+    \end{Listing}
+    \end{singlespacing}
+
+
+    \begin{figure}[h]
+    \begin{singlespacing}
+    \centering
+        \subfigure[Specification of binary \texttt{next} relation]{
+            \begin{minipage}{100pt}
+                \filein{Examples/smallA.txt}
+            \label{fig:smallBinary}
+            \end{minipage}}
+        \hspace{0.25in}
+        \subfigure[Implementation of binary relation in (a)]{
+            \begin{minipage}{100pt}
+                \filein{Examples/smallB.txt}
+            \label{fig:smallBinaryCode}
+            \end{minipage}}
+        \hspace{0.25in}
+        \subfigure[Specification of ternary \texttt{next} relation]{
+            \begin{minipage}{100pt}
+                \filein{Examples/smallC.txt}
+            \label{fig:smallTernary}
+            \end{minipage}}
+    \caption[Sample specification and implementation]{Sample specification and
+    implementation of a binary relation; sample specification of a ternary relation}
+    \end{singlespacing}
+    \end{figure}
+
+\input{Embee_PerformanceAndComplexity}
