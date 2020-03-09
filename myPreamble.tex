@@ -38,17 +38,17 @@
 \sectionfont{\normalsize}
 \subsectionfont{\normalsize}
 
-% for formatting Table of Contents entry, example: Chapter 1 Introduction
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries}{}{0pt}{\Large}
+
+
+% for formatting Table of Contents entry, example: Part 1 Introduction
 \usepackage[subfigure]{tocloft}
 \usepackage{tocloft}
-\renewcommand{\cftchappresnum}{Chapter }
+\renewcommand{\cftchappresnum}{Part }
 \renewcommand{\cftchapaftersnum}{:}
 \renewcommand{\cftchapnumwidth}{7em}
-
-% for formatting Table of Contents entry for Appendix, example: Appendix 1: Stuff
-\newcommand*\updatechaptername{%
-   \addtocontents{toc}{\protect\renewcommand*\protect\cftchappresnum{Appendix }}
-}
 
 %*************************************************************************************************************
 % FOOTNOTES
