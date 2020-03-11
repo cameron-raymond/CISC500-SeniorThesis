@@ -99,73 +99,6 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,
     file_name = "comparison_{}".format(file_name) if benchmark is not None else file_name
     plt.savefig("../visualizations/heat_traces/{}.png".format(file_name)) if save_fig else plt.show()
 
-def fit_hybrid_model(target_graph,num_epochs=1000,learning_rate=0.01,min_delta=0.0001,**kwargs):
-    """
-        Fits a stochastic block model's alpha parameter to best model the heat trace of a target graph. 
-        Parameters
-        ----------
-        :param target_graph: 
-        
-        A networkx graph that is to be modelled.
-
-        :param num_epochs: 
-        
-        The number of epochs to attempt and fit the model to.
-
-        :param learning_rate: 
-        
-        How much to scale the nudge to the alpha value on each iteration rate.
-
-        :param min_delta: 
-        
-        The minimum change in the alpha value to be observed before exiting training.
-
-        Algorithm
-        ---------
-        1) Initialize the hybrid model with some alpha value. 
-        2) Calculate the difference in heat trace between that model and the target.
-        3) Create a = learning_rate*difference and a2 = -learning_rate*difference.
-            i) Recalculate heat trace difference, whichever one diminishes difference more make that the new alpha
-            ii) Error = heat trace difference before - heat trace difference after
-        3) On each epoch
-            i) Calculate new model/heat trace difference with alpha
-            ii) Calculate new error = difference before - difference after
-            iii) alpha = alpha + learning_rate*error
-        4) Repeat until epoch>=num_epochs or delta is sufficiently small.
-    """
-    size = 100
-    target_trace = calc_heat(G=target_graph)["graph"]
-    alpha = 0.8
-    # alpha = np.random.uniform(0,1)
-    history = []
-    pbar = tqdm.tqdm(total=num_epochs)
-    for epoch in range(num_epochs):
-        hybrid_model = stochastic_hybrid_graph(alpha=alpha,**kwargs)
-        hybrid_trace = calc_heat(G=hybrid_model)["graph"]
-        heat_difference = compare(target_trace,hybrid_trace)
-        a1,a2 = alpha + learning_rate*heat_difference, alpha - learning_rate*heat_difference
-        a1_trace, a2_trace = calc_heat(nx.erdos_renyi_graph(size,a1))["graph"],calc_heat(nx.erdos_renyi_graph(size,a2))["graph"]
-        e1, e2 = compare(target_trace,a1_trace),compare(target_trace,a2_trace)
-        # a = alpha
-        error = heat_difference
-        if e1 < e2 and e1 < heat_difference:
-            error = e1
-            alpha = a1
-        elif e2 < e1 and e2 < heat_difference:
-            error = e2
-            alpha = a2
-        else:
-            alpha = alpha + np.random.uniform(-0.01,0.01)*heat_difference
-        history.append([epoch,alpha,error])
-        # print("Epoch: {}".format(epoch))
-        # if error < min_delta:
-        #     return alpha
-        # if a > alpha:
-        #     print("Alpha from {:.10f} -> {:.10f}. Error: {}".format(a,alpha,error))
-        pbar.update(1)
-    pbar.close()
-    return np.matrix(history)
-
 def dump_dict(a_dict,file_name="heat_traces"):
     with open("{}.json".format(file_name),'wb') as fp:
         pickle.dump(a_dict, fp)
@@ -201,40 +134,4 @@ if __name__ == "__main__":
     pbar.close()
     heat_dict.update(calc_heat(graph_dict=graph_dict))
     dump_dict(heat_dict,heat_dict_fn) if config["save"] else None
-    plot_heat_traces(heat_dict,save_fig=False,benchmark="Original Graph",n=config["num_tweets"],file_name=heat_dict_fn,start=0,end=1)
-
-# if __name__ == "__main__":
-#     config["usernames"] = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
-#     retweet_histogram = Graph(config["usernames"]).retweet_histogram()
-#     n=215
-#     og_graph = Graph(config["usernames"],n=n)
-#     kwargs = {
-#         "tweet_dist": (n,n//5),
-#         "n": 5,
-#         "m": og_graph.num_retweeters,
-#         "epsilon": 0.9,
-#         "use_model": False,
-#         "verbose": False,
-#         "retweet_histogram": retweet_histogram
-#     } 
-#     print(og_graph.num_tweets,og_graph.num_retweeters,og_graph.num_retweets)
-#     og_graph = og_graph.G
-#     history = fit_hybrid_model(og_graph,num_epochs=5000,**kwargs)
-#     epochs = history[:,0]
-#     alphas = history[:,1]
-#     errors = history[:,2]
-#     print(epochs.shape,alphas.shape,errors.shape)
-#     plt.subplot(3,1,1)
-#     plt.title("Error/Alpha Breakdowns")
-#     plt.plot(epochs,errors)
-#     plt.xlabel('Epoch')
-#     plt.ylabel('Error')
-#     plt.subplot(3,1,2)
-#     plt.plot(epochs,alphas)
-#     plt.xlabel('Epoch')
-#     plt.ylabel('Alpha')
-#     plt.subplot(3,1,3)
-#     plt.ylabel('Error')
-#     plt.xlabel('Alpha')
-#     plt.plot(alphas,errors,'x')
-#     plt.show()
+    plot_heat_traces(heat_dict,save_fig=config["save"],benchmark="Original Graph",n=config["num_tweets"],file_name=heat_dict_fn,start=0,end=1)
