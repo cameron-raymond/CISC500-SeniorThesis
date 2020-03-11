@@ -31,7 +31,7 @@ def calc_heat(G=None,graph_dict=None,start=-2,end=2,normalization="empty"):
                 heat_dict[label] = heats            
     return heat_dict
 
-def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,n=None,file_name="heat_trace_plot"):
+def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,n=None,start=-2,end=2,file_name="heat_trace_plot"):
     assert benchmark is None and n is None or benchmark is not None and n is not None
     __is_numeric = lambda x : isinstance(x, (int, float, complex))
     heat_dict = heat_dict.copy()
@@ -43,6 +43,9 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,
     ax.set_xscale('log')
     ax.grid()
     times = heat_dict.pop("t")
+    min_time,max_time = np.min(np.logspace(start,end,250)), np.max(np.logspace(start,end,250))
+    indices_to_keep = np.where((times >= min_time) & (times <=max_time))
+    times = times[indices_to_keep]
     numeric_keys = np.array([nk for nk in heat_dict.keys() if __is_numeric(nk)])
     if len(numeric_keys):
         cmap = mpl.cm.bwr
@@ -52,13 +55,13 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,
     for label,heat_traces in heat_dict.items():
         if type(heat_traces) is list:
             heat_traces = np.array(heat_traces)
-            std_dev = np.array(heat_traces.std(axis=0)).flatten()
-            heat_traces = np.array(heat_traces.mean(axis=0)).flatten()
+            std_dev = np.array(heat_traces.std(axis=0)).flatten()[indices_to_keep]
+            heat_traces = np.array(heat_traces.mean(axis=0)).flatten()[indices_to_keep]
             ax.fill_between(times, heat_traces+std_dev, heat_traces-std_dev, alpha=0.5)
         if __is_numeric(label):
             ax.plot(times,heat_traces,c=plt.cm.bwr(label))
         else:            
-            ax.plot(times,heat_traces,label=label)
+            ax.plot(times,heat_traces[indices_to_keep],label=label)
     ax.legend(loc="best")
     if benchmark:
         ax = fig.add_subplot(2,1,2)
@@ -67,11 +70,11 @@ def plot_heat_traces(heat_dict,is_normalized=True,save_fig=False,benchmark=None,
         ax.set_ylabel("Heat Trace Distance From Benchmark")
         distances = []
         t_alphas = []
-        benchmark = heat_dict.pop(benchmark)
+        benchmark = heat_dict.pop(benchmark)[indices_to_keep]
         for alpha,heat_traces in sorted(heat_dict.items()):
             is_list = type(heat_traces) is list
             alphas = list(np.full(len(heat_traces),alpha)) if is_list else alpha
-            heat_trace_dif = [compare(benchmark,ht) for ht in heat_traces] if is_list else compare(benchmark,heat_traces)
+            heat_trace_dif = [compare(benchmark,ht[indices_to_keep]) for ht in heat_traces] if is_list else compare(benchmark,heat_traces[indices_to_keep])
             distances.append(heat_trace_dif)
             t_alphas.append(alpha)
             ax.plot(alphas,heat_trace_dif,'x',c="blue")
@@ -198,7 +201,7 @@ if __name__ == "__main__":
     pbar.close()
     heat_dict.update(calc_heat(graph_dict=graph_dict))
     dump_dict(heat_dict,heat_dict_fn) if config["save"] else None
-    plot_heat_traces(heat_dict,save_fig=config["save"],benchmark="Original Graph",n=config["num_tweets"],file_name=heat_dict_fn)
+    plot_heat_traces(heat_dict,save_fig=False,benchmark="Original Graph",n=config["num_tweets"],file_name=heat_dict_fn,start=0,end=1)
 
 # if __name__ == "__main__":
 #     config["usernames"] = sys.argv[1:] if sys.argv[1:] else ["JustinTrudeau", "ElizabethMay", "theJagmeetSingh", "AndrewScheer", "MaximeBernier"]
