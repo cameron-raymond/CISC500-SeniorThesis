@@ -10,7 +10,7 @@ config = {
     "kwargs": {
         "tweet_dist": (num_tweets,num_tweets//5),
         "n": 5,
-        "epsilon": 0.9,
+        "epsilon": 0.96,
         "use_model": True,
         "verbose": False,
     }
