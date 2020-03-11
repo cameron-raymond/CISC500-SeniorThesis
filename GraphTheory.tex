@@ -1,19 +1,23 @@
 \chapter{Graph Theory and Computational Social Science}\label{ch:GraphTheory}
 
-\section{Graph Theory}\label{sec:GraphTheory}
-    Where the graphs at...
+Graph theory is the study of mathematical structures, called graphs, which are
+used to model pairwise relations between entities. Graphs consist of a finite
+set of vertices, $V$, and a set of ordered pairs of vertices, $E$, called edges.
+A graph can be defined by the tuple, $G=(V,E)$. The graphs built in this project
+have added constraints and is defined as below:
 
-\subsection{Background}\label{sec:graphTheoryBackground}
+\begin{itemize}
+    \item \emph{Vertices}:% Let $V_{1}=\{v_{1},{v_{2},...,{v_{n}\}$
+    \item The text in the entries may be of any length.
+  \end{itemize}
 
-    Woohoo euler
 
 \subsection{Spectral Graph Theory}\label{sec:spectralGraphTheory}
 
     An excerpt from an Alloy
     
- \subsection{Network Laplacian Spectral Descriptor}\label{sec:NetLSD}
+\subsubsection{Network Laplacian Spectral Descriptor}\label{sec:NetLSD}
 
-Hellll ya
  
 \section{Random Graphs}\label{sec:RandomGraphs}
 
@@ -21,24 +25,58 @@ Hellll ya
     
 \subsection{Background}\label{sec:RandomGraphBackground}
 
-\paragraph{Hellll}
-	Ya
 	
 \subsection{Stochastic Block Models}\label{sec:SBM}
 
-\paragraph{Hellll}
-	Ya
+\begin{quote}
+    Stochastic block models
+    Statistical methods for block modeling have been proposed as stochastic
+    block models. Here the positions are taken to be latent classes for the nodes,
+    referred to as the colors of the nodes. The conditional distribution of dyads is
+    assumed to be independent conditional on the node colorings and the goal is to
+    determine the latent classes, and thereby to define the block model. This
+    approach was first proposed by Holland, Laskey, and Leinhardt (1983) and further
+    developed by Nowicki and Snijders (2001) who presented an algorithm for node
+    classification. Airoldi, Blei, Feinberg, and Xing (2008) extended this approach
+    to mixed membership models. \cite{robins2013tutorial}
+\end{quote}
+    
 	
 \section{Measures of Centrality}
 
-    Where the graphs at...
+Centrality is a measure of prominence for vertices within a graph. For the
+purpose of this thesis, it will be used to measure the relative importance of
+different topics tweeted about in the lead up to Canada's 2019 federal election.
+
     
 \subsection{Background}\label{sec:CentralityBackground}
 
-\paragraph{Hellll}
-	Ya
+There are various different ways of measuring vertex centrality that have
+successfully been applied to problems in marketing, economics and epidemiology;
+Stephenson and Zelen explored the utility of centrality measures in studying the
+social dynamics of Gelada baboons. \cite{stephenson1989rethinking}. Common
+centrality measures include measures of degree and betweenness. This thesis will
+focus on the notion that central vertices are close to other central vertices,
+which is one of the founding intuitions behind Google’s “page-rank” algorithm
+and eigenvector centrality. 
+
 	
 \subsection{Eigenvector Centrality}\label{sec:EigCentrality}
 
-\paragraph{Hellll}
-	Ya
+As Newman lays out in his 2016, Mathematics of Networks: ``the eigenvector
+centrality [...] accords each vertex a centrality that depends both on the
+number and the quality of its connections: having a large number of connections
+still counts for something, but a vertex with a smaller number of high-quality
+contacts may outrank one with a larger number of mediocre contacts.'' \cite{newman2008mathematics}
+
+If we define the eigencentrality of vertex $x$ as $C_{E}(x)$, where $C_{E}(x)$
+is proportional to the average eigenvector centrality of $x$'s neighbours,
+multiplied by some constant $\lambda$:
+\begin{equation}
+    C_{E}(x)=\frac{1}{\lambda}\sum_{j=1}^{n}A_{xj}C_{E}(x)
+\end{equation}
+By defining the vector of centralities as $C_E(X) = (C_E(x_1),C_E(x_2),...)$
+this equation can be rewritten as $\lambda C_E(X) = \lambda A$, and it is
+evident that CE(V) is an eigenvector of the adjacency matrix with eigenvalue, $\lambda$
+\cite{newman2008mathematics}. By Perron-Frobenius theorem, picking the largest eigenvalue of $A$ will
+result in all elements of $C_E(X)$ being non-negative \cite{newman2008mathematics}.
