@@ -7,40 +7,131 @@ A graph can be defined by the tuple, $G=(V,E)$. The graphs built in this project
 have added constraints and is defined as below:
 
 \begin{itemize}
-    \item \emph{Vertices}:% Let $V_{1}=\{v_{1},{v_{2},...,{v_{n}\}$
-    \item The text in the entries may be of any length.
-  \end{itemize}
+    \item \emph{Vertices}: Let $V_{1}=\{v_{1},v_{2},...,v_{n}\}$ be the set of
+    party leaders; $V_{2}=\{v_{1},v_{2},...,v_{m}\}$ be the set of tweets by the
+    party leaders described in section \ref{sec:motivation}; and let
+    $V_{3}=\{v_{1},v_{2},...,v_{k}\}$ be the set of users who retweet tweets.
+    Let the total set of vertices, $V$, be equivalent to $V_{1}\cup V_{2}\cup
+    V_{3}$.    
+    \item \emph{Edges}: Let $E$ be the set of edges. Allow the edge $(v_{1},
+    v_{2})\in E$ if and only if $v_{1}\in V_{1}, v_{2}\in V_{2}$ or $v_{1}\in
+    V_{3}, v_{2}\in V_{2}$. By this definition, we will only allow edges from a
+    party leader vertex to a tweet vertex, or from a“retweeter” vertex to a
+    tweet vertex.
+\end{itemize}
 
+\section{Spectral Graph Theory}\label{sec:spectralGraphTheory}
 
-\subsection{Spectral Graph Theory}\label{sec:spectralGraphTheory}
+Spectral graph theory studies the structures of graphs via the eigenvectors of
+their adjacency matrix, Laplacian matrix, or some other variant of the two. The
+set of eigenvalues for a graph if size $n$, $\{\lambda_{1},...,\lambda_{n}\}$,
+is called the spectrum of a graph \cite{netlsd}. As Hammond et al. note, graph
+spectra are closely related to major graph invariants \cite{chung1997spectral}.
+Graph spectra have been used in image segmentation and object recognition tasks,
+as well as in studying the stability of molecules; Elghawalby and Hancock
+demonstrated how the euclidian distance between graphs' spectra track the edit
+distances between graphs \cite{elghawalby2008measuring,chung1997spectral}. As
+such, spectral graph theory is useful in comparing the underlying structure of
+two graphs -- allowing for nuanced distance and similarity metrics.   
 
-    An excerpt from an Alloy
-    
-\subsubsection{Network Laplacian Spectral Descriptor}\label{sec:NetLSD}
+\subsection{Network Laplacian Spectral Descriptor}\label{sec:NetLSD}
 
+While various distance metrics are tracked by graph spectra, most are not size
+invariant or scale adaptive. Size invariant similarity metrics capture that two
+graphs that are structurally similar as close together, regardless of magnitude.
+Scale adaptive similarity metrics would be able to capture both local and global
+features of a graph. Tsitsulin et al. developed the Network Laplacian Spectral
+Descriptor (NetLSD), a state of the art similarity measure, that creates
+extracts a compact heat trace signature from a graph's normalized Laplacian
+spectrum using the heat kernel \cite{netlsd}. This, in effect, models how heat
+diffuses throughout a network over; with local features being captured in the
+immediate time-steps after the nodes are "heated" (and only affecting adjacent
+nodes) and global features being captured as heat becomes further diffuse.
+Figure~\ref{fig:heat_trace_ex} shows how the two graphs can be similar at a
+global level and local level, but differ at an intermediate scale \cite{netlsd}.
+
+\begin{singlespacing}
+    \begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.25]{Figures/heat_trace_ex}
+    \caption[NetLSD Heat Trace Signatures for two Similar Graphs]{NetLSD Heat Trace Signatures for two Similar Graphs}
+    \label{fig:heat_trace_ex}
+    \end{figure}
+\end{singlespacing}
+
+The heat trace ($h_{t}$) for a graph at time $t$ is calculated by taking the
+eigenvalues of the graph's normalized Laplacian matrix, and summating their
+exponentiation multiplied by $-t$. 
+
+\begin{equation}\label{equation:heat_trace}
+    h_{t}=\sum_{j}^{n}e^{-t\lambda_{j}}
+\end{equation}
  
+Given that a graph with $n$ nodes will have $n$ eigenvalues and thus have a
+higher heat trace value at any given time -- the heat trace can be normalized
+against an empty graph, which has all zero eigenvalues \cite{netlsd}. The
+\emph{heat trace signature} then is a vector of different heat traces at
+different times denoted by $h(G)$:
+
+\begin{equation}\label{equation:heat_trace_sig}
+    h(G) = \{h_{t}\}_{t\geq0}
+\end{equation}
+
+Two graphs can be compared via the $L_{2}$ distance among trace signatures.
+
 \section{Random Graphs}\label{sec:RandomGraphs}
-
-    Where the graphs at...
     
-\subsection{Background}\label{sec:RandomGraphBackground}
+Real world interactions are not deterministic. That is -- who your friends are,
+whether you contract a disease, or whether you choose to retweet a tweet are the
+result of random processes, patterned by your connections with others.
+Therefore, modelling how social networks form requires investigating the
+underlying of the processes that generate these random ties. As Robins'
+discusses in his article,\emph{ a tutorial on methods for the modeling and
+analysis of social network data}, graphs where edges are generated in some
+stochastic process can help illustrate how relationships drive behaviour
+\cite{robins2013tutorial}.  
 
-	
-\subsection{Stochastic Block Models}\label{sec:SBM}
+\subsection{Stochastic Blockmodels}\label{sec:SBM}
 
-\begin{quote}
-    Stochastic block models
-    Statistical methods for block modeling have been proposed as stochastic
-    block models. Here the positions are taken to be latent classes for the nodes,
-    referred to as the colors of the nodes. The conditional distribution of dyads is
-    assumed to be independent conditional on the node colorings and the goal is to
-    determine the latent classes, and thereby to define the block model. This
-    approach was first proposed by Holland, Laskey, and Leinhardt (1983) and further
-    developed by Nowicki and Snijders (2001) who presented an algorithm for node
-    classification. Airoldi, Blei, Feinberg, and Xing (2008) extended this approach
-    to mixed membership models. \cite{robins2013tutorial}
-\end{quote}
-    
+Initially, random graph models were primarily developed to ``model  variations in
+local connectivity of each network actor, the degree of local clustering among
+actors, and the general distribution of connectivity." \cite{robins2013tutorial}
+However, intrinsic characteristics of actors in a network often patterns the
+relationships found; inter vs intra-group dynamics drive Shakespeare's Romeo and
+Juliet, and how the characters behaved was largely determined by which family
+they were a part of \cite{doreian2005generalized}. Blocks therefore group all
+nodes of the same characteristics. The proportion of all possibles edges within
+a group -- and the proportion of all possible edges that span to all other
+blocks -- formulate the probabilities of forming edges in the generative
+blockmodel. Figure \ref{fig:blockmodel_ex} visualizes a friendship network with
+each node (representing a person) coloured according to their sex, and edges
+between nodes denoting friendship between them.
+
+\begin{singlespacing}
+    \begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.2]{Figures/blockmodel_ex}
+    \caption[Friendship Blockmodel With Nodes Coloured by Sex]{Blockmodel Example With Nodes Coloured by Characteristic}
+    \label{fig:blockmodel_ex}
+    \end{figure}
+\end{singlespacing}
+
+Of all the possible edges for a network of that size, the ones observed are
+overwhelmingly between members of the same sex, with fewer edges spanning that
+characteristic. These are attributes that shape behaviour that blockmodels
+attempt to capture. 
+
+Stochastic blockmodelling, first proposed by Holland et al. in 1983, is a subset
+of blockmodels that takes classes of nodes to be latent
+\cite{holland1983stochastic}. The goal, therefore, of stochastic blockmodels are
+to determine the latent classes necessary to define the blockmodel. 
+
+For the purposes of this thesis, stochastic blockmodels will be adapted and
+extended to capture how users on Twitter show preferences for party leaders
+and/or policies when deciding whether to engage with tweets. The model will have
+to realistically model the spectrum of users; from those who only engage with
+one party leader, to those who retweet multiple party leaders, to those whose
+engagement driven by specific issues. 
 	
 \section{Measures of Centrality}
 
@@ -48,7 +139,6 @@ Centrality is a measure of prominence for vertices within a graph. For the
 purpose of this thesis, it will be used to measure the relative importance of
 different topics tweeted about in the lead up to Canada's 2019 federal election.
 
-    
 \subsection{Background}\label{sec:CentralityBackground}
 
 There are various different ways of measuring vertex centrality that have
@@ -60,14 +150,14 @@ focus on the notion that central vertices are close to other central vertices,
 which is one of the founding intuitions behind Google’s “page-rank” algorithm
 and eigenvector centrality. 
 
-	
 \subsection{Eigenvector Centrality}\label{sec:EigCentrality}
 
 As Newman lays out in his 2016, Mathematics of Networks: ``the eigenvector
 centrality [...] accords each vertex a centrality that depends both on the
 number and the quality of its connections: having a large number of connections
 still counts for something, but a vertex with a smaller number of high-quality
-contacts may outrank one with a larger number of mediocre contacts.'' \cite{newman2008mathematics}
+contacts may outrank one with a larger number of mediocre contacts.''
+\cite{newman2008mathematics}
 
 If we define the eigencentrality of vertex $x$ as $C_{E}(x)$, where $C_{E}(x)$
 is proportional to the average eigenvector centrality of $x$'s neighbours,
@@ -77,6 +167,7 @@ multiplied by some constant $\lambda$:
 \end{equation}
 By defining the vector of centralities as $C_E(X) = (C_E(x_1),C_E(x_2),...)$
 this equation can be rewritten as $\lambda C_E(X) = \lambda A$, and it is
-evident that CE(V) is an eigenvector of the adjacency matrix with eigenvalue, $\lambda$
-\cite{newman2008mathematics}. By Perron-Frobenius theorem, picking the largest eigenvalue of $A$ will
-result in all elements of $C_E(X)$ being non-negative \cite{newman2008mathematics}.
+evident that CE(V) is an eigenvector of the adjacency matrix with eigenvalue,
+$\lambda$ \cite{newman2008mathematics}. By Perron-Frobenius theorem, picking the
+largest eigenvalue of $A$ will result in all elements of $C_E(X)$ being
+non-negative \cite{newman2008mathematics}.

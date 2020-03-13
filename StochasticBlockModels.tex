@@ -1,32 +1,32 @@
-\section{Stochastic Block Models}\label{sec:SBMs}
+\section{Stochastic Blockmodels}\label{sec:SBMs}
 
 Describe generic algorithm without specifying if its the party/topic model
 
 \subsection{Artificial Neural Network Adaptation}\label{sec:ANNAdaptation}
 
-\subsubsection{Stochastic Party Leader Block Model}\label{sec:SPLBM}
+\subsubsection{Stochastic Party Leader Blockmodel}\label{sec:SPLBM}
 
 The stochastic party leader model generates user behaviour only taking into
 account the previous party leaders each user had engaged with prior. For each
 user, when deciding which tweet they are to retweet, their retweet history is
 converted into a probability distribution (ex.\
 $history=[JT=0,AS=1,JS=3,EM=2,MB=0]$ generates
-$probs=[0.09,0.19,JS=0.36,EM=0.27,MB=0.09]$). In this sense, it models a world
+$probs=[JT=0.09,AS=0.19,JS=0.36,EM=0.27,MB=0.09]$). In this sense, it models a world
 in which politically engaged Twitter users only engage along the axis of party
 leaders, with a complete disregard for the topics tweeted about.
 
-\subsubsection{Stochastic Topic Block Model}\label{sec:STBM}
+\subsubsection{Stochastic Topic Blockmodel}\label{sec:STBM}
 
-Conversely, the stochastic topic block model models a world in which politically
+Conversely, the stochastic topic blockmodel models a world in which politically
 engaged Twitter users only engage along the axis of topics. Here, the topic
 history of a user is converted into a probability distribution, and with a
 probability of $\epsilon$, that user will retweet the topic with the highest
 activation -- regardless of which party leader tweeted it. 
 
-\subsubsection{Stochastic Hybrid Block Model}\label{sec:SHBM}
+\subsubsection{Stochastic Hybrid Blockmodel}\label{sec:SHBM}
 
 The final model developed is a hybrid of the stochastic party leader block
-model, and the stochastic topic block model. Here, two history vectors for each
+model, and the stochastic topic blockmodel. Here, two history vectors for each
 user are captured -- the $n$ dimensional party leader history vector, and the
 $k$ dimensional topic history vector. After each respective vector is converted
 into a probability distribution, the weight of a retweet of
@@ -40,8 +40,8 @@ Where $P(i)$ is index $i$ of that user's \emph{party leader} probability
 distribution, $P(j)$ is index $j$ of that user's \emph{topic} probability
 distribution, and $\alpha$ is some constant that determines the relative
 weighting of the two. As $\alpha$ approaches $1$, the hybrid model becomes
-equivalent to the stochastic party leader block model -- and as $\alpha$
-approaches $0$ the model approaches the stochastic topic block model. This model
+equivalent to the stochastic party leader blockmodel -- and as $\alpha$
+approaches $0$ the model approaches the stochastic topic blockmodel. This model
 then generates different ``worlds'' in which users' political engagement falls on
 the spectrum from only caring about \emph{party leaders} to only caring about
 \emph{topics}.
@@ -50,7 +50,7 @@ the spectrum from only caring about \emph{party leaders} to only caring about
 
 The final objective of comparing the relative importance of topics and party
 leaders in driving political engagement requires comparing the structure of
-target graph shown in \ref{sec:graphTheoryBackground}, and various hybrid models
+target graph shown in \ref{ch:GraphTheory}, and various hybrid models
 generated with different values of $\alpha$. Using the Network Laplacian
 Spectral Descriptor described in section \ref{sec:NetLSD} by Tsitsulin et al.
 the optimal alpha value can be determined in a scale-adaptive, size-invariant,
