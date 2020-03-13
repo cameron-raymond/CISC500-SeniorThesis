@@ -45,7 +45,7 @@ Descriptor (NetLSD), a state of the art similarity measure, that creates
 extracts a compact heat trace signature from a graph's normalized Laplacian
 spectrum using the heat kernel \cite{netlsd}. This, in effect, models how heat
 diffuses throughout a network over; with local features being captured in the
-immediate time-steps after the nodes are "heated" (and only affecting adjacent
+immediate time-steps after the nodes are ``heated'' (and only affecting adjacent
 nodes) and global features being captured as heat becomes further diffuse.
 Figure~\ref{fig:heat_trace_ex} shows how the two graphs can be similar at a
 global level and local level, but differ at an intermediate scale \cite{netlsd}.
@@ -54,7 +54,7 @@ global level and local level, but differ at an intermediate scale \cite{netlsd}.
     \begin{figure}[H]
     \centering
     \includegraphics[scale=0.25]{Figures/heat_trace_ex}
-    \caption[NetLSD Heat Trace Signatures for two Similar Graphs]{NetLSD Heat Trace Signatures for two Similar Graphs}
+    \caption[NetLSD Heat Trace Signatures for two Similar Graphs \cite{netlsd}]{NetLSD Heat Trace Signatures for two Similar Graphs \cite{netlsd}}
     \label{fig:heat_trace_ex}
     \end{figure}
 \end{singlespacing}
@@ -93,25 +93,25 @@ stochastic process can help illustrate how relationships drive behaviour
 
 \subsection{Stochastic Blockmodels}\label{sec:SBM}
 
-Initially, random graph models were primarily developed to ``model  variations in
-local connectivity of each network actor, the degree of local clustering among
-actors, and the general distribution of connectivity." \cite{robins2013tutorial}
-However, intrinsic characteristics of actors in a network often patterns the
-relationships found; inter vs intra-group dynamics drive Shakespeare's Romeo and
-Juliet, and how the characters behaved was largely determined by which family
-they were a part of \cite{doreian2005generalized}. Blocks therefore group all
-nodes of the same characteristics. The proportion of all possibles edges within
-a group -- and the proportion of all possible edges that span to all other
-blocks -- formulate the probabilities of forming edges in the generative
-blockmodel. Figure \ref{fig:blockmodel_ex} visualizes a friendship network with
-each node (representing a person) coloured according to their sex, and edges
-between nodes denoting friendship between them.
+Initially, random graph models were primarily developed to ``model  variations
+in local connectivity of each network actor, the degree of local clustering
+among actors, and the general distribution of connectivity."
+\cite{robins2013tutorial} However, intrinsic characteristics of actors in a
+network often patterns the relationships found; inter vs intra-group dynamics
+drive Shakespeare's Romeo and Juliet, and how the characters behaved was largely
+determined by which family they were a part of \cite{doreian2005generalized}.
+Blocks therefore group all nodes of the same characteristics. The proportion of
+all possibles edges within a group -- and the proportion of all possible edges
+that span to all other blocks -- formulate the probabilities of forming edges in
+the generative blockmodel. Figure \ref{fig:blockmodel_ex} visualizes a
+friendship network with each node (representing a person) coloured according to
+their sex, and edges between nodes denoting friendship between them.
 
 \begin{singlespacing}
     \begin{figure}[H]
     \centering
     \includegraphics[scale=0.2]{Figures/blockmodel_ex}
-    \caption[Friendship Blockmodel With Nodes Coloured by Sex]{Blockmodel Example With Nodes Coloured by Characteristic}
+    \caption[Friendship Blockmodel With Nodes Coloured by Sex]{Friendship Blockmodel With Nodes Coloured by Sex}
     \label{fig:blockmodel_ex}
     \end{figure}
 \end{singlespacing}
