@@ -27,18 +27,18 @@ stop_words.extend(['elxn43','cdnpoli','ppc','ndp','gpc','pcs','ppc2019','peoples
 stop_words.extend(['get','dont','let','&amp;','amp','canadian']) #some words that aren't in the stopwords list but seem like they should be
 
 def clean_text(sentence):
-        sentence = sentence.lower()
-        sentence = p.clean(sentence)
-        token_words=word_tokenize(sentence)
-        token_words
-        stem_sentence=[]
-        for token in token_words:
-            token = re.sub("[,\.!?']", '', token)
-            token = lemmatizer.lemmatize(token)
-            if token not in stop_words and len(token) >= 3:
-                stem_sentence.append(token)
-                stem_sentence.append(" ")
-        return "".join(stem_sentence)
+    sentence = sentence.lower()
+    sentence = p.clean(sentence)
+    token_words=word_tokenize(sentence)
+    token_words
+    stem_sentence=[]
+    for token in token_words:
+        token = re.sub("[,\.!?']", '', token)
+        token = lemmatizer.lemmatize(token)
+        if token not in stop_words and len(token) >= 3:
+            stem_sentence.append(token)
+            stem_sentence.append(" ")
+    return "".join(stem_sentence)
 
 def clean_tweet(tweet_obj):
     cleaned_tweet 	= []
