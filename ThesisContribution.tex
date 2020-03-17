@@ -4,7 +4,7 @@
 
 In order to evaluate the relative importance of policy and party leaders in
 driving political engagement on Twitter, all the tweets collected must first be
-organized by topic. In order to do so a latent Dirichlet allocation (LDA) was
+organized by topic. In order to do so, a latent Dirichlet allocation (LDA) was
 trained on the English tweets of Canada's five major, english speaking party
 leaders: Andrew Scheer, Elizabeth May, Jagmeet Singh, Justin Trudeau, and Maxime
 Bernier. The timeframe of collection ranges from October 21, 2018 to October 21,
@@ -15,7 +15,7 @@ personal accounts for party leaders were generally more pertinent to their
 beliefs, platforms and style of rhetoric, and thus are better suited in this
 context. In this spirit, only tweets of the party leader were collected,
 excluding retweets. Figure \ref{fig:tweets_over_time} visualizes the daily and
-cumulative number of tweets over time in aggregate and by party leader,
+cumulative number of tweets over time, in aggregate and by party leader,
 resulting in 7978 total tweets.
 
 \begin{singlespacing}
@@ -36,8 +36,8 @@ three characters, and URLS, as well as common twitter symbols like ``RT:'',
 ``@'' and ``\#''. Emojis were converted to text using the python package
 \texttt{emoji}. After this process, all text was converted to lower-case and
 lemmatized to get rid of common suffixes. Therefore the tweet in figure
-\ref{fig:tweet_ex} after preprocessing reads \emph{``wherever maple leaf fly
-represents rich history bright future value hold dear happy flag day canada''}.
+\ref{fig:tweet_ex} after preprocessing reads: \emph{wherever maple leaf fly
+represents rich history bright future value hold dear happy flag day canada}.
 
 \begin{singlespacing}
     \begin{figure}[H]
@@ -82,7 +82,7 @@ coherence as a function of different combinations of $\alpha$ and $\beta$.
 After performing the parameter sweep described in section
 \ref{sec:TopicModellingHP}, the most performant model had a $k$ value of 7,
 $\alpha$ of 0.31 and $\beta$ of 0.81 and a c\_v coherence score of 0.48. By
-labelling each tweet as its maximum probability value in its topic mixture, each
+labelling each tweet as the maximum probability value in its topic mixture, each
 tweet was assigned a single topic. The word clouds for each topic are described
 in figure \ref{fig:topic_word_clouds}. 
 
@@ -108,15 +108,15 @@ in figure \ref{fig:topic_word_clouds}.
 \end{singlespacing}
 
 Topic 1 pertained to campaign messages, rallies and logistics -- and makes up
-8.2\% of all tweets; topic 2 contains tweets regarding a carbon tax, pipelines
-and the economy -- and makes up 16.3\% of all tweets; topic 3 contains tweets
+8.2\% of all tweets. Topic 2 contains tweets regarding a carbon tax, pipelines
+and the economy -- and makes up 16.3\% of all tweets. Topic 3 contains tweets
 about the SNC Lavalin affair, a scandal that plagued Justin Trudeau, and tweets
-about corruption -- and makes up 18\% of all tweets; topic 4 is predominantly
+about corruption -- making up 18\% of all tweets. Topic 4 is predominantly
 tweets appealing to the middle-class and economy -- and is 29.7\% of all tweets;
 topic 5 contains celebratory messages about the campaign, as well as tweets
 regarding national holidays and days of remembrance -- and make up 15\% of all
-tweets; topic 6 is made up of tweest about immigration, diversity and free
-speech -- and makes up 11.5\% of all tweets; and finally, topic 7 contains
+tweets. Topic 6 is made up of tweest about immigration, diversity and free
+speech -- and makes up 11.5\% of all tweets. Finally, topic 7 contains
 tweets regarding healthcare, abortion and pharmacare -- and makes up 1\% of all
 tweets. The magnitude of how many tweets were assigned to each topic is shown in
 figure \ref{fig:topic_distribution}. The vertices representing tweets of different
@@ -130,7 +130,6 @@ topics in figure \ref{fig:og_graph} are assigned different colours.
     \label{fig:topic_distribution}
     \end{figure}
 \end{singlespacing}
-
 
 \input{TopicCentrality}
 
