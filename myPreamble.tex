@@ -139,7 +139,14 @@
                              % Note:  The listings don't have space between the chapters, unlike
                              % the standard list of tables etc.  At the end, copy the spacing
                              % commands from the .toc file and insert into the .lis file.  Then,
-                             % DO NOT LATEX it again, simply go to the DVI viewer!
+                             % DO NOT LATEX it again, simply go to the DVI
+                             % viewer!
+                             
+
+%*************************************************************************************************************
+% ALGORITHMS
+%*************************************************************************************************************
+\usepackage[ruled,vlined]{algorithm2e}
 %*************************************************************************************************************
 % TABLES
 %*************************************************************************************************************
@@ -148,6 +155,7 @@
                              % and text is wrapped nicely.
 
 \usepackage{threeparttable}
+
 %*************************************************************************************************************
 % CAPTIONS
 %*************************************************************************************************************
@@ -261,6 +269,9 @@
     \begin{verbatiminput}{#1}\end{verbatiminput}
     }\end{singlespacing}
 }
+
+\newcommand{\specialcell}[2][c]{%
+  \begin{tabular}[#1]{@{}l@{}}#2\end{tabular}}
 %*************************************************************************************************************
 % Command that I can use for reading in a file, verbatim, with NO line
 % numbers, but in a smaller font.  The parameter is the file name.

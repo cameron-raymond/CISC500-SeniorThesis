@@ -20,8 +20,8 @@ have added constraints and is defined as below:
     tweet vertex.
 \end{itemize}
 
-Figure \ref{fig:og_graph} shows the full graph -- with 7,978 tweets, 36,450 generic users,
-and 113,293 retweet edges --  built with these constraints.
+Figure \ref{fig:og_graph} shows the full graph -- with 7,978 tweets, 36,450
+generic users, and 113,293 retweet edges --  built with these constraints.
 
 \begin{singlespacing}
     \begin{figure}[H]
@@ -35,30 +35,34 @@ and 113,293 retweet edges --  built with these constraints.
 \section{Spectral Graph Theory}\label{sec:spectralGraphTheory}
 
 Spectral graph theory studies the structures of graphs via the eigenvectors of
-their adjacency matrix, Laplacian matrix, or some other variant of the two. The
-set of eigenvalues for a graph if size $n$, $\{\lambda_{1},...,\lambda_{n}\}$,
-is called the spectrum of a graph \cite{netlsd}. As Hammond et al. note, graph
-spectra are closely related to major graph invariants \cite{chung1997spectral}.
-Graph spectra have been used in image segmentation and object recognition tasks,
-as well as in studying the stability of molecules; Elghawalby and Hancock
-demonstrated how the euclidian distance between graphs' spectra track the edit
-distances between graphs \cite{elghawalby2008measuring,chung1997spectral}. As
-such, spectral graph theory is useful in comparing the underlying structure of
-two graphs -- allowing for nuanced distance and similarity metrics.   
+their adjacency matrix, Laplacian matrix\footnote{The Laplacian matrix of a
+graph is defined as its degree matrix minus its adjacency matrix.}, or some
+other variant of the two. The set of eigenvalues for a graph if size $n$,
+$\{\lambda_{1},...,\lambda_{n}\}$, is called the spectrum of a graph
+\cite{netlsd}. As Hammond et al. note, graph spectra are closely related to
+major graph invariants \cite{chung1997spectral}. Graph spectra have been used in
+image segmentation and object recognition tasks, as well as in studying the
+stability of molecules; Elghawalby and Hancock demonstrated how the euclidian
+distance between graphs' spectra track the edit distances between graphs
+\cite{elghawalby2008measuring,chung1997spectral}. As such, spectral graph theory
+is useful in comparing the underlying structure of two graphs -- allowing for
+nuanced distance and similarity metrics.   
 
 \subsection{Network Laplacian Spectral Descriptor}\label{sec:NetLSD}
 
 While various distance metrics are tracked by graph spectra, most are not size
-invariant or scale adaptive. Size invariant similarity metrics capture that two
-graphs that are structurally similar as close together, regardless of magnitude.
-Scale adaptive similarity metrics would be able to capture both local and global
-features of a graph. Tsitsulin et al. developed the Network Laplacian Spectral
-Descriptor (NetLSD), a state of the art similarity measure, that creates
-extracts a compact heat trace signature from a graph's normalized Laplacian
-spectrum using the heat kernel \cite{netlsd}. This, in effect, models how heat
-diffuses throughout a network over; with local features being captured in the
-immediate time-steps after the nodes are ``heated'' (and only affecting adjacent
-nodes) and global features being captured as heat becomes further diffuse.
+invariant or scale adaptive. Size invariant similarity metrics capture two
+structurally similar graphs as close together, regardless of magnitude; for
+example, social networks like Facebook and Google Hangout likely have similar
+structural patterns despite the former being much larger. Scale adaptive
+similarity metrics would be able to capture both local and global features of a
+graph. Tsitsulin et al. developed the Network Laplacian Spectral Descriptor
+(NetLSD), a state of the art similarity measure, that creates extracts a compact
+heat trace signature from a graph's normalized Laplacian spectrum using the heat
+kernel \cite{netlsd}. This, in effect, models how heat diffuses throughout a
+network over; with local features being captured in the immediate time-steps
+after the nodes are ``heated'' (and only affecting adjacent nodes) and global
+features being captured as heat becomes further diffuse.
 Figure~\ref{fig:heat_trace_ex} shows how the two graphs can be similar at a
 global level and local level, but differ at an intermediate scale \cite{netlsd}.
 
@@ -89,7 +93,9 @@ different times denoted by $h(G)$:
     h(G) = \{h_{t}\}_{t\geq0}
 \end{equation}
 
-Two graphs can be compared via the $L_{2}$ distance among trace signatures.
+Since the heat trace signatures of two graphs lie in the same dimensional vector
+space, taking the $L_{2}$ distance of the difference between the two heat trace
+vectors provides a suitable distance metric.
 
 \section{Random Graphs}\label{sec:RandomGraphs}
     
