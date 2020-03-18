@@ -25,7 +25,7 @@ $retweet\_histogram$, $\epsilon$ -- which are described in table
             \hline
             \textbf{Parameter}              & \textbf{Type}                 & \textbf{Description} \\ \hline
             \emph{n}                        & $Integer$                     & \specialcell{The number of party leader vertices} \\ \hline
-            \emph{tweet\_dist}              & $Tuple$                       & \specialcell{A tuple representing a random variable \\ $X \sim\mathcal{N}(\mu,\,\sigma^{2})$ that is sampled $n$ times to determine \\ the number of tweet vertices per party leader} \\ \hline
+            \emph{tweet\_dist}              & $Tuple$                       & \specialcell{A tuple representing a normal distribution \\ $X \sim\mathcal{N}(\mu,\,\sigma^{2})$ that is sampled $n$ times to determine \\ the number of tweet vertices per party leader} \\ \hline
             \emph{$k$}                      & $Integer$                     & The number of topics that a tweet vertex can take on \\ \hline
             \emph{$m$}                      & $Integer$                     & The number of generic user vertices \\ \hline
             \emph{$retweet\_histogram$}     & $Histogram$\tnote{a}          & \specialcell{The distribution of retweets that is sampled $m$ \\ times to get the degree for each generic user} \\ \hline
@@ -70,7 +70,7 @@ While initially the edge probabilities for a user $i$ would be proportional to
 their retweet history\footnote{This can be done efficiently by taking the
 $softmax$ of the retweet history.}, section \ref{sec:DeepSBMs} demonstrates
 how more nuanced edge probabilities can be developed with deep stochastic
-blockmodels. The full algorithm is given in algorithm \ref{algorithm:SBM}.
+blockmodels. This is formalized in algorithm \ref{algorithm:SBM}.
 
 \begin{singlespacing}
 \begin{algorithm}[H]
@@ -101,7 +101,7 @@ blockmodels. The full algorithm is given in algorithm \ref{algorithm:SBM}.
 \end{singlespacing}
 
 
-\subsection{Deep Stochastic Blockmodels for Modelling Political Engagement}\label{sec:DeepSBMs}
+\subsubsection{Deep Stochastic Blockmodels for Modelling Political Engagement}\label{sec:DeepSBMs}
 
 As discussed in section \ref{sec:AdaptedSBMs}, the edge probabilities for a user
 retweeting a tweet-type can be calculated in various ways. A further nuance that
@@ -133,7 +133,7 @@ Sections \ref{sec:SPLBM}, \ref{sec:STBM} and \ref{sec:SHBM} will demonstrate
 both the utility of these ANNs in generating the stochastic blockmodels in
 comparison to the standard edge probability calculation.
 
-\subsubsection{Stochastic Party Leader Blockmodel}\label{sec:SPLBM}
+\subsection{Stochastic Party Leader Blockmodel}\label{sec:SPLBM}
 
 The stochastic party leader model generates user behaviour only taking into
 account the previous party leaders each user had engaged with prior. The
@@ -166,7 +166,7 @@ probabilities are determined with the ANN described in section
     \end{figure}
 \end{singlespacing}
 
-\subsubsection{Stochastic Topic Blockmodel}\label{sec:STBM}
+\subsection{Stochastic Topic Blockmodel}\label{sec:STBM}
 
 Conversely, the stochastic topic blockmodel models a world in which politically
 engaged Twitter users only engage along the axis of topics. In this case, the
@@ -192,7 +192,7 @@ described in section \ref{sec:DeepSBMs}.
     \end{figure}
 \end{singlespacing}
 
-\subsubsection{Stochastic Hybrid Blockmodel}\label{sec:SHBM}
+\subsection{Stochastic Hybrid Blockmodel}\label{sec:SHBM}
 
 The final model developed is a hybrid of the stochastic party leader block
 model, and the stochastic topic blockmodel. Here, two history vectors for each
@@ -216,6 +216,19 @@ approaches $0$ the model approaches the stochastic topic blockmodel. This model
 then generates different ``worlds'' in which users' political engagement falls
 on the spectrum from only caring about \emph{party leaders} to only caring about
 \emph{topics}.
+
+\begin{singlespacing}
+    \begin{figure}
+        \centering
+        \begin{tabular}{cc}
+          \includegraphics[width=50mm]{Figures/standard_SHBm_ex} &
+          \includegraphics[width=50mm]{Figures/deep_SHBm_ex} \\
+        (a) Standard SHBm ($\alpha$=0.60) & (b) Deep SHBm ($\alpha$=0.60)\\[6pt]
+        \end{tabular}
+        \caption[Stochastic Topic Blockmodels]{Stochastic Topic Blockmodels}
+        \label{fig:SHBm_examples}
+    \end{figure}
+\end{singlespacing}
 
 \subsection{NetLSD for Describing Political Engagement}\label{sec:NetLSDForSBM}
 
@@ -242,7 +255,11 @@ trace signature.
 \begin{singlespacing}
     \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.4]{Figures/dist_from_original_graph_over_sample_size}
+    \begin{tabular}{cc}
+        \includegraphics[width=50mm]{Figures/dist_from_original_graph_over_sample_size} &
+        \includegraphics[width=50mm]{Figures/sampled_graph} \\
+        (a) Heat Trace Signature Distances & (b) Engagement Graph (215 Tweets per PL)\\[6pt]
+    \end{tabular}
     \caption[Heat Trace Signature Distance as a Function of Graph Sample Size]{Heat Trace Signature Distance as a Function of Graph Sample Size}
     \label{fig:dist_from_original_graph_over_sample_size}
     \end{figure}
@@ -294,24 +311,6 @@ $\alpha=0.4$. The full tabular data is shown in table
         \label{fig:SHBm_results}
     \end{figure}
 \end{singlespacing}
-
-% \begin{singlespacing}
-%     \begin{figure}[H]
-%     \centering
-%     \includegraphics[scale=0.3]{Figures/standard_heat_trace_plot}
-%     \caption[Standard Stochastic Hybrid Blockmodel Plots]{Standard Stochastic Hybrid Blockmodel Plots}
-%     \label{fig:standard_heat_trace_plot}
-%     \end{figure}
-% \end{singlespacing}
-
-% \begin{singlespacing}
-%     \begin{figure}[H]
-%     \centering
-%     \includegraphics[scale=0.3]{Figures/ann_heat_trace_plot}
-%     \caption[Deep Stochastic Hybrid Blockmodel Plots]{Deep Stochastic Hybrid Blockmodel Plots}
-%     \label{fig:ann_heat_trace_plot}
-%     \end{figure}
-% \end{singlespacing}
 
 \begin{singlespacing}
     \begin{center}
