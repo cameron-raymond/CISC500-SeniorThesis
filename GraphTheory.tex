@@ -57,14 +57,14 @@ example, social networks like Facebook and Google Hangout likely have similar
 structural patterns despite the former being much larger. Scale adaptive
 similarity metrics would be able to capture both local and global features of a
 graph. Tsitsulin et al. developed the Network Laplacian Spectral Descriptor
-(NetLSD), a state of the art similarity measure, that creates extracts a compact
-heat trace signature from a graph's normalized Laplacian spectrum using the heat
-kernel \cite{netlsd}. This, in effect, models how heat diffuses throughout a
-network over; with local features being captured in the immediate time-steps
-after the nodes are ``heated'' (and only affecting adjacent nodes) and global
-features being captured as heat becomes further diffuse.
-Figure~\ref{fig:heat_trace_ex} shows how the two graphs can be similar at a
-global level and local level, but differ at an intermediate scale \cite{netlsd}.
+(NetLSD), which extracts a compact heat trace signature from a graph's
+normalized Laplacian spectrum using the heat kernel \cite{netlsd}. This, in
+effect, models how heat diffuses throughout a network over time; with local features
+being captured in the immediate time-steps after the nodes are ``heated'' (and
+only affecting adjacent nodes) and global features being captured as heat
+becomes further diffuse. Figure~\ref{fig:heat_trace_ex} shows how the two graphs
+can be similar at a global level and local level, but differ at an intermediate
+scale \cite{netlsd}.
 
 \begin{singlespacing}
     \begin{figure}[H]

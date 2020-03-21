@@ -48,18 +48,18 @@ $retweet\_histogram$, $\epsilon$ -- which are described in table
  leader and tweet vertices. Second, topics are assigned to tweets randomly and
  $m$ samples of the $retweet\_histogram$ are generated to determine the retweet
  degree for each user, $D$. Finally, the algorithm loops through each generic
- user and retweets $D_{i}$ tweets. For each retweet a user makes, edge
- probabilities for each type of tweet are calculated based on the user's prior
+ user $i$ and retweets $D_{i}$ tweets. For each retweet a user makes, edge
+ probabilities for each tweet-type are calculated based on the user's prior
  retweet history. The probability of forming an edge between user $i$ and a
- tweet of type $t$, given edge probabilities $e_{i}$, is given by the
+ tweet-type $t$, given edge probabilities $e_{i}$, is given by the
  policy\footnote{Policy in this context refers to the probability of choosing an
  action from some set of possible actions and is denoted by $\pi$; all other
  mentions to policy in this thesis refer to categories of messages.} $\pi$ in
  equation \ref{equation:policy_equation}. This is a variation of the
- $\epsilon$-$greedy$ algorithm, where the tweet-type with the highest probability
- is chosen $\epsilon$ percent of the time, and $(1-\epsilon)$ percent of the
- time tweets are chosen based off of $e_{i}$. After each edge is formed user
- $i$'s retweet history is updated.
+ $\epsilon$-$greedy$ algorithm, where the tweet-type with the highest
+ probability is chosen $\epsilon$ percent of the time, and $(1-\epsilon)$
+ percent of the time tweets are chosen based off of $e_{i}$. After each edge is
+ formed user $i$'s retweet history is updated.
  
 \begin{numcases}{\text{$\pi(t|e_{i})$}}\label{equation:policy_equation}
     \epsilon                & if $t = argmax_{t} e_{i}$ \notag \\
@@ -77,7 +77,7 @@ blockmodels. This is formalized in algorithm \ref{algorithm:SBM}.
     \SetAlgoLined
     \KwResult{A stochastically generated political engagment graph}
     initialize $G$ as an empty graph\;
-    initialize $T$ as an array of all different types of tweets\;
+    initialize $T$ as an array of all different tweet-types\;
     initialize $n$ party leader vertices in $G$\;
     initialize $m$ generic user vertices in $G$\;
     \For{$i\leftarrow 1$ \KwTo $n$}{
@@ -90,7 +90,7 @@ blockmodels. This is formalized in algorithm \ref{algorithm:SBM}.
         initialize $user\_history$ array of size $|T|$ with all 0s\;
         \For{$j\leftarrow 1$ \KwTo $D_{i}$}{
             generate edge probabilities $e_{i}$\;
-            add an edge from user $i$ to a tweet of type $t$ based on $\pi(t|e_{i})$\;
+            add an edge from user $i$ to a tweet of tweet-type $t$ based on $\pi(t|e_{i})$\;
             $user\_history_{t}+=1$
         } 
      }
