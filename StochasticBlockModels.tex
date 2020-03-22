@@ -111,8 +111,10 @@ figure \ref{fig:og_graph} was used to train two feed-forward artificial neural
 networks (ANN) to aid in the edge probability calculation: one that predicts the next
 party leader a user would tweet given the prior party leaders they had
 retweeted, and one that predicts which topic a user would retweet given the
-previous topics of tweets that user had retweeted. Figure \ref{fig:confusion_matrices} shows the
-confusion matrices for these two ANNs. Both ANNs attained between 85-87\% accuracy.
+previous topics of tweets that user had retweeted. Figure
+\ref{fig:confusion_matrices} shows the confusion matrices for these two ANNs.
+Both ANNs are standard feed forward neural networks, with two dense layers
+containing 32 and 16 nodes respectively. Each attained between 85-87\% accuracy.
 
 \begin{singlespacing}
     \begin{figure}
@@ -281,23 +283,24 @@ in a scale-adaptive, size-invariant, and permutation-invariant manner. By
 performing a sweep of different $\alpha$ values for the hybrid models, and
 measuring which one produces the heat trace signature with the smallest $L_2$
 distance to the original graph, the final objective of putting Ezra Klein's
-hypothesis to task can be achieved. All graphs were generated with $n=5$, 
-$k=7$, $tweet\_dist=(\mu=215,\,\sigma^{2}=70)$, $m=8826$, $retweet\_histogram$
-derived from the original engagement graph, and $\epsilon=0.95$. $\alpha$ values
-ranging between 0 and 1, with increments of 0.05 were used to generate the
-different hybrid models. Four models were generated per $\alpha$ and the mean
-distance was used to determine the final distance.
+hypothesis to task can be achieved. All graphs were generated with $n=5$, $k=7$,
+$tweet\_dist=(\mu=215,\,\sigma^{2}=70)$, $m=8826$, $retweet\_histogram$ derived
+from the original engagement graph, and $\epsilon=0.95$. $\alpha$ values ranging
+between 0 and 1, with increments of 0.05 were used to generate the different
+hybrid models. Four models were generated per $\alpha$ and the mean distance was
+used to determine the final distance.
 
 The results of this experiment are striking: in both the deep SHBm, which uses
-the ANN to calculate edge probabilities, and the standard SHBm, which makes
-edge probabilities proportional to the user's retweet history, it is clear that
-both \emph{what} the message is and \emph{who} tweeted the message drive
-political engagement. The standard SHBm shows a clear trend where $\alpha$
-values that privilege policy over party leader, or vice versa, have a further
-distance from original engagement graph than ones that blend the two. These hybrid models
-had the best fit when $\alpha=0.6$. The deep SHBm had an optimal fit when
+the ANN to calculate edge probabilities, and the standard SHBm, which makes edge
+probabilities proportional to the user's retweet history, it is clear that both
+\emph{what} the message is and \emph{who} tweeted the message drive political
+engagement. The standard SHBm shows a clear trend where $\alpha$ values that
+privilege policy over party leader, or vice versa, have a further distance from
+original engagement graph than ones that blend the two. These hybrid models had
+the best fit when $\alpha=0.6$. The deep SHBm had an optimal fit when
 $\alpha=0.4$. The full tabular data is shown in table
-\ref{fig:tab_SHBm_results}, and the results are visualized in figure \ref{fig:SHBm_results}.
+\ref{fig:tab_SHBm_results}, and the results are visualized in figure
+\ref{fig:SHBm_results}.
 
 \begin{singlespacing}
     \begin{figure}
@@ -318,11 +321,8 @@ $\alpha=0.4$. The full tabular data is shown in table
     \caption{Results of NetLSD Comparison of SHBm Models}
     \label{fig:tab_SHBm_results}\begin{small}
         \begin{tabular}{|l|c|c|c|c|c|c|c|} \hline
-
         \multicolumn{1}{|c|}{} & \multicolumn{3}{|c|}{Standard SHBm} & \multicolumn{3}{|c|}{Deep SHBm} \\ \hline
-
         \multicolumn{1}{|c|}{$\alpha$} & Min $L_{2}$ & Mean $L_{2}$ & $\sigma^{2}$  & Min $L_{2}$ &  Mean $L_{2}$ & $\sigma^{2}$ \\  \cline{6-7}
-
         \hline
             0.00  & 0.2648 & 0.2756 & 0.0083   &  0.2173 & 0.2276 & 0.0062 \\
         \hline
@@ -369,5 +369,5 @@ $\alpha=0.4$. The full tabular data is shown in table
         \end{tabular}
     \end{small}
     \end{threeparttable}
-    \end{center}
-    \end{singlespacing}
+\end{center}
+\end{singlespacing}

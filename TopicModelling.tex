@@ -35,7 +35,7 @@ thought process behind the LDA is that each document in a corpus can be
 described as a distribution of topics, and that each topic can be described as a
 distribution of words. 
 
-In this processes, each word in all the text corpus is an element of the
+In this process, each word in all the text corpus is an element of the
 vocabulary, $Voc: \{1,...,V\}$. Each word, $v\in V$, is represented by $w$, a
 unit-basis vector of dimension $V$ where:
 
@@ -49,10 +49,10 @@ A document is a sequence of $N$ words denoted by $\vect{w} =
 $D = \{\vect{w_{1}},\vect{w_{2}},...,\vect{w_{M}}\}$. 
 
 The input to LDA, $M$, will be the tweets aggregated and cleaned from the tweets
-of federal Canadian party leaders described in \ref{sec:motivation}. Aside from
-the corpus and $k$ - the number of topics - two other parameters are fed to the
-LDA: first, $\alpha$, which is organizes the ground $\theta$ and acts as a
-concentration parameter for how documents are modelled as topics. Higher
+of federal Canadian party leaders described in section \ref{sec:motivation}.
+Aside from the corpus and $k$ - the number of topics - two other parameters are
+fed to the LDA: first, $\alpha$, which is organizes the ground $\theta$ and acts
+as a concentration parameter for how documents are modelled as topics. Higher
 $\alpha$ values generally implies that documents will be viewed as a mixture of
 topics, whereas low $\alpha$ values imply that documents will be viewed as a
 belonging to a single topic. Similarly, to model words as topics the parameter
