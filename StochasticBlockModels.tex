@@ -42,16 +42,26 @@ $retweet\_histogram$, $\epsilon$ -- which are described in table
     \end{center}
 \end{singlespacing}
 
+\begin{singlespacing}
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=70mm]{Figures/retweet_distribution}
+    \caption[Retweet Histogram for Full Political Engagement Graph]{Retweet Histogram for Full Political Engagement Graph}
+    \label{fig:retweet_distribution}
+    \end{figure}
+\end{singlespacing}
+
  The algorithm generates the stochastic block model in three phases. First, all
  the party leader, tweet, and generic user vertices are generated based off of
  $n$, $tweet\_distribution$ and $m$, along with edges between the the party
  leader and tweet vertices. Second, topics are assigned to tweets randomly and
- $m$ samples of the $retweet\_histogram$ are generated to determine the retweet
- degree for each user, $D$. Finally, the algorithm loops through each generic
- user $i$ and retweets $D_{i}$ tweets. For each retweet a user makes, edge
- probabilities for each tweet-type are calculated based on the user's prior
- retweet history. The probability of forming an edge between user $i$ and a
- tweet-type $t$, given edge probabilities $e_{i}$, is given by the
+ $m$ samples of the $retweet\_histogram$, shown in figure
+ \ref{fig:retweet_distribution}, are generated to determine the retweet degree
+ for each user, $D$. Finally, the algorithm loops through each generic user $i$
+ and retweets $D_{i}$ tweets. For each retweet user $i$ makes -- edge
+ probabilities, $e_{i}$, for each tweet-type are calculated based on the user's
+ prior retweet history. The probability of forming an edge between user $i$ and
+ a tweet-type $t$, given edge probabilities $e_{i}$, is given by the
  policy\footnote{Policy in this context refers to the probability of choosing an
  action from some set of possible actions and is denoted by $\pi$; all other
  mentions to policy in this thesis refer to categories of messages.} $\pi$ in
@@ -60,7 +70,7 @@ $retweet\_histogram$, $\epsilon$ -- which are described in table
  probability is chosen $\epsilon$ percent of the time, and $(1-\epsilon)$
  percent of the time tweets are chosen based off of $e_{i}$. After each edge is
  formed user $i$'s retweet history is updated.
- 
+
 \begin{numcases}{\text{$\pi(t|e_{i})$}}\label{equation:policy_equation}
     \epsilon                & if $t = argmax_{t} e_{i}$ \notag \\
     (1-\epsilon)e_{it}    & otherwise \notag
@@ -70,7 +80,7 @@ While initially the edge probabilities for a user $i$ would be proportional to
 their retweet history\footnote{This can be done efficiently by taking the
 $softmax$ of the retweet history.}, section \ref{sec:DeepSBMs} demonstrates
 how more nuanced edge probabilities can be developed with deep stochastic
-blockmodels. This is formalized in algorithm \ref{algorithm:SBM}.
+blockmodels. The full algorithm is formalized in algorithm \ref{algorithm:SBM}.
 
 \begin{singlespacing}
 \begin{algorithm}[H]
@@ -108,12 +118,12 @@ retweeting a tweet-type can be calculated in various ways. A further nuance that
 can be added is incorporating real world data into the edge probability
 calculation. Data used to generate the complete political engagement graph in
 figure \ref{fig:og_graph} was used to train two feed-forward artificial neural
-networks (ANN) to aid in the edge probability calculation: one that predicts the next
-party leader a user would tweet given the prior party leaders they had
+networks (ANN) to aid in the edge probability calculation: one that predicts the
+next party leader a user would tweet given the prior party leaders they had
 retweeted, and one that predicts which topic a user would retweet given the
 previous topics of tweets that user had retweeted. Figure
 \ref{fig:confusion_matrices} shows the confusion matrices for these two ANNs.
-Both ANNs are standard feed forward neural networks, with two dense layers
+Both ANNs are standard feed forward neural networks with two dense layers
 containing 32 and 16 nodes respectively. Each attained between 85-87\% accuracy.
 
 \begin{singlespacing}
@@ -137,7 +147,7 @@ comparison to the standard edge probability calculation.
 
 \subsection{Stochastic Party Leader Blockmodel}\label{sec:SPLBM}
 
-The stochastic party leader model generates user behaviour only taking into
+The stochastic party leader blockmodel generates user behaviour only taking into
 account the previous party leaders each user had engaged with prior. The
 tweet-types therefore are all the different party leaders that could be
 retweeted and $e_{i}$ represents the weights of retweeting each party leader.
@@ -174,12 +184,12 @@ Conversely, the stochastic topic blockmodel models a world in which politically
 engaged Twitter users only engage along the axis of topics. In this case, the
 tweet-types are the various different topics that a user can engage with. Here,
 the tweet-type history of a user is converted into a probability distribution,
-and with a probability of $\epsilon$, that user will retweet the topic with the
-highest activation -- regardless of which party leader tweeted it. Figure
-\ref{fig:stochastic_topic_model} shows two examples of stochastic topic
-blockmodels: in which edge probabilities are proportional to a user's topic
-retweet history, and one in which edge probabilities are determined with the ANN
-described in section \ref{sec:DeepSBMs}.
+and with a probability of $\epsilon$, that user will retweet any tweet with the
+topic that has the highest activation -- regardless of which party leader
+tweeted it. Figure \ref{fig:stochastic_topic_model} shows two examples of
+stochastic topic blockmodels: one in which edge probabilities are proportional
+to a user's topic retweet history, and one in which edge probabilities are
+determined with the ANN described in section \ref{sec:DeepSBMs}.
 
 \begin{singlespacing}
     \begin{figure}
@@ -196,14 +206,13 @@ described in section \ref{sec:DeepSBMs}.
 
 \subsection{Stochastic Hybrid Blockmodel}\label{sec:SHBM}
 
-The final model developed is a hybrid of the stochastic party leader block
-model, and the stochastic topic blockmodel. Here, two history vectors for each
-user are captured -- the $n$ dimensional party leader history vector, and the
-$k$ dimensional topic history vector. After each respective vector is converted
-into a probability distribution, the edge probability of topic $i$ by party
-leader $j$ is determined by some constant $\alpha$\footnote{This has no relation
-to the parameter $\alpha$ referred to in section \ref{sec:LDA}} and the
-function:
+The final model developed is a hybrid of the stochastic party leader blockmodel,
+and the stochastic topic blockmodel. Here, two history vectors for each user are
+captured -- the $n$ dimensional party leader history vector, and the $k$
+dimensional topic history vector. After each respective vector is converted into
+a probability distribution, the edge probability of topic $i$ by party leader
+$j$ is determined by some constant $\alpha$\footnote{This has no relation to the
+LDA parameter $\alpha$ referred to in section \ref{sec:LDA}} and the function:
 
 \begin{equation}
     edge\_probability(party leader=i, topic=j)=\alpha P(i)+(1-\alpha)P(j)
@@ -236,9 +245,9 @@ on the spectrum from only caring about \emph{party leaders} to only caring about
 
 The final objective of comparing the relative importance of topics and party
 leaders in driving political engagement requires comparing the structure of
-target graph shown in \ref{ch:GraphTheory}, and various hybrid models generated
+target graph shown in section \ref{ch:GraphTheory}, and various hybrid models generated
 with different values of $\alpha$. Using the Network Laplacian Spectral
-Descriptor described in section \ref{sec:NetLSD} by Tsitsulin et al. the optimal
+Descriptor (NetLSD) described in section \ref{sec:NetLSD} by Tsitsulin et al. the optimal
 alpha value can be determined in a scale-adaptive, size-invariant, and
 permutation-invariant manner \cite{netlsd}.
 
