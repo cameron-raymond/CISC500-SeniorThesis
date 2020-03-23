@@ -32,7 +32,7 @@ total tweets.
 Given the inherent noise and extraneous info in text data, it is standard and
 necessary to preprocess text before modelling \cite{sapul2017trending}. The text
 cleaning pipeline removes punctuation marks, stop words, words with fewer than
-three characters, and URLS, as well as common twitter symbols like ``RT:'',
+three characters, and URLs, as well as common twitter symbols like ``RT:'',
 ``@'' and ``\#''. Emojis were converted to text using the python package
 \texttt{emoji}. After this process, all text was converted to lower-case and
 lemmatized to get rid of common suffixes. Therefore the tweet in figure
@@ -90,15 +90,15 @@ in figure \ref{fig:topic_word_clouds}.
     \begin{figure}
         \centering
         \begin{tabular}{ccc}
-        \includegraphics[width=45mm]{Figures/topic_1_wordcloud} &
-        \includegraphics[width=45mm]{Figures/topic_2_wordcloud} &
-        \includegraphics[width=45mm]{Figures/topic_3_wordcloud} \\
+        \includegraphics[width=0.30\textwidth]{Figures/topic_1_wordcloud} &
+        \includegraphics[width=0.30\textwidth]{Figures/topic_2_wordcloud} &
+        \includegraphics[width=0.30\textwidth]{Figures/topic_3_wordcloud} \\
         (a) Topic 1 & (b) Topic 2 & (c) Topic 3  \\[6pt]
-        \includegraphics[width=45mm]{Figures/topic_4_wordcloud} &
-        \includegraphics[width=45mm]{Figures/topic_5_wordcloud} &
-        \includegraphics[width=45mm]{Figures/topic_6_wordcloud} \\
+        \includegraphics[width=0.30\textwidth]{Figures/topic_4_wordcloud} &
+        \includegraphics[width=0.30\textwidth]{Figures/topic_5_wordcloud} &
+        \includegraphics[width=0.30\textwidth]{Figures/topic_6_wordcloud} \\
         (d) Topic 4 & (e) Topic 5 & (f) Topic 6  \\[6pt]
-        \multicolumn{3}{c}{\includegraphics[width=45mm]{Figures/topic_7_wordcloud}
+        \multicolumn{3}{c}{\includegraphics[width=0.30\textwidth]{Figures/topic_7_wordcloud}
         }\\
         \multicolumn{3}{c}{(g) Topic 7}
         \end{tabular}
@@ -112,10 +112,10 @@ Topic 1 pertained to campaign messages, rallies and logistics -- and makes up
 and the economy -- and makes up 16.3\% of all tweets. Topic 3 contains tweets
 about the SNC Lavalin affair, a scandal that plagued Justin Trudeau, and tweets
 about corruption -- making up 18\% of all tweets. Topic 4 is predominantly
-tweets appealing to the middle-class and economy -- and is 29.7\% of all tweets;
-topic 5 contains celebratory messages about the campaign, as well as tweets
+tweets appealing to the middle-class and economy -- and is 29.7\% of all tweets.
+Topic 5 contains celebratory messages about the campaign, as well as tweets
 regarding national holidays and days of remembrance -- and make up 15\% of all
-tweets. Topic 6 is made up of tweest about immigration, diversity and free
+tweets. Topic 6 is made up of tweets about immigration, diversity and free
 speech -- and makes up 11.5\% of all tweets. Finally, topic 7 contains tweets
 regarding healthcare, abortion and pharmacare -- and makes up 1\% of all tweets.
 The magnitude of how many tweets were assigned to each topic is shown in figure
@@ -134,4 +134,3 @@ topics in figure \ref{fig:og_graph} are assigned different colours.
 \input{TopicCentrality}
 
 \input{StochasticBlockModels}
-

@@ -7,18 +7,18 @@ class appeals, 5) celebratory messages, 6) diversity and immigration, and 7)
 healthcare. After introducing the engagement graph defined in section
 \ref{ch:GraphTheory}, and the concept of eigenvector centrality (section
 \ref{sec:EigCentrality}), measures of topic centrality can be explored. In order
-to achieve the secondary objective of measuring what topics rally, and what
-topics span, party leaders' bases two measures of topic centrality have been
-developed: total network topic centrality and party leader topic centrality. By
-juxtaposing the two, various insights about how different topics influenced
-discourse can be derived.
+to achieve the secondary objective of measuring what issues rally or bridge the
+bases of party leaders, two measures of topic centrality have been developed:
+total network topic centrality and party leader topic centrality. By juxtaposing
+the two, various insights about how different topics influenced discourse can be
+derived.
 
 \subsection{Total Network Topic Centrality}\label{sec:NetTopicCentrality}
 
 \begin{singlespacing}
     \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.15]{Figures/og_graph}
+    \includegraphics[width=0.65\textwidth]{Figures/og_graph}
     \caption[Complete Political Engagement Graph]{Complete Political Engagement Graph}
     \label{fig:og_graph_copy}
     \end{figure}
@@ -63,7 +63,7 @@ for tweet vertices of topic $i$ in a graph $G_{j}$.
 \begin{singlespacing}
     \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.15]{Figures/jagmeet_singh_subgraph}
+    \includegraphics[width=0.65\textwidth]{Figures/jagmeet_singh_subgraph}
     \caption[Political Engagement Subgraph for Jagmeet Singh]{Political Engagement Subgraph for Jagmeet Singh}
     \label{fig:jagmeet_singh_subgraph}
     \end{figure}
@@ -71,11 +71,11 @@ for tweet vertices of topic $i$ in a graph $G_{j}$.
 
 \subsection{Results}\label{sec:TopicCentralityResults}
 
-After calculating $\textbf{T}=\{T_{i} \mid \forall i \in
-topics\}$\footnote{$topics$ refers to the seven topics that tweets were labelled
-as in section \ref{sec:TopicModellingRes}.} and $\textbf{P}=\{P_{ij} \mid
-\forall i \in topics,\forall j \in party\_leaders\}$\footnote{$party\_leaders$
-refers to the five Canadian Federal party leaders referred to in section
+After calculating $\textbf{T}=\{T_{i}, \forall i \in topics\}$\footnote{$topics$
+refers to the seven topics that tweets were labelled as in section
+\ref{sec:TopicModellingRes}.} and $\textbf{P}=\{P_{ij}, \forall i \in
+topics\:and\:\forall j \in party\_leaders\}$\footnote{$party\_leaders$ refers to
+the five Canadian Federal party leaders referred to in section
 \ref{sec:motivation}.}, each individual centrality measure, $T_{i} \in
 \textbf{T}$ and $P_{ij}\in \textbf{P}$, can be summated
 ($\hat{T_{i}}$/$\hat{P_{ij}}$), have it's mean calculated
@@ -85,21 +85,22 @@ z-score of topic centrality is based off of other tweet topics for that party
 leader.} ($\stackrel{z}{T}_{i}$/$\stackrel{z}{P}_{ij}$).
 
 Figure \ref{fig:topic_centrality} shows plots of $\textbf{T}$ as a function of
-$\textbf{P}$, each point is coloured according to its party leader and is
+$\textbf{P}$; each point is coloured according to its party leader and is
 annotated with the topic that it pertains to. The x-axis is the party leader
-topic centrality score for all party leader and topic combinations -- and the y-axis
-is the total network topic centrality score for each topic\footnote{This
+topic centrality score for all party leader and topic combinations -- and the
+y-axis is the total network topic centrality score for each topic\footnote{This
 explains why all party leader topic centrality scores for the same topic lie on
 the same point on the y-axis.}.
 
 \begin{singlespacing}
     \begin{figure}
         \centering
-        \begin{tabular}{ccc}
-        \includegraphics[width=50mm]{Figures/sum_opposing_centrality_chart_(expanded)} &
-        \includegraphics[width=50mm]{Figures/mean_opposing_centrality_chart_(expanded)} &
-        \includegraphics[width=50mm]{Figures/zscore_opposing_centrality_chart_(expanded)} \\
-        (a)  \textbf{$\hat{T}$} by \textbf{$\hat{P}$} & \textbf{$\overline{T}$} by \textbf{$\overline{P}$} &  \textbf{$\stackrel{z}{T}$} by \textbf{$\stackrel{z}{P}$} \\[6pt]
+        \begin{tabular}{cc}
+        \includegraphics[width=0.40\textwidth]{Figures/sum_opposing_centrality_chart_(expanded)} &
+        \includegraphics[width=0.40\textwidth]{Figures/mean_opposing_centrality_chart_(expanded)} \\
+        (a)  \textbf{$\hat{T}$} by \textbf{$\hat{P}$} & (b) \textbf{$\overline{T}$} by \textbf{$\overline{P}$} \\[6pt]
+        \multicolumn{2}{c}{\includegraphics[width=0.40\textwidth]{Figures/zscore_opposing_centrality_chart_(expanded)}}\\
+        \multicolumn{2}{c}{(c) \textbf{$\stackrel{z}{T}$} by \textbf{$\stackrel{z}{P}$}}
         \end{tabular}
         \caption[$\textbf{T}$ aggregates in relation to $\textbf{P}$]{$\textbf{T}$ aggregates in relation to $\textbf{P}$}
         \label{fig:topic_centrality}
@@ -138,11 +139,12 @@ an indication of those topics spanning partisan divides (topics 2 and 3).
 \begin{singlespacing}
     \begin{figure}
         \centering
-        \begin{tabular}{ccc}
-        \includegraphics[width=50mm]{Figures/sum_opposing_centrality_chart_(mean_of_leaders)} &
-        \includegraphics[width=50mm]{Figures/mean_opposing_centrality_chart_(mean_of_leaders)} &
-        \includegraphics[width=50mm]{Figures/zscore_opposing_centrality_chart_(mean_of_leaders)} \\
-        (a)  \textbf{$\hat{T}$} by \textbf{$\hat{P}$} & \textbf{$\overline{T}$} by \textbf{$\overline{P}$} &  \textbf{$\stackrel{z}{T}$} by \textbf{$\stackrel{z}{P}$} \\[6pt]
+        \begin{tabular}{cc}
+        \includegraphics[width=0.40\textwidth]{Figures/sum_opposing_centrality_chart_(mean_of_leaders)} &
+        \includegraphics[width=0.40\textwidth]{Figures/mean_opposing_centrality_chart_(mean_of_leaders)} \\
+        (a)  \textbf{$\hat{T}$} by \textbf{$\hat{P}$} & (b) \textbf{$\overline{T}$} by \textbf{$\overline{P}$} \\[6pt]
+        \multicolumn{2}{c}{\includegraphics[width=0.40\textwidth]{Figures/zscore_opposing_centrality_chart_(mean_of_leaders)}}\\
+        \multicolumn{2}{c}{(c) \textbf{$\stackrel{z}{T}$} by \textbf{$\stackrel{z}{P}$}}
         \end{tabular}
         \caption[$\textbf{T}$ aggregates in relation to $\textbf{P}$ (party leader average)]{$\textbf{T}$ aggregates in relation to $\textbf{P}$ (party leader average)}
         \label{fig:topic_centrality_combined}
@@ -155,7 +157,7 @@ an indication of those topics spanning partisan divides (topics 2 and 3).
     \caption{Topic Centrality Measure Results}
     \label{fig:tab_topic_cent_results}\begin{small}
         \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|} \hline
-        \multicolumn{1}{|c|}{}  & \multicolumn{3}{|c|}{\specialcell{Total Network\\Topic Centrality}} & \multicolumn{3}{|c|}{\specialcell{Andrew\\Scheer}} & \multicolumn{3}{|c|}{\specialcell{Elizabeth\\May}} \\ 
+        \multicolumn{1}{|c|}{}  & \multicolumn{3}{|c|}{\specialcell{Total Network\\Topic Centrality}} & \multicolumn{3}{|c|}{\specialcell{Andrew Scheer}} & \multicolumn{3}{|c|}{\specialcell{Elizabeth May}} \\ 
         \hline
         Topic                   & \textbf{$\hat{T}$} & \textbf{$\overline{T}$} & \textbf{$\stackrel{z}{T}$} & \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}\\
         \hline
@@ -173,7 +175,7 @@ an indication of those topics spanning partisan divides (topics 2 and 3).
         \hline
         7 & 0.153   & 0.002 & -0.387    & 0.145     & \textbf{0.015} & 0.107     & 0.438 & \textbf{0.019} & \textbf{0.218}     \\ 
         \hline
-        \multicolumn{1}{|c|}{}  & \multicolumn{3}{|c|}{\specialcell{Jagmeet\\Singh}} &\multicolumn{3}{|c|}{\specialcell{Justin\\Trudeau}} &\multicolumn{3}{|c|}{\specialcell{Maxime\\Bernier}} \\\hline
+        \multicolumn{1}{|c|}{}  & \multicolumn{3}{|c|}{\specialcell{Jagmeet Singh}} &\multicolumn{3}{|c|}{\specialcell{Justin Trudeau}} &\multicolumn{3}{|c|}{\specialcell{Maxime Bernier}} \\\hline
         Topic                   & \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}\\
         \hline
         1 & 0.567   & 0.022 & -0.466    & 0.816     & 0.018 & 0.341   & 3.353     & \textbf{0.018} & \textbf{0.386}   \\

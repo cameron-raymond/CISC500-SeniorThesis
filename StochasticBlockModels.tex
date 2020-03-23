@@ -1,5 +1,14 @@
 \section{Stochastic Blockmodels}\label{sec:AdaptedSBMs}
 
+\begin{singlespacing}
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=70mm]{Figures/retweet_distribution}
+    \caption[Retweet Histogram for Full Political Engagement Graph]{Retweet Histogram for Full Political Engagement Graph}
+    \label{fig:retweet_distribution}
+    \end{figure}
+\end{singlespacing}
+
 As described in section \ref{sec:SBM}, stochastic blockmodels use edge densities
 across and within blocks to generate random graph models
 \cite{holland1983stochastic}. However, while users may belong to a certain
@@ -35,20 +44,11 @@ $retweet\_histogram$, $\epsilon$ -- which are described in table
         \item[a]    As of March, 2020 -- this took the form as a Numpy histogram:
         a tuple containing the bin boundaries and corresponding densities.    
         \item[b]    For the models generated in this thesis a tweet-type could
-        be its topic, who tweeted it, or its topic \emph{and} who tweeted it. 
+        be its topic, the party leader who tweeted it, or its topic \emph{and} the party leader who tweeted it. 
     \end{tablenotes}
         \end{small}
     \end{threeparttable}
     \end{center}
-\end{singlespacing}
-
-\begin{singlespacing}
-    \begin{figure}[H]
-    \centering
-    \includegraphics[width=70mm]{Figures/retweet_distribution}
-    \caption[Retweet Histogram for Full Political Engagement Graph]{Retweet Histogram for Full Political Engagement Graph}
-    \label{fig:retweet_distribution}
-    \end{figure}
 \end{singlespacing}
 
  The algorithm generates the stochastic block model in three phases. First, all
@@ -167,11 +167,11 @@ probabilities are determined with the ANN described in section
     \begin{figure}
         \centering
         \begin{tabular}{cc}
-          \includegraphics[width=50mm]{Figures/simple_stochastic_party_leader_model}
+          \includegraphics[width=0.40\textwidth]{Figures/simple_stochastic_party_leader_model}
           &
-          \includegraphics[width=50mm]{Figures/ann_stochastic_party_leader_model}
+          \includegraphics[width=0.40\textwidth]{Figures/ann_stochastic_party_leader_model}
           \\
-        (a) Simple Stochastic Party Leader Blockmodel & (b) ANN Adaption\\[6pt]
+        (a) Stochastic Party Leader Blockmodel & (b) ANN Adaption\\[6pt]
         \end{tabular}
         \caption[Stochastic Party Leader Blockmodels]{Stochastic Party Leader Blockmodels}
         \label{fig:stochastic_party_leader_model}
@@ -195,9 +195,9 @@ determined with the ANN described in section \ref{sec:DeepSBMs}.
     \begin{figure}
         \centering
         \begin{tabular}{cc}
-          \includegraphics[width=50mm]{Figures/simple_stochastic_topic_model} &
-          \includegraphics[width=50mm]{Figures/ann_stochastic_topic_model} \\
-        (a) Simple Stochastic Topic Blockmodel & (b) ANN Adaption\\[6pt]
+          \includegraphics[width=0.40\textwidth]{Figures/simple_stochastic_topic_model} &
+          \includegraphics[width=0.40\textwidth]{Figures/ann_stochastic_topic_model} \\
+        (a) Stochastic Topic Blockmodel & (b) ANN Adaption\\[6pt]
         \end{tabular}
         \caption[Stochastic Topic Blockmodels]{Stochastic Topic Blockmodels}
         \label{fig:stochastic_topic_model}
@@ -232,8 +232,8 @@ on the spectrum from only caring about \emph{party leaders} to only caring about
     \begin{figure}
         \centering
         \begin{tabular}{cc}
-          \includegraphics[width=50mm]{Figures/standard_SHBm_ex} &
-          \includegraphics[width=50mm]{Figures/deep_SHBm_ex} \\
+          \includegraphics[width=0.40\textwidth]{Figures/standard_SHBm_ex} &
+          \includegraphics[width=0.40\textwidth]{Figures/deep_SHBm_ex} \\
         (a) Standard SHBm ($\alpha$=0.60) & (b) Deep SHBm ($\alpha$=0.60)\\[6pt]
         \end{tabular}
         \caption[Stochastic Topic Blockmodels]{Stochastic Topic Blockmodels}
@@ -267,8 +267,8 @@ trace signature.
     \begin{figure}[H]
     \centering
     \begin{tabular}{cc}
-        \includegraphics[width=50mm]{Figures/dist_from_original_graph_over_sample_size} &
-        \includegraphics[width=50mm]{Figures/sampled_graph} \\
+        \includegraphics[width=0.40\textwidth]{Figures/dist_from_original_graph_over_sample_size} &
+        \includegraphics[width=0.40\textwidth]{Figures/sampled_graph} \\
         (a) Heat Trace Signature Distances & (b) Engagement Graph (215 Tweets per PL)\\[6pt]
     \end{tabular}
     \caption[Heat Trace Signature Distance as a Function of Graph Sample Size]{Heat Trace Signature Distance as a Function of Graph Sample Size}
@@ -315,8 +315,8 @@ $\alpha=0.4$. The full tabular data is shown in table
     \begin{figure}
         \centering
         \begin{tabular}{cc}
-            \includegraphics[scale=0.3]{Figures/standard_heat_trace_plot} &
-            \includegraphics[scale=0.3]{Figures/ann_heat_trace_plot} \\
+            \includegraphics[width=0.40\textwidth]{Figures/standard_heat_trace_plot} &
+            \includegraphics[width=0.40\textwidth]{Figures/ann_heat_trace_plot} \\
             (a) Standard SHBm $L_{2}$ Plots & (b) Deep SHBm $L_{2}$ Plots\\[6pt]
         \end{tabular}
         \caption[Stochastic Topic Blockmodels]{Stochastic Topic Blockmodels}

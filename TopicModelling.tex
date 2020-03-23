@@ -48,12 +48,12 @@ A document is a sequence of $N$ words denoted by $\vect{w} =
 (w_{1},w_{2},...,w_{N})$. A corpus is a collection of $M$ documents denoted by
 $D = \{\vect{w_{1}},\vect{w_{2}},...,\vect{w_{M}}\}$. 
 
-The input to LDA, $D$, will be the tweets aggregated and cleaned from the
-federal Canadian party leaders described in section \ref{sec:motivation}. Aside
-from the corpus and $k$ - the number of topics - two other parameters are fed to
-the LDA. First, $\alpha$, which is organizes the ground $\theta$, a Dirichlet
+The LDA's input, $D$, will be the tweets aggregated and cleaned from the federal
+Canadian party leaders described in section \ref{sec:motivation}. Aside from the
+corpus and $k$ - the number of topics - two other parameters are fed to the LDA.
+First, $\alpha$, which is organizes the ground $\theta$, a Dirichlet
 distribution, and acts as a concentration parameter for how documents are
-modelled as topics. Higher $\alpha$ values generally implies that documents will
+modelled as topics. Higher $\alpha$ values generally imply that documents will
 be viewed as a mixture of topics, whereas low $\alpha$ values imply that
 documents will be viewed as a belonging to a single topic. Similarly, to model
 words as topics the parameter $\eta$ organizes the ground for $\beta$, a

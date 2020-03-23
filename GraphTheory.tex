@@ -38,7 +38,7 @@ Real world interactions are not deterministic. That is -- who your friends are,
 whether you contract a disease, or whether you choose to retweet a tweet are the
 result of random processes, patterned by your connections with others.
 Therefore, modelling how social networks form requires investigating the
-underlying of the processes that generate these random ties. As Robins'
+underlying processes that generate these random ties. As Robins'
 discusses in his article,\emph{ a tutorial on methods for the modeling and
 analysis of social network data}, graphs where edges are generated in some
 stochastic process can help illustrate how relationships drive behaviour
@@ -94,7 +94,7 @@ engagement is driven by specific issues.
 
 \section{Spectral Graph Theory}\label{sec:spectralGraphTheory}
 
-Spectral graph theory studies the structures of graphs via the eigenvectors of
+Spectral graph theory studies the structures of graphs via the eigenvalues of
 their adjacency matrix, Laplacian matrix\footnote{The Laplacian matrix of a
 graph is defined as its degree matrix minus its adjacency matrix.}, or some
 other variant of the two. The set of eigenvalues for a graph of size $n$,
@@ -184,14 +184,13 @@ contacts may outrank one with a larger number of mediocre contacts.''
 \cite{newman2008mathematics}
 
 The eigencentrality of vertex $x$ is defined as $C_{E}(x)$, where $C_{E}(x)$ is
-proportional to the average eigenvector centrality of $x$'s neighbours,
-multiplied by some constant $\lambda$:
+proportional to the average eigenvector centrality of $x$'s neighbours:
 \begin{equation}
-    C_{E}(x)=\frac{1}{\lambda}\sum_{j=1}^{n}A_{xj}C_{E}(x)
+    C_{E}(x)=\frac{1}{\lambda}\sum_{j=1}^{n}A_{xj}C_{E}(j)
 \end{equation}
-By defining the vector of centralities as $C_E(X) = (C_E(x_1),C_E(x_2),...)$
-this equation can be rewritten as $\lambda C_E(X) = \lambda A$, and it is
-evident that $C_E(X)$ is an eigenvector of the adjacency matrix with eigenvalue
-$\lambda$ \cite{newman2008mathematics}. By Perron-Frobenius theorem, picking the
-largest eigenvalue of $A$ will result in all elements of $C_E(X)$ being
-non-negative \cite{newman2008mathematics}.
+where $\lambda$ is some constant. By defining the vector of centralities as
+$C_E(X) = (C_E(x_1),C_E(x_2),...)$ this equation can be rewritten as 
+$\lambda C_E(X) = A \cdot C_E(X)$, and it is evident that $C_E(X)$ is an eigenvector of the
+adjacency matrix with eigenvalue $\lambda$ \cite{newman2008mathematics}. By
+Perron-Frobenius theorem, picking the largest eigenvalue of $A$ will result in
+all elements of $C_E(X)$ being non-negative \cite{newman2008mathematics}.
