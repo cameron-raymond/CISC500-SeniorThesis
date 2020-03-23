@@ -9,14 +9,14 @@ trained on the English tweets of Canada's five major, english speaking party
 leaders: Andrew Scheer, Elizabeth May, Jagmeet Singh, Justin Trudeau, and Maxime
 Bernier. The timeframe of collection ranges from October 21, 2018 to October 21,
 2019 - the eve of Canada's federal election. While the tweets from each Federal
-party's official accounts were also collected, they predominantly acted as
-logistical tools -- informing party affiliates of events and rallies. The
+party's official Twitter accounts were also collected, they predominantly acted
+as logistical tools -- informing party affiliates of events and rallies. The
 personal accounts for party leaders were generally more pertinent to their
 beliefs, platforms and style of rhetoric, and thus are better suited in this
-context. In this spirit, only tweets of the party leader were collected,
-excluding retweets. Figure \ref{fig:tweets_over_time} visualizes the daily and
-cumulative number of tweets over time, in aggregate and by party leader,
-resulting in 7978 total tweets.
+context. In this spirit, only tweets of the party leader were used, excluding
+retweets. Figure \ref{fig:tweets_over_time} visualizes the daily and cumulative
+number of tweets over time, in aggregate and by party leader, resulting in 7978
+total tweets.
 
 \begin{singlespacing}
     \begin{figure}[H]
@@ -56,7 +56,7 @@ are modelled as topics; $\beta$ - which acts as a concentration parameter for
 how topics are modelled as words; and $k$ which is the number of topics to be
 modelled. By performing a parameter sweep, where $\alpha$ and $\beta$ lie on the
 interval $\left[0,1\right]$ with increments of 0.05, and $k$ ranges between 4
-and 7, the LDA was exposed to the entire corpus and then evaluated using c\_v
+and 7, the LDAs were exposed to the entire corpus and then evaluated using c\_v
 coherence. Figure \ref{fig:lda_param_sweep} shows, for each $k$ value, the c\_v
 coherence as a function of different combinations of $\alpha$ and $\beta$.
 
@@ -116,10 +116,10 @@ tweets appealing to the middle-class and economy -- and is 29.7\% of all tweets;
 topic 5 contains celebratory messages about the campaign, as well as tweets
 regarding national holidays and days of remembrance -- and make up 15\% of all
 tweets. Topic 6 is made up of tweest about immigration, diversity and free
-speech -- and makes up 11.5\% of all tweets. Finally, topic 7 contains
-tweets regarding healthcare, abortion and pharmacare -- and makes up 1\% of all
-tweets. The magnitude of how many tweets were assigned to each topic is shown in
-figure \ref{fig:topic_distribution}. The vertices representing tweets of different
+speech -- and makes up 11.5\% of all tweets. Finally, topic 7 contains tweets
+regarding healthcare, abortion and pharmacare -- and makes up 1\% of all tweets.
+The magnitude of how many tweets were assigned to each topic is shown in figure
+\ref{fig:topic_distribution}. The vertices representing tweets of different
 topics in figure \ref{fig:og_graph} are assigned different colours. 
 
 \begin{singlespacing}

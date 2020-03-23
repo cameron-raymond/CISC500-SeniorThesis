@@ -4,13 +4,14 @@ As outlined in section \ref{sec:TopicModellingRes}, seven salient topics were
 extracted from the corpus of party leader tweets. To reiterate, these topics can
 be labeled as: 1) campaign dynamics, 2) carbon tax, 3) SNC Lavalin, 4) middle
 class appeals, 5) celebratory messages, 6) diversity and immigration, and 7)
-healthcare. After introducing the engagement graph defined in section \ref{ch:GraphTheory},
-and the concept of eigenvector centrality (section \ref{sec:EigCentrality}),
-measures of topic centrality can be explored. In order to achieve the secondary
-objective of measuring what topics rally, and what topics span, party leaders'
-bases -- two measures of topic centrality have been developed: total network
-topic centrality, and party leader topic centrality. By juxtaposing the two
-various insights about how different topics influenced discourse can be derived.
+healthcare. After introducing the engagement graph defined in section
+\ref{ch:GraphTheory}, and the concept of eigenvector centrality (section
+\ref{sec:EigCentrality}), measures of topic centrality can be explored. In order
+to achieve the secondary objective of measuring what topics rally, and what
+topics span, party leaders' bases two measures of topic centrality have been
+developed: total network topic centrality and party leader topic centrality. By
+juxtaposing the two, various insights about how different topics influenced
+discourse can be derived.
 
 \subsection{Total Network Topic Centrality}\label{sec:NetTopicCentrality}
 
@@ -34,7 +35,7 @@ vertices of topic $i$ in a graph $G$.
     T_{i} := \{ C_{E}(x) , \forall x \in G \mid type(x)=tweet, topic(x)=i \}
 \end{equation}
 
-When taking the aggregate (summa, mean, z-score relative to other topics), a
+When taking the aggregate (sum, mean, z-score relative to other topics), a
 single number can be assigned to the relative importance of topic $i$. And in
 keeping with the strengths of eigenvector centrality, $T_{i}$ will be larger if:
 those tweets are retweeted a lot, and if they're retweeted by \emph{highly
@@ -46,7 +47,7 @@ In order to measure how central a topic is to a party leader's base, party
 leader topic centrality was developed. This assumes a world in which party
 leader $j$ is the only actor with which generic users can engage with. This is
 done by taking a subgraph of $G$ -- $G_{j}$ -- which only contains party leader
-$j$, all of $j$'s tweets $X$, and all edges from $x\in X$ to the generic users
+$j$, all of $j$'s tweets, $X$, and all edges from $x\in X$ to the generic users
 who retweeted one of $j$'s tweets. An example of this is in figure
 \ref{fig:jagmeet_singh_subgraph}, which demonstrates the subgraph for Jagmeet
 Singh. 
@@ -70,14 +71,18 @@ for tweet vertices of topic $i$ in a graph $G_{j}$.
 
 \subsection{Results}\label{sec:TopicCentralityResults}
 
-After calculating $\textbf{T}=\{T_{1},T_{2},\dots,T_{7}\}$ and
-$\textbf{P}=\{P_{ij} \mid \forall i \in topics,\forall j \in party\_leaders \}$,
-each individual centrality measure, $T_{i} \in \textbf{T}$ and $P_{ij}\in
-\textbf{P}$, can be summated ($\hat{T_{i}}$/$\hat{P_{ij}}$), have it's mean
-calculated ($\overline{T}_{i}$/$\overline{P}_{ij}$), or have it's z-score taken
-relative to other topics in its set\footnote{For the party leader topic
-centrality, the z-score of topic centrality is based off of other tweet topics for that
-party leader.} ($\stackrel{z}{T}_{i}$/$\stackrel{z}{P}_{ij}$).
+After calculating $\textbf{T}=\{T_{i} \mid \forall i \in
+topics\}$\footnote{$topics$ refers to the seven topics that tweets were labelled
+as in section \ref{sec:TopicModellingRes}.} and $\textbf{P}=\{P_{ij} \mid
+\forall i \in topics,\forall j \in party\_leaders\}$\footnote{$party\_leaders$
+refers to the five Canadian Federal party leaders referred to in section
+\ref{sec:motivation}.}, each individual centrality measure, $T_{i} \in
+\textbf{T}$ and $P_{ij}\in \textbf{P}$, can be summated
+($\hat{T_{i}}$/$\hat{P_{ij}}$), have it's mean calculated
+($\overline{T}_{i}$/$\overline{P}_{ij}$), or have it's z-score taken relative to
+other topics in its set\footnote{For the party leader topic centrality, the
+z-score of topic centrality is based off of other tweet topics for that party
+leader.} ($\stackrel{z}{T}_{i}$/$\stackrel{z}{P}_{ij}$).
 
 Figure \ref{fig:topic_centrality} shows plots of $\textbf{T}$ as a function of
 $\textbf{P}$, each point is coloured according to its party leader and is
@@ -114,15 +119,18 @@ disproportionately important to Justin Trudeau's network
 
 As well, for each topic -- the party leader topic centrality score can be
 averaged across all the different party leaders to give a more general analysis
-of how central topics were to the entire network, or to any individual party leader.
-This is shown in figure \ref{fig:topic_centrality_combined}. Here it is most
-insightful to look at \textbf{$\stackrel{z}{T}$} by \textbf{$\stackrel{z}{P}$},
-specifically in the lower right-hand quadrant and upper left-hand quadrant. The
-former indicates tweet topics that are more important to a party leader's base than to the
-entire network (topics 7 and 1), where as the latter indicates tweet topics that
-are more important to the overall network than to the individual network --
-which may be an indication of those topics spanning partisan divides (topics 2
-and 3).
+of how central topics were to the entire network, or to any individual party
+leader. This is shown in figure \ref{fig:topic_centrality_combined}. Here it is
+most insightful to look at \textbf{$\stackrel{z}{T}$} by
+\textbf{$\stackrel{z}{P}$}, specifically in the lower right-hand quadrant and
+upper left-hand quadrant. The former indicates tweet topics that are more
+important to a party leader's base than to the entire network (topics 7 and 1).
+Topic 1 -- campaign dynamics -- intuitively makes sense in this category; it is
+not surprising that messages about the campaign, where rallies are, etc... would
+appeal more to a party leader's base than to the entire network. Conversely,
+tweets in the upper left-hand quadrant indicates tweet topics that are more
+important to the overall network than to the individual network -- which may be
+an indication of those topics spanning partisan divides (topics 2 and 3).
 
 \begin{singlespacing}
     \begin{figure}
