@@ -1,3 +1,0 @@
-sig Tree {
-  next : Node -> Node
-}
