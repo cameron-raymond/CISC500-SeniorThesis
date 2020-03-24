@@ -66,10 +66,10 @@ $retweet\_histogram$, $\epsilon$ -- which are described in table
  action from some set of possible actions and is denoted by $\pi$; all other
  mentions to policy in this thesis refer to categories of messages.} $\pi$ in
  equation \ref{equation:policy_equation}. This is a variation of the
- $\epsilon$-$greedy$ algorithm, where the tweet-type with the highest
- probability is chosen $\epsilon$ percent of the time, and $(1-\epsilon)$
- percent of the time tweets are chosen based off of $e_{i}$. After each edge is
- formed user $i$'s retweet history is updated.
+ $\epsilon$-$greedy$ policy, where the tweet-type with the highest probability
+ is chosen $\epsilon$ percent of the time, and $(1-\epsilon)$ percent of the
+ time tweets are chosen based off of $e_{i}$. After each edge is formed, user
+ $i$'s retweet history is updated.
 
 \begin{numcases}{\text{$\pi(t|e_{i})$}}\label{equation:policy_equation}
     \epsilon                & if $t = argmax_{t} e_{i}$ \notag \\
@@ -210,16 +210,16 @@ The final model developed is a hybrid of the stochastic party leader blockmodel,
 and the stochastic topic blockmodel. Here, two history vectors for each user are
 captured -- the $n$ dimensional party leader history vector, and the $k$
 dimensional topic history vector. After each respective vector is converted into
-a probability distribution, the edge probability of topic $i$ by party leader
-$j$ is determined by some constant $\alpha$\footnote{This has no relation to the
+a probability distribution, the edge probability of topic $t$ by party leader
+$p$ is determined by some constant $\alpha$\footnote{This has no relation to the
 LDA parameter $\alpha$ referred to in section \ref{sec:LDA}} and the function:
 
 \begin{equation}
-    edge\_probability(party leader=i, topic=j)=\alpha P(i)+(1-\alpha)P(j)
+    edge\_probability(party leader=p, topic=t)=\alpha P(p)+(1-\alpha)P(t)
 \end{equation}
 
-Where $P(i)$ is index $i$ of that user's \emph{party leader} probability
-distribution, $P(j)$ is index $j$ of that user's \emph{topic} probability
+Where $P(p)$ is index $p$ of that user's \emph{party leader} probability
+distribution, $P(t)$ is index $t$ of that user's \emph{topic} probability
 distribution, and $\alpha$ is some constant that determines the relative
 weighting of the two. As $\alpha$ approaches $1$, the hybrid model becomes
 equivalent to the stochastic party leader blockmodel -- and as $\alpha$
@@ -245,11 +245,11 @@ on the spectrum from only caring about \emph{party leaders} to only caring about
 
 The final objective of comparing the relative importance of topics and party
 leaders in driving political engagement requires comparing the structure of
-target graph shown in section \ref{ch:GraphTheory}, and various hybrid models generated
-with different values of $\alpha$. Using the Network Laplacian Spectral
-Descriptor (NetLSD) described in section \ref{sec:NetLSD} by Tsitsulin et al. the optimal
-alpha value can be determined in a scale-adaptive, size-invariant, and
-permutation-invariant manner \cite{netlsd}.
+target graph shown in section \ref{ch:GraphTheory}, and various hybrid models
+generated with different values of $\alpha$. Using the Network Laplacian
+Spectral Descriptor (NetLSD) described in section \ref{sec:NetLSD} by Tsitsulin
+et al. the optimal $\alpha$ value can be determined in a scale-adaptive,
+size-invariant, and permutation-invariant manner \cite{netlsd}.
 
 Given the $O(n^{3})$ complexity involved in calculating the eigenvalues of a
 graphs normalized Laplacian matrix it is advantageous to generate sufficiently
