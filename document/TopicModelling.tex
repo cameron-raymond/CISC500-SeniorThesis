@@ -39,7 +39,7 @@ In this process, each unique word in the text corpus is an element of the
 vocabulary, $Voc: \{1,...,V\}$. Each word, $v\in V$, is represented by $w$, a
 unit-basis vector of dimension $V$ where:
 
-\begin{numcases}{\text{$w[index=i]$}}
+\begin{numcases}{\text{$w[index=i]$=}}
     1   & if $v = i$ \notag \\
     0   & if $v \neq i$ \notag
 \end{numcases}
@@ -51,7 +51,7 @@ $D = \{\vect{w_{1}},\vect{w_{2}},...,\vect{w_{M}}\}$.
 The LDA's input, $D$, will be the tweets aggregated and cleaned from the federal
 Canadian party leaders described in section \ref{sec:motivation}. Aside from the
 corpus and $k$ - the number of topics - two other parameters are fed to the LDA.
-First, $\alpha$, which is organizes the ground $\theta$, a Dirichlet
+First, $\alpha$, which organizes the ground $\theta$, a Dirichlet
 distribution, and acts as a concentration parameter for how documents are
 modelled as topics. Higher $\alpha$ values generally imply that documents will
 be viewed as a mixture of topics, whereas low $\alpha$ values imply that
@@ -59,9 +59,9 @@ documents will be viewed as a belonging to a single topic. Similarly, to model
 words as topics the parameter $\eta$ organizes the ground for $\beta$, a
 Dirichlet distribution. 
 
-The generative model for the LDA uses $\theta$ to choose a topic $z_{n}$ of the
-$k$ topics that the next word will reside from, and then chooses a word $w_{n}$
-from $p(w_{n} |z_{n},\beta$), a multinomial probability conditioned on the topic
+The generative model for the LDA uses $\theta$ to choose a topic $z_{n}\in k$
+topics that the next word will reside from, and then chooses a word $w_{n}$ from
+$p(w_{n} |z_{n},\beta$), a multinomial probability conditioned on the topic
 $z_{n}$. This processes is described graphically in figure \ref{fig:lda_fiugre}
 
 \begin{singlespacing}

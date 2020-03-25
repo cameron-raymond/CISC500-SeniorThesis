@@ -38,7 +38,7 @@ $retweet\_histogram$, $\epsilon$ -- which are described in table
             \emph{$k$}                      & $Integer$                     & The number of topics that a tweet vertex can take on \\ \hline
             \emph{$m$}                      & $Integer$                     & The number of generic user vertices \\ \hline
             \emph{$retweet\_histogram$}     & $Histogram$\tnote{a}          & \specialcell{The distribution of retweets that is sampled $m$ \\ times to get the degree for each generic user} \\ \hline
-            \emph{$\epsilon$}               & $Float \in \left[0-1\right]$  & \specialcell{The proportion of the time a generic user will choose \\ the greedy tweet-type\tnote{b}~ rather than choosing based \\ off of the edge probabilities}\\ \hline
+            \emph{$\epsilon$}               & $Float \in \left[0,1\right]$  & \specialcell{The proportion of the time a generic user will choose \\ the greedy tweet-type\tnote{b}~ rather than choosing based \\ off of the edge probabilities}\\ \hline
             \end{tabular}
     \begin{tablenotes}
         \item[a]    As of March, 2020 -- this took the form as a Numpy histogram:
@@ -71,8 +71,8 @@ $retweet\_histogram$, $\epsilon$ -- which are described in table
  time tweets are chosen based off of $e_{i}$. After each edge is formed, user
  $i$'s retweet history is updated.
 
-\begin{numcases}{\text{$\pi(t|e_{i})$}}\label{equation:policy_equation}
-    \epsilon                & if $t = argmax_{t} e_{i}$ \notag \\
+\begin{numcases}{\text{$\pi(t|e_{i})$=}}\label{equation:policy_equation}
+    \epsilon                & if $t = argmax_{t}~e_{i}$ \notag \\
     (1-\epsilon)e_{it}    & otherwise \notag
 \end{numcases}
 
