@@ -103,7 +103,7 @@ asn1crypto==0.24.0
 astroid==2.3.2
 autopep8==1.4.4
 beautifulsoup4==4.5.3
-bleach==2.0.0
+bleach==3.1.4
 boto==2.49.0
 boto3==1.10.8
 botocore==1.13.8
