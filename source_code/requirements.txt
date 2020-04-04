@@ -116,7 +116,7 @@ decorator==4.4.1
 docutils==0.15.2
 emoji==0.5.4
 entrypoints==0.2.2
-Flask==0.12.1
+Flask==1.0
 gensim==3.8.1
 google-api-python-client==1.6.2
 graphviz==0.13
