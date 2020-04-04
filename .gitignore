@@ -74,3 +74,4 @@ docs/_build/
 
 # PyBuilder
 target/
+source_code/tweepy/historical_search/search_tweets_creds.yaml
