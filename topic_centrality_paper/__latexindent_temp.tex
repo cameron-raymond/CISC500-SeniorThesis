@@ -1,0 +1,127 @@
+% This is file NWSguide.tex
+% release v1.00, 12th June 2012
+%   (based on JFPguide.tex v1.11 for LaTeX 2.09)
+% Copyright (C) 2012 Cambridge University Press
+
+\NeedsTeXFormat{LaTeX2e}
+
+\documentclass{nws}
+
+%%% Macros for the guide only %%%
+\providecommand\AMSLaTeX{AMS\,\LaTeX}
+\newcommand\eg{\emph{e.g.}\ }
+\newcommand\etc{\emph{etc.}}
+\newcommand\bcmdtab{\noindent\bgroup\tabcolsep=0pt%
+  \begin{tabular}{@{}p{10pc}@{}p{20pc}@{}}}
+\newcommand\ecmdtab{\end{tabular}\egroup}
+\newcommand\rch[1]{$\longrightarrow\rlap{$#1$}$\hspace{1em}}
+\newcommand\lra{\ensuremath{\quad\longrightarrow\quad}}
+
+\title[Measures of Topic Centrality for Online Political Engagement]
+      {Measures of Topic Centrality for Online Political Engagement}
+
+ \author[C.J.K Raymond]
+        {Cameron Raymond\\
+         Queen's University School of Computing, Kingston K7L 3N6, CA\\
+         \email{c.raymond@queensu.ca}}
+
+\jdate{May 2020}
+\pubyear{2020}
+\pagerange{\pageref{firstpage}--\pageref{lastpage}}
+% \doi{S0956796801004857}
+
+% \newtheorem{lemma}{Lemma}[section]
+
+\begin{document}
+
+\label{firstpage}
+
+\maketitle
+
+\begin{abstract}
+  The advent of social media has enabled political parties to engage with the
+  broader populous in new and unforeseen ways -- and the ability to bypass the
+  traditional mediating forces of mass media allows for an unfiltered promotion
+  of policy, ideology and party stances. Social networks, formed via social
+  media like Twitter, are inherently relational and thus lend themselves well to
+  being represented as graphs. The uses of graphs can help measure how political
+  elites promote different categories of messages, and how the electorate engage
+  along various axes. This article proposes two novel measures of topic
+  centrality, which measure how central messages of various topics were to a party
+  leader's core voting group, or to the broader discourse. Statistically
+  significant variations in topic centrality are shown in the 2019 Canadian
+  Federal Election.
+\end{abstract}
+
+\tableofcontents
+
+\section{Introduction}
+
+The way information is distributed and received has changed significantly over
+the past decade. As Cogburn and Espinoza-Vasquez argue, Barrack Obama’s 2008
+presidential campaign was a watershed moment in social media campaigning – and
+in the subsequent decade, from Macron to Brexit to the Five Star Movement,
+social media has played an increasing role in how politics is conducted \cite{cogburn2011networked}. The
+same holds true for Canada, between 2013 and 2018 the share of Canadian federal
+media expenditure spent on digital advertising rose from 27\% to 65\%, a 140\%
+increase, making the study of new media critical from a social science
+perspective \cite{annualReportCanadaAdvertisingActivities_2018}.
+
+\subsection{Social Media and Political Communication}
+
+While it is clear that technology is changing how information is received, and
+thus also changing how politics is conducted, it may not be clear the role of
+Canadian politics in this context. However, Canada’s political system is a
+fertile environment to test the importance of political messaging, because
+relative to most liberal democracies, the system is dominated by party
+politicians. As Carty put it: 
+\begin{quote}
+  No obvious simple geographic reality, no common
+linguistic or religious homogeneity, no common revolutionary experience or
+unique historical moment animated [Canada] or gave it life. Canada was created
+when a coalition of party politicians deemed it to be in their interest to do
+so, and it has been continuously grown, reshaped and defended by its
+politicians.
+\end{quote}
+ [4] Thus, it is not surprising that Canada’s electoral system
+encourages electoral pragmatism – and developed large, “big tent” parties that
+are among the most or- ganizationally weak and decentralized of established
+democracies [4]. This system defines political parties as brokers of the often
+conflicting, weakly integrated elec- torate – as opposed to mobilizers of
+distinct communities, articulating claims rooted in their pre-existing
+interests. In this way, parties act as the principal instruments of national
+accommodation, rather than democratic division [4].
+
+
+\subsection{Eigenvector Centrality}
+
+\section{Methods}
+
+\subsection{Data}
+
+\subsection{Topic Modeling}
+
+\subsection{Topic Centrality}
+
+\subsubsection{Total Network Topic Centrality}
+
+\subsubsection{Party Leader Topic Centrality}
+
+\section{Results}
+
+\subsection{Topic Saliency}
+
+\subsection{Total Network Topic Centrality}
+
+\subsection{Party Leader Topic Centrality}
+
+\section{Discussion}
+
+\bibliographystyle{plain}
+\bibliography{bibliography}
+
+\label{lastpage}
+
+\end{document}
+
+% end of NWSegui.tex
