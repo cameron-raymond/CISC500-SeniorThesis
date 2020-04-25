@@ -22,7 +22,7 @@
 
  \author[C.J.K Raymond]
         {Cameron Raymond\\
-         Queen's University School of Computing, Kingston K7L 3N6, CA\\
+        School of Computing, Queen's University, Kingston K7L 3N6, CA\\
          \email{c.raymond@queensu.ca}}
 
 \jdate{May 2020}
@@ -42,15 +42,14 @@
   The advent of social media has enabled political parties to engage with the
   broader populous in new and unforeseen ways -- and the ability to bypass the
   traditional mediating forces of mass media allows for an unfiltered promotion
-  of policy, ideology and party stances. Social networks, formed via social
-  media like Twitter, are inherently relational and thus lend themselves well to
-  being represented as graphs. The uses of graphs can help measure how political
-  elites promote different categories of messages, and how the electorate engage
-  along various axes. This article proposes two novel measures of topic
-  centrality, which measure how central messages of various topics were to a party
-  leader's core voting group, or to the broader discourse. Statistically
-  significant variations in topic centrality are shown in the 2019 Canadian
-  Federal Election.
+  of policy, ideology and party stances. Drawing on Twitter data leading up to
+  the 2019 Canadian Federal Election, this paper develops two novel, graph-based methods that
+  capture how different categories of messages drive different patterns of political
+  engagement. Through the two proposed variations of topic centrality -- on which
+  measures how central a topic was to the general discourse, and one which
+  measures how central a topic was to a particular voting bloc -- statistically
+  significant variations in topic centrality are then shown and discussed. %MORE_SPECIFIC
+  \paragraph{Keywords:} \emph{centrality, political communication, social media, topic modeling}
 \end{abstract}
 
 \tableofcontents
@@ -61,19 +60,51 @@ The way information is distributed and received has changed significantly over
 the past decade. As Cogburn and Espinoza-Vasquez argue, Barrack Obama’s 2008
 presidential campaign was a watershed moment in social media campaigning – and
 in the subsequent decade, from Macron to Brexit to the Five Star Movement,
-social media has played an increasing role in how politics is conducted \cite{cogburn2011networked}. The
-same holds true for Canada, between 2013 and 2018 the share of Canadian federal
-media expenditure spent on digital advertising rose from 27\% to 65\%, a 140\%
-increase, making the study of new media critical from a social science
-perspective \cite{annualReportCanadaAdvertisingActivities_2018}.
+social media has played an increasing role in how politics is conducted
+\cite{cogburn2011networked}.  The same holds true for Canada, between 2013 and
+2018 the share of Canadian federal media expenditure spent on digital
+advertising rose from 27\% to 65\%, a 140\% increase, making the study of new
+media critical from a social science perspective
+\cite{annualReportCanadaAdvertisingActivities_2018}. Over the past 12 years,
+political elites have subverted traditional models of political communication by
+using social media to directly promote various policies, topics and issues to
+the electorate\footnote{The
+terms policy, issue and topic will be used interchangeably to refer to
+categories of messages.}\cite{mcnair2017introduction}.
 
-\subsection{Social Media and Political Communication}
+Additionally, it is important to note that not all messages promoted by
+political elites are likely to serve the same purpose. Some topics may be
+logistical in nature, informing party affiliates of campaign events; other
+topics may be promoted in an attempt to rally that party's core voting bloc;
+others, finally, may be an attempt to attract
+engagement from new, untapped demographics. The latter two categories are in
+many ways analogous to Robert Putnam's conception of social capital
+\cite{putnam2001social}. Here, Putnam draws the distinction between two forms
+of social capital: bonding social capital, which occurs within a group -- and
+bridging social capital, which unites different demographics
+\cite{putnam2001social}. Therefore, the research question being proposed is:
+are their data to support the notion that some political messages are bonding in
+nature, rallying members within a group, while other political messages are
+bridging in nature? This question will be answered within the context of the
+2019 Canadian Federal Election with the tweets of Canada’s five major, english
+speaking party leaders: Andrew Scheer, Elizabeth May, Jagmeet Singh, Justin
+Trudeau, and Maxime Bernier. 
+
+In order to answer this question, a justification of Canadian politics and
+social media data in this context will be given. Then an overview of the data
+collected and a formal definition of the political engagement graph used will
+allow for the exploration of two measures of topic centrality: total network
+topic centrality, and party leader topic centrality. Finally, results from this
+process and a discussion of their implications will highlight possibilities for
+future research.  
+
+\subsection{Social Media in the Canadian Context}
 
 While it is clear that technology is changing how information is received, and
 thus also changing how politics is conducted, it may not be clear the role of
 Canadian politics in this context. However, Canada’s political system is a
 fertile environment to test the importance of political messaging, because
-relative to most liberal democracies, the system is dominated by party
+relative to most liberal democracies, it is dominated by party
 politicians. As Carty put it: 
 
 \begin{quote}
@@ -83,7 +114,8 @@ politicians. As Carty put it:
   politicians deemed it to be in their interest to do so, and it has been
   continuously grown, reshaped and defended by its politicians.\cite{carty2010political}
 \end{quote}
-  Thus, it is not surprising that Canada’s electoral system
+
+Thus, it is not surprising that Canada’s electoral system
 encourages electoral pragmatism – and developed large, “big tent” parties that
 are among the most organizationally weak and decentralized of established
 democracies \cite{carty2010political}. This system defines political parties as brokers of the often
@@ -92,8 +124,22 @@ distinct communities, articulating claims rooted in their pre-existing
 interests. In this way, parties act as the principal instruments of national
 accommodation, rather than democratic division \cite{carty2010political}.
 
+The dominance of parties in Canadian politics, their amorphous ideological
+stances, and the many intersectional geographic, linguistic and religious
+cleavages have given birth to what’s been coined the brokerage party system
+\cite{carty2010political}. The need to capture pluralities in a diverse range of
+electoral districts means that most parties have to take stances on most issues,
+and thus when a user engages with a specific issue, it doesn’t necessarily
+invoke a specific party or vice versa. 
 
-\subsection{Eigenvector Centrality}
+Social media data, culled from platforms like Twitter, are inherently
+relational -- and thus lend themselves well to being represented as graphs. An
+empirical analysis that observes and measures how users behave and engage with
+political parties online privileges this relational aspect of social media.
+Social network analysis helps avoid the pitfalls of survey data, famously
+described by Allen Barton as “a sociological meat grinder, tearing the
+individual from [their] social context” \cite{freeman2004development}.  
+
 
 \section{Methods}
 
@@ -102,6 +148,8 @@ accommodation, rather than democratic division \cite{carty2010political}.
 \subsection{Topic Modeling}
 
 \subsection{Topic Centrality}
+
+\subsubsection{Eigenvector Centrality}
 
 \subsubsection{Total Network Topic Centrality}
 
