@@ -86,7 +86,7 @@ bridging social capital, which unites different demographics
 are their data to support the notion that some political messages are bonding in
 nature, rallying members within a group, while other political messages are
 bridging in nature? This question will be answered within the context of the
-2019 Canadian Federal Election with the tweets of Canada’s five major, english
+2019 Canadian Federal Election with the Tweets of Canada’s five major, english
 speaking party leaders: Andrew Scheer, Elizabeth May, Jagmeet Singh, Justin
 Trudeau, and Maxime Bernier. 
 
@@ -121,8 +121,8 @@ are among the most organizationally weak and decentralized of established
 democracies \cite{carty2010political}. This system defines political parties as brokers of the often
 conflicting, weakly integrated electorate –- as opposed to mobilizers of
 distinct communities, articulating claims rooted in their pre-existing
-interests. In this way, parties act as the principal instruments of national
-accommodation, rather than democratic division \cite{carty2010political}.
+interests. In this way, parties act as the ``principal instruments of national
+accommodation, rather than democratic division'' \cite{carty2010political}.
 
 The dominance of parties in Canadian politics, their amorphous ideological
 stances, and the many intersectional geographic, linguistic and religious
@@ -132,7 +132,9 @@ electoral districts means that most parties have to take stances on most issues,
 and thus when a user engages with a specific issue, it doesn’t necessarily
 invoke a specific party or vice versa. 
 
-Social media data, culled from platforms like Twitter, are inherently
+Given the utility of Canadian politics in answering questions about different
+axes of political engagement, the question then is: how do we observe these
+phenomena? Social media data, culled from platforms like Twitter, are inherently
 relational -- and thus lend themselves well to being represented as graphs. An
 empirical analysis that observes and measures how users behave and engage with
 political parties online privileges this relational aspect of social media.
@@ -144,6 +146,56 @@ individual from [their] social context” \cite{freeman2004development}.
 \section{Methods}
 
 \subsection{Data}
+
+% Twitter data - %'s and stuff + reTweet/Tweet graphs
+The novel dataset used was collected via Twitter's historical search application
+programming interface (API), which allows user's to programmatically access any
+publicly available Tweet. The API was used to collect all of the
+English\footnote{Denoted by a language marker in the historical search API.}
+tweets from Canada's five, english speaking party leaders: Andrew Scheer,
+Elizabeth May, Jagmeet Singh, Justin Trudeau, and Maxime Bernier. The timeframe
+of collection ranges from October 21, 2018 to October 21, 2019 -- the eve of
+Canada’s federal election. While the tweets from each Federal party’s official
+Twitter accounts were also collected, they predominantly acted as logistical
+tools – informing party affiliates of events and rallies. The personal accounts
+for party leaders were generally more pertinent to their beliefs, platforms and
+style of rhetoric, and thus are better suited do analyze the bridging versus
+bonding nature of various topics. In this spirit, only tweets of the party
+leader were used, excluding retweets. Figure \ref{fig:tweets_over_time}
+visualizes the daily and cumulative number of tweets over time, in aggregate and
+by party leader, resulting in 7,978 total tweets. Additionally, for each tweet collected from a party leader, all of the available
+Retweets by general users\footnote{The term general users will denote those
+active on Twitter who are not party leaders.} were collected for a total of
+113,293 Retweets by 36,450 general users. This is, again, visualized in
+aggregate and by party leader in Figure \ref{fig:retweets_over_time}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/tweets_over_time}
+  \caption[Daily and Cumulative Tweets over Time]{Daily and Cumulative Tweets over Time}
+  \label{fig:tweets_over_time}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/retweets_over_time}
+  \caption[Daily and Cumulative Retweets over Time]{Daily and Cumulative Retweets over Time}
+  \label{fig:retweets_over_time}
+\end{figure}
+
+\subsubsection{Political Engagement Graph}
+
+The networks considered in this paper are assumed to be connected, unweighted,
+and undirected. Let $(V,E)$ be a network, where $V$ is the set of vertices and $E$ is
+the set of edges. If vertex $v_1$ is connected to vertex $v_2$, it is denoted by
+$(v_1,v_2)\in E$. What we define as the political engagement graph has
+additional constraints that define certain vertices as those that \emph{produce objects}
+(Tweets, songs, goods, services, etc\dots), certain vertices that represent
+those objects, and a third set of vertices that chooses to engage with the
+various objects in the network.
+
+
+%Graph definition
 
 \subsection{Topic Modeling}
 
@@ -165,7 +217,10 @@ individual from [their] social context” \cite{freeman2004development}.
 
 \section{Discussion}
 
-\bibliographystyle{plain}
+% RELATE BACK TO PUTNAM -> Talk about how bridging topics != hunky dory kind of
+% discourse. Things can bridge party divides in toxic ways.
+
+\bibliographystyle{nws}
 \bibliography{bibliography}
 
 \label{lastpage}
