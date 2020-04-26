@@ -147,7 +147,7 @@ individual from [their] social context” \cite{freeman2004development}.
 
 \subsection{Data}
 
-% Twitter data - %'s and stuff + reTweet/Tweet graphs
+% Twitter data - %'s and stuff + ReTweet/Tweet graphs
 The novel dataset used was collected via Twitter's historical search application
 programming interface (API), which allows user's to programmatically access any
 publicly available Tweet. The API was used to collect all of the
@@ -155,44 +155,83 @@ English\footnote{Denoted by a language marker in the historical search API.}
 tweets from Canada's five, english speaking party leaders: Andrew Scheer,
 Elizabeth May, Jagmeet Singh, Justin Trudeau, and Maxime Bernier. The timeframe
 of collection ranges from October 21, 2018 to October 21, 2019 -- the eve of
-Canada’s federal election. While the tweets from each Federal party’s official
+Canada’s federal election. While the Tweets from each Federal party’s official
 Twitter accounts were also collected, they predominantly acted as logistical
 tools – informing party affiliates of events and rallies. The personal accounts
 for party leaders were generally more pertinent to their beliefs, platforms and
 style of rhetoric, and thus are better suited do analyze the bridging versus
-bonding nature of various topics. In this spirit, only tweets of the party
-leader were used, excluding retweets. Figure \ref{fig:tweets_over_time}
-visualizes the daily and cumulative number of tweets over time, in aggregate and
-by party leader, resulting in 7,978 total tweets. Additionally, for each tweet collected from a party leader, all of the available
+bonding nature of various topics. In this spirit, only Tweets of the party
+leader were used, excluding Retweets. Figure \ref{fig:tweets_over_time}
+visualizes the daily and cumulative number of Tweets over time, in aggregate and
+by party leader, resulting in 7,978 total Tweets. Additionally, for each tweet collected from a party leader, all of the available
 Retweets by general users\footnote{The term general users will denote those
 active on Twitter who are not party leaders.} were collected for a total of
 113,293 Retweets by 36,450 general users. This is, again, visualized in
 aggregate and by party leader in Figure \ref{fig:retweets_over_time}.
 
-\begin{figure}[H]
+\begin{figure}[h!]
   \centering
   \includegraphics[width=0.8\textwidth]{figures/tweets_over_time}
   \caption[Daily and Cumulative Tweets over Time]{Daily and Cumulative Tweets over Time}
   \label{fig:tweets_over_time}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[h!]
   \centering
   \includegraphics[width=0.8\textwidth]{figures/retweets_over_time}
   \caption[Daily and Cumulative Retweets over Time]{Daily and Cumulative Retweets over Time}
   \label{fig:retweets_over_time}
 \end{figure}
 
-\subsubsection{Political Engagement Graph}
+\subsubsection{Engagement Graph}
 
 The networks considered in this paper are assumed to be connected, unweighted,
 and undirected. Let $(V,E)$ be a network, where $V$ is the set of vertices and $E$ is
 the set of edges. If vertex $v_1$ is connected to vertex $v_2$, it is denoted by
-$(v_1,v_2)\in E$. What we define as the political engagement graph has
-additional constraints that define certain vertices as those that \emph{produce objects}
+$(v_1,v_2)\in E$. What we define as the engagement graph has additional
+constraints that define certain vertices as those that \emph{produce objects}
 (Tweets, songs, goods, services, etc\dots), certain vertices that represent
 those objects, and a third set of vertices that chooses to engage with the
-various objects in the network.
+various objects in the network. In this context the engagement graph represents
+the Tweets that party leaders produce, and the general users who choose which
+Tweets to Retweet. An example of this type of political engagement graph is
+shown in figure \ref{fig:ex_engagement_graph}. More formally the political engagement graph is defined
+below:
+
+\begin{itemize}
+  \item \emph{Vertices}: Let $V_{1}=\{v_{1},v_{2},...,v_{n}\}$ be the set of
+  party leaders; $V_{2}=\{v_{1},v_{2},...,v_{m}\}$ be the set of Tweets by the
+  party leaders; and let
+  $V_{3}=\{v_{1},v_{2},...,v_{k}\}$ be the set of ``general users'' who
+  Retweet Tweets. Let the total set of vertices $V=V_{1}\cup V_{2}\cup V_{3}$.
+  
+  \item \emph{Edges}: Let $E$ be the set of edges. Allow the edge $(v_{1},
+  v_{2})\in E$ if and only if $v_{1}\in V_{1}, v_{2}\in V_{2}$ or $v_{1}\in
+  V_{3}, v_{2}\in V_{2}$. By this definition, we will only allow edges from a
+  party leader vertex to a tweet vertex, or from a generic user vertex to a
+  tweet vertex.
+\end{itemize}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[scale=0.2]{figures/ex_engagement_graph}
+  \caption[Example Engagement Graph]{Example Engagement Graph}
+  \label{fig:ex_engagement_graph}
+\end{figure}
+
+Further nuances can be added to distinguish between different types of objects,
+which in this context would refer to Tweets of different topics. Figure FIG
+visualizes the full political engagement graph collected with all 5 party
+leaders, 7,978 Tweets, 36,450 general users, and 113,293 Retweets\footnote{The
+number of retweets is equivalent to the number of edges from Tweet vertices to
+general user vertices.}.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/engagement_graph_no_topics}
+  \caption[Full Engagement Graph]{Full Engagement Graph}
+  \label{fig:engagement_graph_no_topics}
+\end{figure}
 
 
 %Graph definition
