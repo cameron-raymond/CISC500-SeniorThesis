@@ -116,7 +116,7 @@ politicians. As Carty put it:
 \end{quote}
 
 Thus, it is not surprising that Canada’s electoral system
-encourages electoral pragmatism – and developed large, “big tent” parties that
+encourages electoral pragmatism – and developed large, ``big tent'' parties that
 are among the most organizationally weak and decentralized of established
 democracies \cite{carty2010political}. This system defines political parties as brokers of the often
 conflicting, weakly integrated electorate –- as opposed to mobilizers of
@@ -183,20 +183,38 @@ aggregate and by party leader in Figure \ref{fig:retweets_over_time}.
   \label{fig:retweets_over_time}
 \end{figure}
 
+Additionally, given the inherent noise and extraneous info in text data, it is
+standard and necessary to preprocess text before modeling
+\cite{sapul2017trending}. The text cleaning pipeline removes punctuation marks,
+stop words, words with fewer than three characters, and URLs, as well as common
+Twitter symbols like ``RT:'', ``@'' and ``\#''. Emojis were converted to text
+using the python package \texttt{emoji}. After this process, all text was
+converted to lower-case and lemmatized to get rid of common suffixes. Therefore,
+the tweet in Figure \ref{fig:tweet_ex} after preprocessing reads: \emph{wherever
+maple leaf fly represents rich history bright future value hold dear happy flag
+day canada}.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/tweet_ex}
+  \caption[Daily and Cumulative Retweets over Time]{Daily and Cumulative Retweets over Time}
+  \label{fig:tweet_ex}
+\end{figure}
+
 \subsubsection{Engagement Graph}
 
 The networks considered in this paper are assumed to be connected, unweighted,
-and undirected. Let $(V,E)$ be a network, where $V$ is the set of vertices and $E$ is
-the set of edges. If vertex $v_1$ is connected to vertex $v_2$, it is denoted by
-$(v_1,v_2)\in E$. What we define as the engagement graph has additional
-constraints that define certain vertices as those that \emph{produce objects}
-(Tweets, songs, goods, services, etc\dots), certain vertices that represent
-those objects, and a third set of vertices that chooses to engage with the
-various objects in the network. In this context the engagement graph represents
-the Tweets that party leaders produce, and the general users who choose which
-Tweets to Retweet. An example of this type of political engagement graph is
-shown in figure \ref{fig:ex_engagement_graph}. More formally the political engagement graph is defined
-below:
+and undirected. Let $(V,E)$ be a network, where $V$ is the set of vertices and
+$E$ is the set of edges. If vertex $v_1$ is connected to vertex $v_2$, it is
+denoted by $(v_1,v_2)\in E$. Engagement graph's are defined with additional
+constraints that denote three categories of vertices: those that \emph{produce
+objects} (Tweets, songs, goods, services, etc\dots), those that represent the
+objects produced, and a third set of vertices that chooses to engage with the
+various produced objects in the network. In this context the engagement graph
+represents the Tweets that party leaders produce, and the general users who
+choose which Tweets to Retweet. An example of this type of political engagement
+graph is shown in figure \ref{fig:ex_engagement_graph}. More formally the
+political engagement graph is defined below:
 
 \begin{itemize}
   \item \emph{Vertices}: Let $V_{1}=\{v_{1},v_{2},...,v_{n}\}$ be the set of
@@ -220,23 +238,139 @@ below:
 \end{figure}
 
 Further nuances can be added to distinguish between different types of objects,
-which in this context would refer to Tweets of different topics. Figure FIG
-visualizes the full political engagement graph collected with all 5 party
-leaders, 7,978 Tweets, 36,450 general users, and 113,293 Retweets\footnote{The
-number of retweets is equivalent to the number of edges from Tweet vertices to
-general user vertices.}.
+which in this context would refer to Tweets of different topics. Figure
+\ref{fig:engagement_graph_no_topics}  visualizes the full political engagement
+graph collected with all 5 party leaders, 7,978 Tweets, 36,450 general users,
+and 113,293 Retweets\footnote{The number of Retweets is equivalent to the number
+of edges from Tweet vertices to general user vertices.} built with these constraints.
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[width=0.8\textwidth]{figures/engagement_graph_no_topics}
+  \includegraphics[width=0.75\textwidth]{figures/engagement_graph_no_topics}
   \caption[Full Engagement Graph]{Full Engagement Graph}
   \label{fig:engagement_graph_no_topics}
 \end{figure}
 
-
-%Graph definition
-
 \subsection{Topic Modeling}
+
+In order to evaluate the relative importance of various political messages in
+driving political engagement on Twitter, all the tweets collected must first be
+organized by topic. Given the size of the data, manually coding each label is
+inefficient as well as subject to individual biases. As a result, there is a
+need for techniques that autonomously organize big, unclassified corpuses of
+text. 
+
+Topic modeling methods finds clusters of words that frequently occur together
+(topics), connects words with similar meanings, and distinguishes different uses
+of words with multiple meanings \cite{alghamdi2015survey}. This is based on the
+underlying assumption that a document is concerned with a fixed set of topics,
+and that the frequency of words used is indicative of this latent structure
+\cite{blei2003latent}. Given that topic extraction approaches based on keywords
+are brittle, context specific and are unable to capture emergent topics --
+unsupervised machine learning techniques, like the latent Dirichlet allocation
+(LDA) developed by Blei et al., are especially useful for autonomous topic
+extraction. An LDA model defines two distributions -- one which models topics as
+``a distribution over a fixed vocabulary of terms,'' and another which models
+documents as a distribution of topics based on the occurrences of words in each
+document, the topic distribution per word and the importance of words to each
+topic \cite{blei2003latent}. The LDA requires four inputs: the text corpus --
+which in this context are the cleaned tweets from all 5 party leaders; $\alpha$
+-- which acts as a concentration parameter for how documents are modeled as
+topics; $\beta$ -- which acts as a concentration parameter for how topics are
+modeled as words; and $k$ -- which is the number of topics to be modeled
+\cite{blei2003latent}.
+
+\begin{figure}[h!]
+  \centering
+  \begin{tabular}{cc}
+    \includegraphics[width=0.40\textwidth]{Figures/Coherence_Surface_k=4} &
+    \includegraphics[width=0.40\textwidth]{Figures/Coherence_Surface_k=5} \\
+  (a) $k=4$ & (b) $k=5$ \\[6pt]
+    \includegraphics[width=0.40\textwidth]{Figures/Coherence_Surface_k=6} &
+    \includegraphics[width=0.40\textwidth]{Figures/Coherence_Surface_k=7} \\
+  (c) $k=6$ & (d) $k=7$ \\[6pt]
+  \end{tabular}
+  \caption[LDA Parameter Sweep Results]{LDA Parameter Sweep Results}
+  \label{fig:lda_param_sweep}
+\end{figure}
+
+By performing a parameter sweep, where $\alpha$ and $\beta$ lie on the interval
+$[0, 1]$ with increments of 0.05, and $k$ ranges between $4$ and $7$, various
+LDAs were exposed to the entire corpus of Tweets and then evaluated using $c\_v$
+coherence. Figure \ref{fig:lda_param_sweep} shows, for each $k$ value, the $c\_v$ coherence as a
+function of different combinations of $\alpha$ and $\beta$. The most performant
+model had a $k$ value of 7, $\alpha$ of 0.31 and $\beta$ of 0.81 and a $c\_v$
+coherence score of 0.48. By labelling each tweet as the maximum probability
+value in its topic mixture, each tweet was assigned a single topic. The word
+clouds for each topic are described in figure \ref{fig:topic_word_clouds}.
+
+\begin{figure}[h!]
+    \centering
+    \begin{tabular}{cccc}
+    \includegraphics[width=0.25\textwidth]{Figures/topic_1_wordcloud} &
+    \includegraphics[width=0.25\textwidth]{Figures/topic_2_wordcloud} &
+    \includegraphics[width=0.25\textwidth]{Figures/topic_3_wordcloud} &
+    \includegraphics[width=0.25\textwidth]{Figures/topic_4_wordcloud} \\
+    (a) Topic 1 & (b) Topic 2 & (c) Topic 3 & (d) Topic 4 \\[6pt]
+    \includegraphics[width=0.25\textwidth]{Figures/topic_5_wordcloud} &
+    \includegraphics[width=0.25\textwidth]{Figures/topic_6_wordcloud} &
+    \includegraphics[width=0.25\textwidth]{Figures/topic_7_wordcloud} \\
+    (e) Topic 5 & (f) Topic 6 & (g) Topic 7 \\[6pt]
+    \end{tabular}
+    \caption[LDA Topic Word Clouds]{LDA Topic Word Clouds}
+    \label{fig:topic_word_clouds}
+\end{figure}
+
+Topic 1 pertained to campaign messages, rallies and logistics – and makes up
+8.2\% of all tweets. Topic 2 contains tweets regarding a carbon tax, pipelines
+and the economy – and makes up 16.3\% of all tweets. Topic 3 contains tweets
+about the SNC Lavalin affair, a scandal that plagued Justin Trudeau, and tweets
+about corruption – making up 18\% of all tweets. Topic 4 is predominantly tweets
+appealing to the middle-class and economy – and is 29.7\% of all tweets. Topic 5
+contains celebratory messages about the campaign, as well as tweets regarding
+national holidays and days of remembrance – and make up 15\% of all tweets.
+Topic 6 is made up of tweets about immigration, diversity and free speech – and
+makes up 11.5\% of all tweets. Finally, Topic 7 contains tweets regarding
+healthcare, abortion and pharmacare – and makes up 1\% of all tweets. The
+magnitude of how many tweets were assigned to each topic is shown in Figure
+\ref{fig:topic_distribution}.
+
+\begin{figure}[h!]
+  \centering
+  \begin{tabular}{cc}
+    \includegraphics[width=0.40\textwidth]{Figures/topic_distribution} &
+    \includegraphics[width=0.60\textwidth]{Figures/grouped_bar_by_pl_topic} \\
+  (a) Topic Breakdown & (b) Number of Tweets per Topic by Party Leader \\[6pt]
+  \end{tabular}
+  \caption[LDA Topic Distribution]{LDA Topic Distribution}
+  \label{fig:topic_distribution}
+\end{figure}
+
+As can be seen by part (b) of Figure \ref{fig:topic_distribution} -- while Topic
+6, Tweets pertaining to diversity and immigration, only made up 11.5\% of all
+Tweets they made up the majority of Maxime Bernier -- the leader of the newly
+founded, populist People's Party of Canada -- Tweets. This signals an attempt on
+his part to bring these topics to the forefront of the debate despite few other
+party leader's broaching the topic. Additionally, Andrew Scheer and Elizabeth
+May's campaigns relied heavily on Topic 3, the SNC Lavalin affair, with a
+disproportionate number of Tweets aimed at Justin Trudeau's handling of the
+affair. Finally, it can be noted that Maxime Bernier and Andrew Scheer also had
+a disproportionate number of Tweets pertaining to Topic 2 -- rebutting Justin
+Trudeau's plan to implement a carbon tax, and arguing for greater access to
+Alberta's Oil Sands. While an initial assumption may be that each party tailors
+such messages to maximize engagement, that remains to be seen without a more
+rigorous analysis of how different segments or the electorate as a whole engaged
+with each category of message. By assigning each Tweet vertex to a topic and
+then coloring the Tweet vertices accordingly, the full engagement graph (Figure
+\ref{fig:engagement_graph}) for online political content is complete and ready
+for analysis. 
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.75\textwidth]{figures/engagement_graph}
+  \caption[Full Engagement Graph]{Full Engagement Graph With Tweet Vertices Colored By Topic}
+  \label{fig:engagement_graph}
+\end{figure}
 
 \subsection{Topic Centrality}
 
