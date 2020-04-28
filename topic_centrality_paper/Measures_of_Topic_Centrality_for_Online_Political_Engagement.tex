@@ -4,6 +4,8 @@
 % Copyright (C) 2012 Cambridge University Press
 
 \NeedsTeXFormat{LaTeX2e}
+\newcommand{\specialcell}[2][c]{\begin{tabular}[#1]{@{}l@{}}#2\end{tabular}}
+
 
 \documentclass{nws}
 
@@ -41,14 +43,14 @@
 \begin{abstract}
   The advent of social media has enabled political parties to engage with the
   broader populous in new and unforeseen ways -- and the ability to bypass the
-  traditional mediating forces of mass media allows for an unfiltered promotion
+  traditional mediating forces of mass media allows for a more direct promotion
   of policy, ideology and party stances. Drawing on Twitter data leading up to
-  the 2019 Canadian Federal Election, this paper develops two novel, graph-based methods that
-  capture how different categories of messages drive different patterns of political
-  engagement. Through the two proposed variations of topic centrality -- on which
-  measures how central a topic was to the general discourse, and one which
-  measures how central a topic was to a particular voting bloc -- statistically
-  significant variations in topic centrality are then shown and discussed. %MORE_SPECIFIC
+  the 2019 Canadian Federal Election, this paper develops two novel, graph-based
+  metrics of topic centrality  -- one which measures how central a topic was to
+  the general discourse, and one which measures how central a topic was to a
+  particular voting bloc. Statistically significant variations in topic
+  centrality are then shown, and their implications for political polarization
+  are discussed.
   \paragraph{Keywords:} \emph{centrality, political communication, social media, topic modeling}
 \end{abstract}
 
@@ -132,6 +134,8 @@ electoral districts means that most parties have to take stances on most issues,
 and thus when a user engages with a specific issue, it doesn’t necessarily
 invoke a specific party or vice versa. 
 
+\subsection{Content as a ``First-Class Citizen''}
+
 Given the utility of Canadian politics in answering questions about different
 axes of political engagement, the question then is: how do we observe these
 phenomena? Social media data, culled from platforms like Twitter, are inherently
@@ -140,7 +144,20 @@ empirical analysis that observes and measures how users behave and engage with
 political parties online privileges this relational aspect of social media.
 Social network analysis helps avoid the pitfalls of survey data, famously
 described by Allen Barton as “a sociological meat grinder, tearing the
-individual from [their] social context” \cite{freeman2004development}.  
+individual from [their] social context” \cite{freeman2004development}. While
+there exists studies on user engagement in social networks, online or otherwise,
+such research generally focuses on connections between individuals (\emph{User
+A} is connected to \emph{User B}) and rarely acknowledges the context with which
+engagement occurs \cite{Zhang2017FindingCU,kavanaugh2002community}. In an online
+environment, certain users may engage with certain content producers when they
+produce certain forms of content, but choose not to engage with that same
+producer if the subject matter differs. As such, more nuanced graph models are
+needed and developed that acknowledge the importance of the producer of the
+content \emph{as well as the content itself} in shaping engagement. Content
+holds an especially important role in online mediums, where users have a more
+granular ability to control the content they expose themselves to. This
+theoretical underpinning allows for a more nuanced analysis and in doing so
+makes content a ``first-class citizen.''
 
 
 \section{Methods}
@@ -190,7 +207,7 @@ stop words, words with fewer than three characters, and URLs, as well as common
 Twitter symbols like ``RT:'', ``@'' and ``\#''. Emojis were converted to text
 using the python package \texttt{emoji}. After this process, all text was
 converted to lower-case and lemmatized to get rid of common suffixes. Therefore,
-the tweet in Figure \ref{fig:tweet_ex} after preprocessing reads: \emph{wherever
+the Tweet in Figure \ref{fig:tweet_ex} after preprocessing reads: \emph{wherever
 maple leaf fly represents rich history bright future value hold dear happy flag
 day canada}.
 
@@ -213,7 +230,7 @@ objects produced, and a third set of vertices that chooses to engage with the
 various produced objects in the network. In this context the engagement graph
 represents the Tweets that party leaders produce, and the general users who
 choose which Tweets to Retweet. An example of this type of political engagement
-graph is shown in figure \ref{fig:ex_engagement_graph}. More formally the
+graph is shown in Figure \ref{fig:ex_engagement_graph}. More formally the
 political engagement graph is defined below:
 
 \begin{itemize}
@@ -302,7 +319,7 @@ function of different combinations of $\alpha$ and $\beta$. The most performant
 model had a $k$ value of 7, $\alpha$ of 0.31 and $\beta$ of 0.81 and a $c\_v$
 coherence score of 0.48. By labelling each tweet as the maximum probability
 value in its topic mixture, each tweet was assigned a single topic. The word
-clouds for each topic are described in figure \ref{fig:topic_word_clouds}.
+clouds for each topic are described in Figure \ref{fig:topic_word_clouds}.
 
 \begin{figure}[h!]
     \centering
@@ -330,7 +347,7 @@ appealing to the middle-class and economy – and is 29.7\% of all tweets. Topic
 contains celebratory messages about the campaign, as well as tweets regarding
 national holidays and days of remembrance – and make up 15\% of all tweets.
 Topic 6 is made up of tweets about immigration, diversity and free speech – and
-makes up 11.5\% of all tweets. Finally, Topic 7 contains tweets regarding
+makes up 11.5\% of all tweets. Finally, topic 7 contains tweets regarding
 healthcare, abortion and pharmacare – and makes up 1\% of all tweets. The
 magnitude of how many tweets were assigned to each topic is shown in Figure
 \ref{fig:topic_distribution}.
@@ -348,22 +365,21 @@ magnitude of how many tweets were assigned to each topic is shown in Figure
 
 As can be seen by part (b) of Figure \ref{fig:topic_distribution} -- while Topic
 6, Tweets pertaining to diversity and immigration, only made up 11.5\% of all
-Tweets they made up the majority of Maxime Bernier -- the leader of the newly
-founded, populist People's Party of Canada -- Tweets. This signals an attempt on
-his part to bring these topics to the forefront of the debate despite few other
-party leader's broaching the topic. Additionally, Andrew Scheer and Elizabeth
-May's campaigns relied heavily on Topic 3, the SNC Lavalin affair, with a
-disproportionate number of Tweets aimed at Justin Trudeau's handling of the
-affair. Finally, it can be noted that Maxime Bernier and Andrew Scheer also had
-a disproportionate number of Tweets pertaining to Topic 2 -- rebutting Justin
-Trudeau's plan to implement a carbon tax, and arguing for greater access to
-Alberta's Oil Sands. While an initial assumption may be that each party tailors
-such messages to maximize engagement, that remains to be seen without a more
-rigorous analysis of how different segments or the electorate as a whole engaged
-with each category of message. By assigning each Tweet vertex to a topic and
-then coloring the Tweet vertices accordingly, the full engagement graph (Figure
-\ref{fig:engagement_graph}) for online political content is complete and ready
-for analysis. 
+Tweets they made up the majority of Maxime Bernier's Tweets. This signals an
+attempt on his part to bring these topics to the forefront of the debate despite
+few other party leader's broaching the topic. Additionally, Andrew Scheer and
+Elizabeth May's campaigns relied heavily on topic 3, the SNC Lavalin affair,
+with a disproportionate number of Tweets aimed at Justin Trudeau's handling of
+the affair. Finally, it can be noted that Maxime Bernier and Andrew Scheer also
+had a disproportionate number of Tweets pertaining to topic 2 -- rebutting
+Justin Trudeau's plan to implement a carbon tax, and arguing for greater access
+to Alberta's Oil Sands. While an initial assumption may be that each party
+tailors such messages to maximize engagement, that remains to be seen without a
+more rigorous analysis of how different segments or the electorate as a whole
+engaged with each category of message. By assigning each Tweet vertex to a topic
+and then coloring the Tweet vertices accordingly, the full engagement graph
+(Figure \ref{fig:engagement_graph}) for online political content is complete and
+ready for analysis. 
 
 \begin{figure}[h!]
   \centering
@@ -374,20 +390,224 @@ for analysis.
 
 \subsection{Topic Centrality}
 
+Descriptive statistics in Figure \ref{fig:topic_distribution} show the frequency
+with which Tweets of different topics were promoted by Canadian party leaders
+leading up to a major election. However, these Figures say little about how
+different policies rallied groups of existing supporters, or bridged different
+voting blocs. In order to answer such questions -- a measure of vertex
+centrality, eigenvector centrality, is expanded upon. The result are two
+variations of topic centrality: total network topic centrality and party
+leader topic centrality. By juxtaposing the two, various insights about how
+different topics influenced discourse can be derived.
+
 \subsubsection{Eigenvector Centrality}
+
+Research concerning the centrality of vertices in a graph has successfully been
+applied to problems in marketing, economics and epidemiology; Stephenson and
+Zelen explored the utility of centrality measures in studying the social
+dynamics of Gelada baboons \cite{stephenson1989rethinking}. Common centrality
+measures include measures of degree and betweenness. This article will focus on
+the notion that central vertices are close to other central vertices, which is
+one of the founding intuitions behind Google’s “page-rank” algorithm and
+eigenvector centrality.
+
+As Newman lays out in his 2016, Mathematics of Networks: ``the eigenvector
+centrality [\dots] accords each vertex a centrality that depends both on the
+number and the quality of its connections: having a large number of connections
+still counts for something, but a vertex with a smaller number of high-quality
+contacts may outrank one with a larger number of mediocre contacts.''
+\cite{newman2008mathematics} The eigencentrality of vertex $i$ given an
+adjacency matrix $A$ is defined as $x_i$ where $x_i$ is proportional to the
+average eigenvector centrality of $i$’s neighbors:
+
+\begin{equation}
+  x_i=\frac{1}{\lambda}\sum_{j=1}^{n}A_{ij}x_j
+\end{equation}
+
+where $\lambda$ is some constant. By defining the vector of centralities as
+$\vec{x} = (x_1,x_2,\dots)$ this equation can be rewritten as $\lambda \vec{x} =
+A \cdot \vec{x}$, and it is evident that $\vec{x}$ is an eigenvector of the
+adjacency matrix with eigenvalue $\lambda$ \cite{newman2008mathematics}. By
+Perron-Frobenius theorem, picking the largest eigenvalue of $A$ will result in
+all elements of $\vec{x}$ being non-negative \cite{newman2008mathematics}.
 
 \subsubsection{Total Network Topic Centrality}
 
+\begin{figure}[h!]
+  \centering
+  \begin{tabular}{cc}
+    \includegraphics[width=0.40\textwidth]{Figures/engagement_graph} &
+    \includegraphics[width=0.40\textwidth]{Figures/jagmeet_singh_subgraph} \\
+  (a) Full Engagement Graph & (b) Political Engagement Subgraph for Jagmeet Singh\\[6pt]
+  \end{tabular}
+  \caption[Example Engagement Graph and Subgraph]{Example Engagement Graph and Subgraph}
+  \label{fig:engagment_and_subgraph}
+\end{figure}
+
+Total network topic centrality is an aggregate of the eigenvector centrality of
+all tweets of a certain topic in the entire engagement graph. For reference,
+this graph has been reproduced in part (a) of Figure \ref{fig:engagment_and_subgraph}. More formally,
+and with slight abuse of notation, the total network topic centrality of topic
+$t$, $T_{t}$, can be defined as the set of all eigenvector centrality measures for tweet
+vertices of topic $t$ in a graph $G$. 
+
+\begin{equation}
+  T_{t} := \{ x_i , \forall i \in G \mid type(i)=tweet, topic(i)=t \}
+\end{equation}
+
+When taking the aggregate (sum, mean, z-score relative to other topics), a
+single number can be assigned to the relative importance of topic $t$. And in
+keeping with the strengths of eigenvector centrality, $T_{t}$ will be larger if:
+those tweets are retweeted a lot, and if they're retweeted by \emph{highly
+engaged} users. This provides a nuanced metric for how central different issues
+were to the entire online discourse. 
+
 \subsubsection{Party Leader Topic Centrality}
+
+In order to measure how central a topic is to a party leader's base, party
+leader topic centrality was developed. This assumes a world in which party
+leader $j$ is the only actor with which generic users can engage with. This is
+done by taking a subgraph of $G$ -- $G_{j}$ -- which only contains party leader
+$j$, all of $j$'s tweets, $I$, and all edges from $i\in I$ to the generic users
+who retweeted one of $j$'s Tweets. An example of this is in part (b) of Figure
+\ref{fig:engagment_and_subgraph}, which demonstrates the subgraph for Jagmeet
+Singh. 
+
+After the subgraph $G_j$ is constructed, the party leader topic
+centrality $P_{tj}$ is defined as the set of all eigenvector centrality measures
+for tweet vertices of topic $t$ in a graph $G_{j}$.
+
+\begin{equation}
+    P_{tj} := \{ x_i ,  \forall i \in G_{j} \mid type(i)=tweet, topic(i)=t \}
+\end{equation}
+
+Similarly, by taking the aggregate of $P_{tj}$ a single centrality score can be
+assigned that measures how important topic $t$ was to those who engaged with
+that party leader. This will be higher if it is: has a high number of Retweets
+and  retweeted by $j$'s \emph{most engaged followers}. Highly engaged users who
+rarely engage with that specific party leader are therefore discounted in this
+metric relative to someone who is less engaged, but concentrates their attention
+on that party leader's content. 
 
 \section{Results}
 
-\subsection{Topic Saliency}
+After calculating $\textbf{T}=\{T_{t}, \forall i \in topics\}$\footnote{$topics$
+refers to the seven topics that tweets could be assigned to.} and $\textbf{P}=\{P_{tj}, \forall i \in
+topics\:and\:\forall j \in party\_leaders\}$\footnote{$party\_leaders$ refers to
+the five Canadian Federal party leaders whose Tweets were collected.}, each individual centrality measure, $T_{t} \in
+\textbf{T}$ and $P_{tj}\in \textbf{P}$, can be summated
+($\hat{T_{t}}$/$\hat{P_{tj}}$), have it's mean calculated
+($\overline{T}_{t}$/$\overline{P}_{tj}$), or have it's z-score taken relative to
+other topics in its set\footnote{For the party leader topic centrality, the
+z-score of topic centrality is based off of other tweet topics for that party
+leader.} ($\stackrel{z}{T}_{t}$/$\stackrel{z}{P}_{tj}$).
 
-\subsection{Total Network Topic Centrality}
+Figure \ref{fig:topic_centrality} shows plots of $\textbf{T}$ as a function of
+$\textbf{P}$; each point is colored according to its party leader and is
+annotated with the topic that it pertains to. The x-axis is the party leader
+topic centrality score for all party leader and topic combinations -- and the
+y-axis is the total network topic centrality score for each topic\footnote{This
+explains why all party leader topic centrality scores for the same topic lie on
+the same point on the y-axis.}.
 
-\subsection{Party Leader Topic Centrality}
+\begin{figure}
+    \centering
+    \begin{tabular}{cc}
+    \includegraphics[width=0.40\textwidth]{Figures/sum_opposing_centrality_chart_(expanded)} &
+    \includegraphics[width=0.40\textwidth]{Figures/mean_opposing_centrality_chart_(expanded)} \\
+    (a)  \textbf{$\hat{T}$} by \textbf{$\hat{P}$} & (b) \textbf{$\overline{T}$} by \textbf{$\overline{P}$} \\[6pt]
+    \multicolumn{2}{c}{\includegraphics[width=0.40\textwidth]{Figures/zscore_opposing_centrality_chart_(expanded)}}\\
+    \multicolumn{2}{c}{(c) \textbf{$\stackrel{z}{T}$} by \textbf{$\stackrel{z}{P}$}}
+    \end{tabular}
+    \caption[$\textbf{T}$ aggregates in relation to $\textbf{P}$]{$\textbf{T}$ aggregates in relation to $\textbf{P}$}
+    \label{fig:topic_centrality}
+\end{figure}
 
+Some initial insights from comparing \textbf{$\hat{T}$} by \textbf{$\hat{P}$}
+with \textbf{$\overline{T}$} by \textbf{$\overline{P}$}; while Maxime Bernier
+promoted a large number of tweets regarding immigration, free speech and
+diversity as indicated by a high $\hat{P}_{6M}$ -- these tweets gained little
+traction overall in the entire network ($\stackrel{z}{T_{6}}$) as well as
+compared to other topics Bernier tweeted about $\stackrel{z}{P}_{6M}$.
+Additionally, despite the relatively few tweets pertaining to health care and
+pharmacare (topic 7), and the low total network centrality score
+($\stackrel{z}{T_{7}}$), they were disproportionately important to Justin
+Trudeau's network ($\stackrel{z}{P}_{7T}$). Discrepancies in a topic that gives
+the highest $\hat{P_{tj}}$ for a party leader (total topic engagement) and
+$\overline{P}_{tj}$  (mean topic engagement) can illustrate inefficiencies in
+connecting with their target demographic.
+
+As well, for each topic -- the party leader topic centrality score can be
+averaged across all the different party leaders to give a more general analysis
+of how central topics were to the entire network, or to any individual party
+leader. This is shown in Figure \ref{fig:topic_centrality_combined}. Here it is
+most insightful to look at \textbf{$\stackrel{z}{T}$} by
+\textbf{$\stackrel{z}{P}$}, specifically in the lower right-hand quadrant and
+upper left-hand quadrant. The former indicates tweet topics that are more
+important to a party leader's base than to the entire network (topics 7 and 1).
+Topic 1 -- campaign dynamics -- intuitively makes sense in this category; it is
+not surprising that messages about the campaign, where rallies are, etc... would
+appeal more to a party leader's base than to the entire network. Conversely,
+tweets in the upper left-hand quadrant indicates tweet topics that are more
+important to the overall network than to the individual network -- which may be
+an indication of those topics spanning partisan divides (topics 2 and 3).
+
+\begin{figure}
+    \centering
+    \begin{tabular}{cc}
+    \includegraphics[width=0.40\textwidth]{Figures/sum_opposing_centrality_chart_(mean_of_leaders)} &
+    \includegraphics[width=0.40\textwidth]{Figures/mean_opposing_centrality_chart_(mean_of_leaders)} \\
+    (a)  \textbf{$\hat{T}$} by \textbf{$\hat{P}$} & (b) \textbf{$\overline{T}$} by \textbf{$\overline{P}$} \\[6pt]
+    \multicolumn{2}{c}{\includegraphics[width=0.40\textwidth]{Figures/zscore_opposing_centrality_chart_(mean_of_leaders)}}\\
+    \multicolumn{2}{c}{(c) \textbf{$\stackrel{z}{T}$} by \textbf{$\stackrel{z}{P}$}}
+    \end{tabular}
+    \caption[$\textbf{T}$ aggregates in relation to $\textbf{P}$ (party leader average)]{$\textbf{T}$ aggregates in relation to $\textbf{P}$ (party leader average)}
+    \label{fig:topic_centrality_combined}
+\end{figure}
+
+
+\begin{center}
+    % \caption{Topic Centrality Measure Results}
+    \label{fig:tab_topic_cent_results}\begin{small}
+        \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|} \hline
+        % \multicolumn{1}{|c|}{}  & \multicolumn{3}{|c|}{\specialcell{Total Network\\Topic Centrality}} & \multicolumn{3}{|c|}{\specialcell{Andrew Scheer}} & \multicolumn{3}{|c|}{\specialcell{Elizabeth May}} \\ 
+        % \hline
+        Topic                   & \textbf{$\hat{T}$} & \textbf{$\overline{T}$} & \textbf{$\stackrel{z}{T}$} & \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}\\
+        \hline
+        1 & 0.779   & 0.001 & -0.486    & 0.726     & \textbf{0.015} & \textbf{0.438}     & \textbf{6.566} & \textbf{0.019} & 0.216     \\  
+        \hline
+        2 & 9.034   & \textbf{0.007} & 0.395     & 8.947     & 0.014 & -0.024    & 1.074 & 0.017 & -0.110    \\  
+        \hline
+        3 & \textbf{10.263}  & \textbf{0.007} & \textbf{0.402}     & \textbf{10.176}    & 0.014 & -0.148    & 7.097 & 0.018 & -0.090    \\ 
+        \hline
+        4 & 8.719   & 0.004 & -0.106    & 8.500     & \textbf{0.015} & 0.269     & 5.156 & 0.018 & -0.043    \\ 
+        \hline
+        5 & 5.507   & 0.005 & 0.033     & 5.425     & 0.014 & -0.088    & 4.278 & 0.018 & -0.061    \\  
+        \hline
+        6 & 0.519   & 0.001 & -0.580    & 0.380     & 0.013 & -0.703    & 1.490 & 0.018 & -0.082    \\ 
+        \hline
+        7 & 0.153   & 0.002 & -0.387    & 0.145     & \textbf{0.015} & 0.107     & 0.438 & \textbf{0.019} & \textbf{0.218}     \\ 
+        \hline
+        % \multicolumn{1}{|c|}{}  & \multicolumn{3}{|c|}{\specialcell{Jagmeet Singh}} &\multicolumn{3}{|c|}{\specialcell{Justin Trudeau}} &\multicolumn{3}{|c|}{\specialcell{Maxime Bernier}} \\\hline
+        % Topic                   & \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}\\
+        % \hline
+        % 1 & 0.567   & 0.022 & -0.466    & 0.816     & 0.018 & 0.341   & 3.353     & \textbf{0.018} & \textbf{0.386}   \\
+        % \hline
+        % 2 & 3.081 & 0.023   & -0.223    & 2.714     & 0.018 & 0.140   & 5.441     & 0.017 & -0.117  \\
+        % \hline
+        % 3 & 2.219 & 0.022   & -0.395    & 0.515     & 0.017 & 0.036   & 3.493     & 0.017 & -0.071  \\
+        % \hline
+        % 4 & \textbf{8.813} & 0.025   & 0.184     & \textbf{17.505}    & 0.017 & 0.067   & 2.458     & 0.017 & 0.158   \\
+        % \hline
+        % 5 & 3.846 & \textbf{0.026} & \textbf{0.306}     & 5.889     & 0.016 & -0.312    & 1.015     & \textbf{0.018} & 0.237   \\
+        % \hline
+        % 6 & 0.460 & 0.021 & -0.619    & 0.558     & 0.017 & -0.052    & \textbf{12.835}    & 0.016 & -0.073  \\
+        % \hline
+        % 7 & 0.419 & 0.021 & -0.611    & 0.316     & \textbf{0.019} & \textbf{0.484}     & 0.224     & 0.017 & -0.033  \\
+        % \hline
+        \end{tabular}
+    \end{small}
+\end{center}
 \section{Discussion}
 
 % RELATE BACK TO PUTNAM -> Talk about how bridging topics != hunky dory kind of
