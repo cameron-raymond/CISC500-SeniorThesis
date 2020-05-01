@@ -574,7 +574,7 @@ would appeal more to a party leader's base than to the entire network.
 Conversely, tweets in the upper left-hand quadrant indicates tweet topics that
 are more important to the overall network than to the individual network --
 which may be an indication of those topics spanning partisan divides (topics 2
-and 3). 
+and 3).
 
 \begin{figure}
     \centering
@@ -589,10 +589,9 @@ and 3).
     \label{fig:topic_centrality_combined}
 \end{figure}
 
-
 \begin{table}
-  \caption{Results of Overloading for 3 Experimental Setups}
-  \label{sample-table}
+  \caption{Topic Centrality Measure Results}
+  \label{fig:tab_topic_cent_results}
   \begin{minipage}{\textwidth}
     \begin{tabular}{lccccccccc} \hline\hline
       \multicolumn{1}{c}{}  & \multicolumn{3}{c}{\specialcell{Total Network\\Topic Centrality}} & \multicolumn{3}{c}{\specialcell{Andrew Scheer}} & \multicolumn{3}{c}{\specialcell{Elizabeth May}} \\ 
@@ -634,6 +633,41 @@ and 3).
     \vspace{-2\baselineskip}
   \end{minipage}
 \end{table}
+
+The full results for the topic centrality measures are in Figure
+\ref{fig:tab_topic_cent_results}. To ensure that the variability in the topic
+centrality means isn't the result of random variation, the Kruskal-Wallis test
+was performed on each set of topic centrality scores. In this context, a
+non-parametric test like the Kruskal-Wallis test is desirable compared to an
+Analysis of Variance (ANOVA) as the eigenvector centrality scores for a topic
+were generally not normally distributed. The total network topic centrality had
+statistically significant variations across different topics at the
+$\alpha=0.0001$ level. Andrew Scheer ($p=3.23*e^{-15}$), Elizabeth May
+($p=0.0007$), Jagmeet Singh ($p=2.07*e^{-12}$), Justin Trudeau
+($p=5.93*e^{-10}$), and Maxime Bernier's ($p=4.76*e^{-6}$) party leader topic
+centrality scores showed significant variations at the $\alpha=0.001$ level.
+What this demonstrates is that the content of the tweet produced has a clear
+impact on the levels of engagement observed, and that this holds true for
+individual party leader's bases as well as the general discourse as a whole. The
+box plots that demonstrate the variability in topic centrality scores, for both
+the total network topic centrality metric and for each party leader's party
+leader topic centrality, are visualized in Figure \ref{fig:topic_cent_box_plots}.
+
+\begin{figure}[h!]
+  \centering
+  \begin{tabular}{ccc}
+  \includegraphics[width=0.33\textwidth]{Figures/total_network_box_plot} &
+  \includegraphics[width=0.33\textwidth]{Figures/AS_box_plot} &
+  \includegraphics[width=0.33\textwidth]{Figures/EM_box_plot} \\
+  (a) Total Network Topic Centrality & (b) Andrew Scheer & (c) Elizabeth May \\[6pt]
+  \includegraphics[width=0.33\textwidth]{Figures/JS_box_plot} &
+  \includegraphics[width=0.33\textwidth]{Figures/JT_box_plot} &
+  \includegraphics[width=0.33\textwidth]{Figures/MB_box_plot} \\
+  (e) Jagmeet Singh & (f) Justin Trudeau & (g) Maxime Bernier \\[6pt]
+  \end{tabular}
+  \caption[Topic Centrality Box Plots]{Topic Centrality Box Plots}
+  \label{fig:topic_cent_box_plots}
+\end{figure}
 
 % STATISTICAL SIGNIFICANCE
 \section{Discussion}
