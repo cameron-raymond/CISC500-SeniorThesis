@@ -4,7 +4,7 @@
 % Copyright (C) 2012 Cambridge University Press
 
 \NeedsTeXFormat{LaTeX2e}
-\newcommand{\specialcell}[2][c]{\begin{tabular}[#1]{@{}l@{}}#2\end{tabular}}
+\newcommand{\specialcell}[2][c]{\begin{oldtabular}[#1]{@{}l@{}}#2\end{oldtabular}}
 
 
 \documentclass{nws}
@@ -17,10 +17,10 @@
   \begin{tabular}{@{}p{10pc}@{}p{20pc}@{}}}
 \newcommand\ecmdtab{\end{tabular}\egroup}
 \newcommand\rch[1]{$\longrightarrow\rlap{$#1$}$\hspace{1em}}
-\newcommand\lra{\ensuremath{\quad\longrightarrow\quad}}
+\newcommand\lra{\ensuremath{\qquad\longrightarrow\qquad}}
 
-\title[Measures of Topic Centrality for Online Political Engagement]
-      {Measures of Topic Centrality for Online Political Engagement}
+\title[Bridging or Bonding? Measures of Topic Centrality for Online Political Engagement]
+      {Bridging or Bonding? Measures of Topic Centrality for Online Political Engagement}
 
  \author[C.J.K Raymond]
         {Cameron Raymond\\
@@ -41,19 +41,20 @@
 \maketitle
 
 \begin{abstract}
-  The advent of social media has enabled political parties to engage with the
+  The advent of social media has enabled political elite to engage with the
   broader populous in new and unforeseen ways -- and the ability to bypass the
   traditional mediating forces of mass media allows for a more direct promotion
   of policy, ideology and party stances. This has prompted questions as to how
-  different types of messages modulate the overall political discourse, and ask
-  if certain messages carry bonding or bridging characteristics. Drawing on
-  Twitter data leading up to the 2019 Canadian Federal Election, the notion of
-  engagement graphs are introduced and two novel, graph-based metrics of topic
-  centrality  -- one which measures how central a topic was to the general
-  discourse, and one which measures how central a topic was to a particular
-  voting bloc -- are developed. Statistically significant variations in topic
-  centrality are then shown, and their implications for political polarization
-  are discussed.
+  different types of messages modulate the overall political discourse, and if
+  certain categories of messages carry bridging or bonding characteristics.
+  Drawing on Twitter data leading up to the 2019 Canadian Federal Election, the
+  notion of engagement graphs are introduced and two novel, graph-based metrics
+  of topic centrality  -- one which measures how central a topic was to the
+  general discourse, and one which measures how central a topic was to a
+  particular voting bloc -- are developed. Statistically significant variations
+  in topic centrality are then shown, demonstrating the existence of bridging
+  and bonding messages, and their implications for political polarization are
+  discussed.
   \paragraph{Keywords:} \emph{centrality, political communication, social media, topic modeling}
 \end{abstract}
 
@@ -66,33 +67,35 @@ the past decade. As Cogburn and Espinoza-Vasquez argue, Barrack Obama’s 2008
 presidential campaign was a watershed moment in social media campaigning – and
 in the subsequent decade, from Macron to Brexit to the Five Star Movement,
 social media has played an increasing role in how politics is conducted
-\cite{cogburn2011networked}.  The same holds true for Canada, between 2013 and
-2018 the share of Canadian federal media expenditure spent on digital
-advertising rose from 27\% to 65\%, a 140\% increase, making the study of new
-media critical from a social science perspective
+\cite{manucci2018wind,cogburn2011networked}.  The same holds true for Canada,
+between 2013 and 2018 the share of Canadian federal media expenditure spent on
+digital advertising rose from 27\% to 65\%, a 140\% increase, making the study
+of new media critical from a social science perspective
 \cite{annualReportCanadaAdvertisingActivities_2018}. Over the past 12 years,
 political elites have subverted traditional models of political communication by
 using social media to directly promote various policies, topics and issues to
-the electorate\footnote{The
-terms policy, issue and topic will be used interchangeably to refer to
-categories of messages.}\cite{mcnair2017introduction}.
+the electorate\footnote{The terms policy, issue and topic will be used
+interchangeably to refer to categories of
+messages.}\cite{mcnair2017introduction}.
 
 Additionally, it is important to note that not all messages promoted by
-political elites are likely to serve the same purpose. Some topics may be
-logistical in nature, informing party affiliates of campaign events; other
-topics may be promoted in an attempt to rally that party's core voting bloc;
-others, finally, may be an attempt to attract engagement from new, untapped
-demographics \cite{shah2007campaign}. The latter two categories are in many ways
-analogous to Robert Putnam's conception of social capital
-\cite{putnam2000bowling}. Here, Putnam draws the distinction between two forms
-of social capital: bonding social capital, which occurs within a group -- and
-bridging social capital, which unites different demographics
-\cite{putnam2000bowling}. Hofer and Aubert note that usage of Twitter had some
-affect on perceived amounts of bridging social capital, and Miller et al.'s
-findings suggest positive correlates between social media usage and political
-activity \cite{hofer2013perceived,miller2015talking}. However, no research has
-touched on how different types of messaging affect the bridging or bonding
-capabilities of social media, and how this relates to political media.
+political elites are likely to serve the same purpose. As Schipper and Woo note
+— dog whistles, micro-targeting, and persuasion games are often a part of
+electoral politics \cite{schipper2018political}. Some topics may be logistical
+in nature, informing party affiliates of campaign events; other topics may be
+promoted in an attempt to rally that party's core voting bloc; others, finally,
+may be an attempt to attract engagement from new, untapped demographics
+\cite{shah2007campaign}. The latter two categories are in many ways analogous to
+Robert Putnam's conception of social capital, which Putnam describes as the idea
+that ``social networks have value.'' \cite{putnam2000bowling}. Here, Putnam
+draws the distinction between two forms of social capital: the bonding type,
+which occurs within a group -- and the bridging type, which spans different
+demographics \cite{putnam2000bowling}. Hofer and Aubert note that usage of
+Twitter had some affect on perceived amounts of bridging social capital, and
+Miller et al.'s findings suggest positive correlates between social media usage
+and political activity \cite{hofer2013perceived,miller2015talking}. However, no
+research has touched on how different types of messaging affect the bridging or
+bonding capabilities of social media, and how this relates to political media.
 Therefore, the research question being proposed is: are their data to support
 the notion that some political messages are bonding in nature, rallying members
 within a group, while other political messages are bridging in nature? This
@@ -126,7 +129,7 @@ politicians \cite{cross2004contours}. As Carty put it:
   continuously grown, reshaped and defended by its politicians.\cite{carty2010political}
 \end{quote}
 
-Thus, it is not surprising that Canada’s electoral system
+Thus, it is not surprising that Canada’s political system
 encourages electoral pragmatism – and developed large, ``big tent'' parties that
 are among the most organizationally weak and decentralized of established
 democracies \cite{cross2004contours}. This system defines political parties as brokers of the often
@@ -142,11 +145,11 @@ cleavages have given birth to what’s been coined the brokerage party system
 electoral districts means that most parties have to take stances on most issues,
 and thus when a user engages with a specific issue, it doesn’t necessarily
 invoke a specific party or vice versa \cite{franklin1992decline}. This makes Canada a preferable case
-relative to systems with smaller, single-issue parties. Canadian political
-parties are forced to decide to what degree they will bridge different
-demographics, risking potentially fracturing their base, and to what degree they
-will appeal to a core group of voters, risking segmenting the voting population
-to their detriment \cite{franklin1992decline}. 
+relative to systems with smaller, single-issue parties. The relative lack of
+ideological constraints mean Canadian politicians are forced to decide when to
+expand their voter base, risking fragmentation, and when to appeal to their
+existing supporters, potentially segmenting off parts of the electorate
+\cite{schipper2018political,franklin1992decline}. 
 
 \subsection{Content as a ``First-Class Citizen''}
 
@@ -155,7 +158,7 @@ axes of political engagement, the question then is: how do we observe and
 interrogate this landscape? Social media data, culled from platforms like
 Twitter, are inherently relational -- and thus lend themselves well to being
 represented as graphs. An empirical analysis that observes and measures how
-users behave and engage with political parties online privileges this relational
+users behave and engage with political elite online privileges this relational
 aspect of social media. Social network analysis helps avoid the pitfalls of
 survey data, famously described by Allen Barton as “a sociological meat grinder,
 tearing the individual from [their] social context”
@@ -163,16 +166,16 @@ tearing the individual from [their] social context”
 social networks, online or otherwise, such research generally focuses on
 connections between individuals (\emph{User A} is connected to \emph{User B})
 and rarely acknowledges the context with which engagement occurs
-\cite{Zhang2017FindingCU,kavanaugh2002community,hofer2013perceived,miller2015talking}. In an online environment,
-certain users may engage with certain content producers when they produce
-certain forms of content, but choose not to engage with that same producer if
-the subject matter differs. As such, more nuanced graph models are needed and
-developed that acknowledge the importance of the producer of the content
-\emph{as well as the content itself} in shaping engagement. Content holds an
-especially important role in online mediums, where users have a more granular
-ability to control the content they expose themselves to. This theoretical
-underpinning allows for a more nuanced analysis and in doing so makes content a
-``first-class citizen.''
+\cite{Zhang2017FindingCU,kavanaugh2002community,hofer2013perceived,miller2015talking}.
+In an online environment, certain users may engage with certain content
+producers when they produce certain forms of content, but choose not to engage
+with that same producer if the subject matter differs. As such, more nuanced
+graph models are needed and developed that acknowledge the importance of the
+producer of the content \emph{as well as the content itself} in shaping
+engagement. Content holds an especially important role in online mediums, where
+users have a granular ability to control what they expose themselves to. This
+theoretical underpinning allows for a more nuanced analysis and in doing so
+makes content a ``first-class citizen.''
 
 
 \section{Methods}
@@ -184,14 +187,14 @@ The novel dataset used was collected via Twitter's historical search application
 programming interface (API), which allows user's to programmatically access any
 publicly available tweet. The API was used to collect all of the
 English\footnote{Denoted by a language marker in the historical search API.}
-tweets from Canada's five, english speaking party leaders: Andrew Scheer,
+tweets from Canada's five, English speaking party leaders: Andrew Scheer,
 Elizabeth May, Jagmeet Singh, Justin Trudeau, and Maxime Bernier. The timeframe
 of collection ranges from October 21, 2018 to October 21, 2019 -- the eve of
 Canada’s federal election. While the tweets from each Federal party’s official
 Twitter accounts were also collected, they predominantly acted as logistical
 tools – informing party affiliates of events and rallies. The personal accounts
 for party leaders were generally more pertinent to their beliefs, platforms and
-style of rhetoric, and thus are better suited do analyze the bridging versus
+style of rhetoric, and thus are better suited to analyze the bridging versus
 bonding nature of various topics. In this spirit, only tweets of the party
 leader were used, excluding retweets. Figure \ref{fig:tweets_over_time}
 visualizes the daily and cumulative number of tweets over time, in aggregate and
@@ -215,7 +218,7 @@ aggregate and by party leader in Figure \ref{fig:retweets_over_time}.
   \label{fig:retweets_over_time}
 \end{figure}
 
-Additionally, given the inherent noise and extraneous info in text data, it is
+Given the inherent noise and extraneous info in text data, it is
 standard and necessary to preprocess text before modeling
 \cite{sapul2017trending}. The text cleaning pipeline removes punctuation marks,
 stop words, words with fewer than three characters, and URLs, as well as common
@@ -235,18 +238,18 @@ day canada}.
 
 \subsubsection{Engagement Graph}
 
-The networks considered in this paper are assumed to be connected, unweighted,
-and undirected. Let $(V,E)$ be a network, where $V$ is the set of vertices and
-$E$ is the set of edges. If vertex $v_1$ is connected to vertex $v_2$, it is
-denoted by $(v_1,v_2)\in E$. Engagement graph's are defined with additional
-constraints that denote three categories of vertices: those that \emph{produce
-objects} (Tweets, songs, goods, services, \etc), those that represent the
-objects produced, and a third set of vertices that chooses to engage with the
-various produced objects in the network. In this context the engagement graph
-represents the tweets that party leaders produce, and the general users who
-choose which tweets to retweet. An example of this type of political engagement
-graph is shown in Figure \ref{fig:ex_engagement_graph}. More formally the
-political engagement graph is defined below:
+The networks considered in this paper are connected, unweighted, and undirected.
+Let $(V,E)$ be a network, where $V$ is the set of vertices and $E$ is the set of
+edges. If vertex $v_1$ is connected to vertex $v_2$, it is denoted by
+$(v_1,v_2)\in E$. Engagement graph's are defined with additional constraints
+that denote three categories of vertices: those that \emph{produce objects}
+(Tweets, songs, goods, services, \etc), those that represent the objects
+produced, and a third set of vertices that chooses to engage with the various
+produced objects in the network. In this context the engagement graph represents
+the tweets that party leaders produce, and the general users who choose which
+tweets to engage with. An example of this type of political engagement graph is
+shown in Figure \ref{fig:ex_engagement_graph}. More formally, the political
+engagement graph is defined below:
 
 \begin{itemize}
   \item \emph{Vertices}: Let $V_{1}=\{v_{1},v_{2},\dots\}$ be the set of
@@ -285,14 +288,13 @@ of edges from tweet vertices to general user vertices.} built with these constra
 
 \subsection{Topic Modeling}
 
-In order to evaluate the relative importance of various political messages in
-driving political engagement on Twitter, all the tweets collected must first be
-organized by topic. Given the size of the data, manually coding each label is
-inefficient as well as subject to individual biases. As a result, there is a
-need for techniques that autonomously organize big, unclassified corpuses of
-text. 
+In order to evaluate the bridging and bonding characteristics of various
+political messages on Twitter, the tweets collected must first be organized by
+topic. Given the size of the data, manually coding each label is inefficient as
+well as subject to individual biases. As a result, there is a need for
+techniques that autonomously organize big, unclassified corpuses of text. 
 
-Topic modeling methods finds clusters of words that frequently occur together
+Topic modeling methods find clusters of words that frequently occur together
 (topics), connects words with similar meanings, and distinguishes different uses
 of words with multiple meanings \cite{alghamdi2015survey}. This is based on the
 underlying assumption that a document is concerned with a fixed set of topics,
@@ -327,14 +329,15 @@ modeled as words; and $k$ -- which is the number of topics to be modeled
 \end{figure}
 
 By performing a parameter sweep, where $\alpha$ and $\beta$ lie on the interval
-$[0, 1]$ with increments of 0.05, and $k$ ranges between $4$ and $7$, various
-LDAs were exposed to the entire corpus of tweets and then evaluated using $c\_v$
-coherence. Figure \ref{fig:lda_param_sweep} shows, for each $k$ value, the $c\_v$ coherence as a
-function of different combinations of $\alpha$ and $\beta$. The most performant
-model had a $k$ value of 7, $\alpha$ of 0.31 and $\beta$ of 0.81 and a $c\_v$
-coherence score of 0.48. By labelling each tweet as the maximum probability
-value in its topic mixture, each tweet was assigned a single topic. The word
-clouds for each topic are described in Figure \ref{fig:topic_word_clouds}.
+$[0, 1]$ with increments of 0.05, and $k$ ranging from 4 and 7, various LDAs
+were exposed to the entire corpus of tweets and then evaluated using $c\_v$
+coherence. Figure \ref{fig:lda_param_sweep} shows, for each $k$ value, the
+$c\_v$ coherence as a function of different combinations of $\alpha$ and
+$\beta$. The most performant model had a $k$ value of 7, $\alpha$ of 0.31 and
+$\beta$ of 0.81 and a $c\_v$ coherence score of 0.48. By labelling each tweet as
+the maximum probability value in its topic mixture, each tweet was assigned a
+single topic. The word clouds for each topic are described in Figure
+\ref{fig:topic_word_clouds}.
 
 \begin{figure}[h!]
     \centering
@@ -357,8 +360,8 @@ Topic 1 pertained to campaign messages, rallies and logistics – and makes up
 8.2\% of all tweets. Topic 2 contains tweets regarding a carbon tax, pipelines
 and the economy – and makes up 16.3\% of all tweets. Topic 3 contains tweets
 about the SNC Lavalin affair, a scandal that plagued Justin Trudeau, and tweets
-about corruption – making up 18\% of all tweets. Topic 4 is predominantly tweets
-appealing to the middle-class and economy – and is 29.7\% of all tweets. Topic 5
+about corruption – making up 18\% of all tweets. Topic 4 is predominantly
+appeals to the middle-class and economy – and is 29.7\% of all tweets. Topic 5
 contains celebratory messages about the campaign, as well as tweets regarding
 national holidays and days of remembrance – and make up 15\% of all tweets.
 Topic 6 is made up of tweets about immigration, diversity and free speech – and
@@ -380,21 +383,22 @@ magnitude of how many tweets were assigned to each topic is shown in Figure
 
 As can be seen by part (b) of Figure \ref{fig:topic_distribution} -- while Topic
 6, tweets pertaining to diversity and immigration, only made up 11.5\% of all
-Tweets they made up the majority of Maxime Bernier's tweets. This signals an
-attempt on his part to bring these topics to the forefront of the debate despite
-few other party leader's broaching the topic. Additionally, Andrew Scheer and
-Elizabeth May's campaigns relied heavily on topic 3, the SNC Lavalin affair,
-with a disproportionate number of tweets aimed at Justin Trudeau's handling of
-the affair. Finally, it can be noted that Maxime Bernier and Andrew Scheer also
-had a disproportionate number of tweets pertaining to topic 2 -- rebutting
-Justin Trudeau's plan to implement a carbon tax, and arguing for greater access
-to Alberta's Oil Sands. While an initial assumption may be that each party
-tailors such messages to maximize engagement, that remains to be seen without a
-more rigorous analysis of how different segments or the electorate as a whole
-engaged with each category of message. By assigning each tweet vertex to a topic
-and then coloring the tweet vertices accordingly, the full engagement graph
-(Figure \ref{fig:engagement_graph}) for online political content is complete and
-ready for analysis. 
+Tweets they made up the majority of Maxime Bernier's. This signals an attempt on
+his part to bring these topics to the forefront of the debate despite few other
+party leader's broaching the topic. Additionally, Andrew Scheer and Elizabeth
+May's campaigns relied heavily on topic 3, the SNC Lavalin affair, with a
+disproportionate number of tweets aimed at Justin Trudeau's handling of the
+affair. Finally, it can be noted that Maxime Bernier and Andrew Scheer also had
+a disproportionate number of tweets pertaining to topic 2 -- rebutting Justin
+Trudeau's plan to implement a carbon tax, and arguing for greater access to
+Alberta's Oil Sands. In Schipper and Woo's model for political messaging, an
+initial assumption is that each party leader tailors their messages to appeal
+to various demographics; however, that remains to be seen without a more
+rigorous analysis of how the electorate engage with each category of message
+\cite{schipper2018political}. By assigning each tweet vertex to a topic and then
+coloring the tweet vertices accordingly, the full engagement graph (Figure
+\ref{fig:engagement_graph}) for online political content is complete and ready
+for analysis. 
 
 \begin{figure}[h!]
   \centering
@@ -405,19 +409,19 @@ ready for analysis.
 
 \subsection{Topic Centrality}
 
-Descriptive statistics in Figure \ref{fig:topic_distribution} show the frequency
+Descriptive figures like Figure \ref{fig:topic_distribution} show the frequency
 with which tweets of different topics were promoted by Canadian party leaders
 leading up to a major election. However, these Figures say little about how
 different policies rallied groups of existing supporters, or bridged different
-voting blocs. In order to answer such questions -- a measure of vertex
-centrality, eigenvector centrality, is expanded upon. The result are two
-variations of topic centrality: total network topic centrality and party
-leader topic centrality. By juxtaposing the two, various insights about how
-different topics influenced discourse can be derived.
+voting blocs. In order to answer such questions – the metric eigenvector
+centrality is expanded upon. The result are two variations of topic centrality:
+total network topic centrality and party leader topic centrality. By juxtaposing
+the two, various insights about how different topics influenced discourse can be
+derived.
 
 \subsubsection{Eigenvector Centrality}
 
-Research concerning the centrality of vertices in a graph has successfully been
+Research concerning the centrality of vertices in a graph have successfully been
 applied to problems in marketing, economics and epidemiology; Stephenson and
 Zelen explored the utility of centrality measures in studying the social
 dynamics of Gelada baboons \cite{stephenson1989rethinking}. Common centrality
@@ -474,16 +478,19 @@ When taking the aggregate (sum, mean, z-score relative to other topics), a
 single number can be assigned to the relative importance of topic $t$. And in
 keeping with the strengths of eigenvector centrality, $T_{t}$ will be larger if:
 those tweets are retweeted a lot, and if they're retweeted by \emph{highly
-engaged} users. This provides a nuanced metric for how central different issues
-were to the entire online discourse. 
+engaged} users. This is a desirable aspect as highly engaged users are more
+likely  share content, attend a political rally and vote
+\cite{miller2015talking}. Therefore, total network topic centrality provides a
+nuanced metric for how central different issues were to the entire online
+discourse. 
 
 \subsubsection{Party Leader Topic Centrality}
 
 In order to measure how central a topic is to a party leader's base, party
 leader topic centrality was developed. This assumes a world in which party
-leader $j$ is the only actor with which generic users can engage with. This is
+leader $j$ is the only actor with which general users can engage with. This is
 done by taking a subgraph of $G$ -- $G_{j}$ -- which only contains party leader
-$j$, all of $j$'s tweets, $I$, and all edges from $i\in I$ to the generic users
+$j$, all of $j$'s tweets, $I$, and all edges from $i\in I$ to the general users
 who retweeted one of $j$'s tweets. An example of this is in part (b) of Figure
 \ref{fig:engagment_and_subgraph}, which demonstrates the subgraph for Jagmeet
 Singh. 
@@ -506,11 +513,12 @@ on that party leader's content.
 
 \section{Results}
 
-After calculating $\textbf{T}=\{T_{t}, \forall i \in topics\}$\footnote{$topics$
-refers to the seven topics that tweets could be assigned to.} and $\textbf{P}=\{P_{tj}, \forall i \in
-topics\:and\:\forall j \in party\_leaders\}$\footnote{$party\_leaders$ refers to
-the five Canadian Federal party leaders whose tweets were collected.}, each individual centrality measure, $T_{t} \in
-\textbf{T}$ and $P_{tj}\in \textbf{P}$, can be summated
+After calculating $\textbf{T}=\{T_{t}, \forall t \in topics\}$\footnote{$topics$
+refers to the seven topics that tweets could be assigned to.} and
+$\textbf{P}=\{P_{tj}, \forall t \in topics,\forall j \in
+party\_leaders\}$\footnote{$party\_leaders$ refers to the five Canadian Federal
+party leaders whose tweets were collected.}, each individual centrality measure,
+$T_{t} \in \textbf{T}$ and $P_{tj}\in \textbf{P}$, can be summated
 ($\hat{T_{t}}$/$\hat{P_{tj}}$), have it's mean calculated
 ($\overline{T}_{t}$/$\overline{P}_{tj}$), or have it's z-score taken relative to
 other topics in its set\footnote{For the party leader topic centrality, the
@@ -543,7 +551,7 @@ with \textbf{$\overline{T}$} by \textbf{$\overline{P}$}; while Maxime Bernier
 promoted a large number of tweets regarding immigration, free speech and
 diversity as indicated by a high $\hat{P}_{6M}$ -- these tweets gained little
 traction overall in the entire network ($\stackrel{z}{T_{6}}$) as well as
-compared to other topics Bernier tweeted about $\stackrel{z}{P}_{6M}$.
+compared to other topics Bernier tweeted about ()$\stackrel{z}{P}_{6M}$).
 Additionally, despite the relatively few tweets pertaining to health care and
 pharmacare (topic 7), and the low total network centrality score
 ($\stackrel{z}{T_{7}}$), they were disproportionately important to Justin
@@ -559,13 +567,14 @@ leader. This is shown in Figure \ref{fig:topic_centrality_combined}. Here it is
 most insightful to look at \textbf{$\stackrel{z}{T}$} by
 \textbf{$\stackrel{z}{P}$}, specifically in the lower right-hand quadrant and
 upper left-hand quadrant. The former indicates tweet topics that are more
-important to a party leader's base than to the entire network (topics 7 and 1).
-Topic 1 -- campaign dynamics -- intuitively makes sense in this category; it is
-not surprising that messages about the campaign, where rallies are, \etc would
-appeal more to a party leader's base than to the entire network. Conversely,
-tweets in the upper left-hand quadrant indicates tweet topics that are more
-important to the overall network than to the individual network -- which may be
-an indication of those topics spanning partisan divides (topics 2 and 3).
+important to a party leader's base than to the entire network (topics 7, 4 and
+1). Topic 1 -- campaign dynamics -- intuitively makes sense in this category; it
+is not surprising that messages about the campaign, where rallies are, \etc
+would appeal more to a party leader's base than to the entire network.
+Conversely, tweets in the upper left-hand quadrant indicates tweet topics that
+are more important to the overall network than to the individual network --
+which may be an indication of those topics spanning partisan divides (topics 2
+and 3). 
 
 \begin{figure}
     \centering
@@ -580,48 +589,51 @@ an indication of those topics spanning partisan divides (topics 2 and 3).
     \label{fig:topic_centrality_combined}
 \end{figure}
 
-% \begin{center}
-%     % \caption{Topic Centrality Measure Results}
-%     \label{fig:tab_topic_cent_results}\begin{small}
-%         \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|} \hline
-%         % \multicolumn{1}{|c|}{}  & \multicolumn{3}{|c|}{\specialcell{Total Network\\Topic Centrality}} & \multicolumn{3}{|c|}{\specialcell{Andrew Scheer}} & \multicolumn{3}{|c|}{\specialcell{Elizabeth May}} \\ 
-%         % \hline
-%         Topic                   & \textbf{$\hat{T}$} & \textbf{$\overline{T}$} & \textbf{$\stackrel{z}{T}$} & \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}\\
-%         \hline
-%         1 & 0.779   & 0.001 & -0.486    & 0.726     & \textbf{0.015} & \textbf{0.438}     & \textbf{6.566} & \textbf{0.019} & 0.216     \\  
-%         \hline
-%         2 & 9.034   & \textbf{0.007} & 0.395     & 8.947     & 0.014 & -0.024    & 1.074 & 0.017 & -0.110    \\  
-%         \hline
-%         3 & \textbf{10.263}  & \textbf{0.007} & \textbf{0.402}     & \textbf{10.176}    & 0.014 & -0.148    & 7.097 & 0.018 & -0.090    \\ 
-%         \hline
-%         4 & 8.719   & 0.004 & -0.106    & 8.500     & \textbf{0.015} & 0.269     & 5.156 & 0.018 & -0.043    \\ 
-%         \hline
-%         5 & 5.507   & 0.005 & 0.033     & 5.425     & 0.014 & -0.088    & 4.278 & 0.018 & -0.061    \\  
-%         \hline
-%         6 & 0.519   & 0.001 & -0.580    & 0.380     & 0.013 & -0.703    & 1.490 & 0.018 & -0.082    \\ 
-%         \hline
-%         7 & 0.153   & 0.002 & -0.387    & 0.145     & \textbf{0.015} & 0.107     & 0.438 & \textbf{0.019} & \textbf{0.218}     \\ 
-%         \hline
-%         \multicolumn{1}{|c|}{}  & \multicolumn{3}{|c|}{\specialcell{Jagmeet Singh}} &\multicolumn{3}{|c|}{\specialcell{Justin Trudeau}} &\multicolumn{3}{|c|}{\specialcell{Maxime Bernier}} \\\hline
-%         Topic                   & \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} & \textbf{$\overline{P}$} & \textbf{$\stackrel{z}{P}$}\\
-%         \hline
-%         1 & 0.567   & 0.022 & -0.466    & 0.816     & 0.018 & 0.341   & 3.353     & \textbf{0.018} & \textbf{0.386}   \\
-%         \hline
-%         2 & 3.081 & 0.023   & -0.223    & 2.714     & 0.018 & 0.140   & 5.441     & 0.017 & -0.117  \\
-%         \hline
-%         3 & 2.219 & 0.022   & -0.395    & 0.515     & 0.017 & 0.036   & 3.493     & 0.017 & -0.071  \\
-%         \hline
-%         4 & \textbf{8.813} & 0.025   & 0.184     & \textbf{17.505}    & 0.017 & 0.067   & 2.458     & 0.017 & 0.158   \\
-%         \hline
-%         5 & 3.846 & \textbf{0.026} & \textbf{0.306}     & 5.889     & 0.016 & -0.312    & 1.015     & \textbf{0.018} & 0.237   \\
-%         \hline
-%         6 & 0.460 & 0.021 & -0.619    & 0.558     & 0.017 & -0.052    & \textbf{12.835}    & 0.016 & -0.073  \\
-%         \hline
-%         7 & 0.419 & 0.021 & -0.611    & 0.316     & \textbf{0.019} & \textbf{0.484}     & 0.224     & 0.017 & -0.033  \\
-%         \hline
-%         \end{tabular}
-%     \end{small}
-% \end{center}
+
+\begin{table}
+  \caption{Results of Overloading for 3 Experimental Setups}
+  \label{sample-table}
+  \begin{minipage}{\textwidth}
+    \begin{tabular}{lccccccccc} \hline\hline
+      \multicolumn{1}{c}{}  & \multicolumn{3}{c}{\specialcell{Total Network\\Topic Centrality}} & \multicolumn{3}{c}{\specialcell{Andrew Scheer}} & \multicolumn{3}{c}{\specialcell{Elizabeth May}} \\ 
+      \hline
+      Topic                   {\quad}& \textbf{$\hat{T}$} {\quad}& \textbf{$\overline{T}$} {\quad}& \textbf{$\stackrel{z}{T}$} {\quad}& \textbf{$\hat{P}$} {\quad}& \textbf{$\overline{P}$} {\quad}& \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} {\quad}& \textbf{$\overline{P}$} {\quad}& \textbf{$\stackrel{z}{P}$}\\
+      \hline
+      1 {\quad}& 0.779  {\quad}& 0.001 {\quad}& -0.486    {\quad}& 0.726     {\quad}& \textbf{0.015}\footnote{Bold figures represent the maxima for that metric.} {\quad}& \textbf{0.438}     {\quad}& \textbf{6.566} {\quad}& \textbf{0.019} {\quad}& 0.216     \\  
+      \hline
+      2 {\quad}& 9.034   {\quad}& \textbf{0.007} {\quad}& 0.395     {\quad}& 8.947     {\quad}& 0.014 {\quad}& -0.024    {\quad}& 1.074 {\quad}& 0.017 {\quad}& -0.110    \\  
+      \hline
+      3 {\quad}& \textbf{10.263}  {\quad}& \textbf{0.007} {\quad}& \textbf{0.402}     {\quad}& \textbf{10.176}    {\quad}& 0.014 {\quad}& -0.148    {\quad}& 7.097 {\quad}& 0.018 {\quad}& -0.090    \\ 
+      \hline
+      4 {\quad}& 8.719   {\quad}& 0.004 {\quad}& -0.106    {\quad}& 8.500     {\quad}& \textbf{0.015} {\quad}& 0.269     {\quad}& 5.156 {\quad}& 0.018 {\quad}& -0.043    \\ 
+      \hline
+      5 {\quad}& 5.507   {\quad}& 0.005 {\quad}& 0.033     {\quad}& 5.425     {\quad}& 0.014 {\quad}& -0.088    {\quad}& 4.278 {\quad}& 0.018 {\quad}& -0.061    \\  
+      \hline
+      6 {\quad}& 0.519   {\quad}& 0.001 {\quad}& -0.580    {\quad}& 0.380     {\quad}& 0.013 {\quad}& -0.703    {\quad}& 1.490 {\quad}& 0.018 {\quad}& -0.082    \\ 
+      \hline
+      7 {\quad}& 0.153   {\quad}& 0.002 {\quad}& -0.387    {\quad}& 0.145     {\quad}& \textbf{0.015} {\quad}& 0.107     {\quad}& 0.438 {\quad}& \textbf{0.019} {\quad}& \textbf{0.218}     \\ 
+      \hline
+      \multicolumn{1}{c}{}  & \multicolumn{3}{c}{\specialcell{Jagmeet Singh}} &\multicolumn{3}{c}{\specialcell{Justin Trudeau}} &\multicolumn{3}{c}{\specialcell{Maxime Bernier}} \\\hline
+      Topic                   {\quad}& \textbf{$\hat{P}$} {\quad}& \textbf{$\overline{P}$} {\quad}& \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} {\quad}& \textbf{$\overline{P}$} {\quad}& \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} {\quad}& \textbf{$\overline{P}$} {\quad}& \textbf{$\stackrel{z}{P}$}\\
+      \hline
+      1 {\quad}& 0.567   {\quad}& 0.022 {\quad}& -0.466    {\quad}& 0.816     {\quad}& 0.018 {\quad}& 0.341   {\quad}& 3.353     {\quad}& \textbf{0.018} {\quad}& \textbf{0.386}   \\
+      \hline
+      2 {\quad}& 3.081 {\quad}& 0.023   {\quad}& -0.223    {\quad}& 2.714     {\quad}& 0.018 {\quad}& 0.140   {\quad}& 5.441     {\quad}& 0.017 {\quad}& -0.117  \\
+      \hline
+      3 {\quad}& 2.219 {\quad}& 0.022   {\quad}& -0.395    {\quad}& 0.515     {\quad}& 0.017 {\quad}& 0.036   {\quad}& 3.493     {\quad}& 0.017 {\quad}& -0.071  \\
+      \hline
+      4 {\quad}& \textbf{8.813} {\quad}& 0.025   {\quad}& 0.184     {\quad}& \textbf{17.505}    {\quad}& 0.017 {\quad}& 0.067   {\quad}& 2.458     {\quad}& 0.017 {\quad}& 0.158   \\
+      \hline
+      5 {\quad}& 3.846 {\quad}& \textbf{0.026} {\quad}& \textbf{0.306}     {\quad}& 5.889     {\quad}& 0.016 {\quad}& -0.312    {\quad}& 1.015     {\quad}& \textbf{0.018} {\quad}& 0.237   \\
+      \hline
+      6 {\quad}& 0.460 {\quad}& 0.021 {\quad}& -0.619    {\quad}& 0.558     {\quad}& 0.017 {\quad}& -0.052    {\quad}& \textbf{12.835}    {\quad}& 0.016 {\quad}& -0.073  \\
+      \hline
+      7 {\quad}& 0.419 {\quad}& 0.021 {\quad}& -0.611    {\quad}& 0.316     {\quad}& \textbf{0.019} {\quad}& \textbf{0.484}     {\quad}& 0.224     {\quad}& 0.017 {\quad}& -0.033  \\
+      \hline
+      \end{tabular}
+    \vspace{-2\baselineskip}
+  \end{minipage}
+\end{table}
 
 % STATISTICAL SIGNIFICANCE
 \section{Discussion}
