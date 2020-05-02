@@ -53,7 +53,7 @@
   general discourse, and one which measures how central a topic was to a
   particular voting bloc -- are developed. Statistically significant variations
   in topic centrality are then shown, demonstrating the existence of bridging
-  and bonding messages, and their implications for political polarization are
+  and bonding messages. Their implications for political polarization are then
   discussed.
   \paragraph{Keywords:} \emph{centrality, political communication, social media, topic modeling}
 \end{abstract}
@@ -91,17 +91,18 @@ that ``social networks have value.'' \cite{putnam2000bowling}. Here, Putnam
 draws the distinction between two forms of social capital: the bonding type,
 which occurs within a group -- and the bridging type, which spans different
 demographics \cite{putnam2000bowling}. Hofer and Aubert note that usage of
-Twitter had some affect on perceived amounts of bridging social capital, and
-Miller et al.'s findings suggest positive correlates between social media usage
-and political activity \cite{hofer2013perceived,miller2015talking}. However, no
-research has touched on how different types of messaging affect the bridging or
-bonding capabilities of social media, and how this relates to political media.
-Therefore, the research question being proposed is: are their data to support
-the notion that some political messages are bonding in nature, rallying members
-within a group, while other political messages are bridging in nature? This
-question will be answered within the context of the 2019 Canadian Federal
-Election with the tweets of Canada’s five major, english speaking party leaders:
-Andrew Scheer, Elizabeth May, Jagmeet Singh, Justin Trudeau, and Maxime Bernier.
+Twitter had some affect on perceived amounts of bridging social capital
+\cite{hofer2013perceived}. As well, Miller et al. and Gil et al.'s findings
+suggest positive correlates between social media usage and political activity
+\cite{miller2015talking,gil2012social}. However, no research has touched on how
+different types of messaging affect the bridging or bonding capabilities of
+social media, and how this relates to political media. Therefore, the research
+question being proposed is: are their data to support the notion that some
+political messages are bonding in nature, rallying members within a group, while
+other political messages are bridging in nature? This question will be answered
+within the context of the 2019 Canadian Federal Election with the tweets of
+Canada’s five major, English speaking party leaders: Andrew Scheer, Elizabeth
+May, Jagmeet Singh, Justin Trudeau, and Maxime Bernier.
 
 
 In order to answer this question, a justification of Canadian politics and
@@ -223,7 +224,7 @@ standard and necessary to preprocess text before modeling
 \cite{sapul2017trending}. The text cleaning pipeline removes punctuation marks,
 stop words, words with fewer than three characters, and URLs, as well as common
 Twitter symbols like ``RT:'', ``@'' and ``\#''. Emojis were converted to text
-using the python package \texttt{emoji}. After this process, all text was
+using the Python package \texttt{emoji}. After this process, all text was
 converted to lower-case and lemmatized to get rid of common suffixes. Therefore,
 the tweet in Figure \ref{fig:tweet_ex} after preprocessing reads: \emph{wherever
 maple leaf fly represents rich history bright future value hold dear happy flag
@@ -243,13 +244,13 @@ Let $(V,E)$ be a network, where $V$ is the set of vertices and $E$ is the set of
 edges. If vertex $v_1$ is connected to vertex $v_2$, it is denoted by
 $(v_1,v_2)\in E$. Engagement graph's are defined with additional constraints
 that denote three categories of vertices: those that \emph{produce objects}
-(Tweets, songs, goods, services, \etc), those that represent the objects
-produced, and a third set of vertices that chooses to engage with the various
-produced objects in the network. In this context the engagement graph represents
-the tweets that party leaders produce, and the general users who choose which
-tweets to engage with. An example of this type of political engagement graph is
-shown in Figure \ref{fig:ex_engagement_graph}. More formally, the political
-engagement graph is defined below:
+(tweets, songs, goods, services, \etc), those that represent the objects
+produced, and a third set of vertices that represent those who choose to
+engage with the various produced objects in the network. In this context the
+engagement graph represents the tweets that party leaders produce, and the
+general users who choose which tweets to engage with. An example of this type of
+political engagement graph is shown in Figure \ref{fig:ex_engagement_graph}.
+More formally, the political engagement graph is defined below:
 
 \begin{itemize}
   \item \emph{Vertices}: Let $V_{1}=\{v_{1},v_{2},\dots\}$ be the set of
@@ -261,7 +262,7 @@ engagement graph is defined below:
   \item \emph{Edges}: Let $E$ be the set of edges. Allow the edge $(v_{1},
   v_{2})\in E$ if and only if $v_{1}\in V_{1}, v_{2}\in V_{2}$ or $v_{1}\in
   V_{3}, v_{2}\in V_{2}$. By this definition, we will only allow edges from a
-  party leader vertex to a tweet vertex, or from a generic user vertex to a
+  party leader vertex to a tweet vertex, or from a general user vertex to a
   tweet vertex.
 \end{itemize}
 
@@ -388,7 +389,7 @@ his part to bring these topics to the forefront of the debate despite few other
 party leader's broaching the topic. Additionally, Andrew Scheer and Elizabeth
 May's campaigns relied heavily on topic 3, the SNC Lavalin affair, with a
 disproportionate number of tweets aimed at Justin Trudeau's handling of the
-affair. Finally, it can be noted that Maxime Bernier and Andrew Scheer also had
+scandal. Finally, it can be noted that Maxime Bernier and Andrew Scheer also had
 a disproportionate number of tweets pertaining to topic 2 -- rebutting Justin
 Trudeau's plan to implement a carbon tax, and arguing for greater access to
 Alberta's Oil Sands. In Schipper and Woo's model for political messaging, an
@@ -409,7 +410,7 @@ for analysis.
 
 \subsection{Topic Centrality}
 
-Descriptive figures like Figure \ref{fig:topic_distribution} show the frequency
+Descriptive measures like Figure \ref{fig:topic_distribution} show the frequency
 with which tweets of different topics were promoted by Canadian party leaders
 leading up to a major election. However, these Figures say little about how
 different policies rallied groups of existing supporters, or bridged different
@@ -460,12 +461,12 @@ all elements of $\vec{x}$ being non-negative \cite{newman2008mathematics}.
   (a) Full Engagement Graph & (b) Political Engagement Subgraph for Jagmeet Singh\\[6pt]
   \end{tabular}
   \caption[Example Engagement Graph and Subgraph]{Example Engagement Graph and Subgraph}
-  \label{fig:engagment_and_subgraph}
+  \label{fig:engagement_and_subgraph}
 \end{figure}
 
 Total network topic centrality is an aggregate of the eigenvector centrality of
 all tweets of a certain topic in the entire engagement graph. For reference,
-this graph has been reproduced in part (a) of Figure \ref{fig:engagment_and_subgraph}. More formally,
+this graph has been reproduced in part (a) of Figure \ref{fig:engagement_and_subgraph}. More formally,
 and with slight abuse of notation, the total network topic centrality of topic
 $t$, $T_{t}$, can be defined as the set of all eigenvector centrality measures for tweet
 vertices of topic $t$ in a graph $G$. 
@@ -479,7 +480,7 @@ single number can be assigned to the relative importance of topic $t$. And in
 keeping with the strengths of eigenvector centrality, $T_{t}$ will be larger if:
 those tweets are retweeted a lot, and if they're retweeted by \emph{highly
 engaged} users. This is a desirable aspect as highly engaged users are more
-likely  share content, attend a political rally and vote
+likely to share content, attend a political rally and vote
 \cite{miller2015talking}. Therefore, total network topic centrality provides a
 nuanced metric for how central different issues were to the entire online
 discourse. 
@@ -492,7 +493,7 @@ leader $j$ is the only actor with which general users can engage with. This is
 done by taking a subgraph of $G$ -- $G_{j}$ -- which only contains party leader
 $j$, all of $j$'s tweets, $I$, and all edges from $i\in I$ to the general users
 who retweeted one of $j$'s tweets. An example of this is in part (b) of Figure
-\ref{fig:engagment_and_subgraph}, which demonstrates the subgraph for Jagmeet
+\ref{fig:engagement_and_subgraph}, which demonstrates the subgraph for Jagmeet
 Singh. 
 
 After the subgraph $G_j$ is constructed, the party leader topic
@@ -506,7 +507,7 @@ for tweet vertices of topic $t$ in a graph $G_{j}$.
 Similarly, by taking the aggregate of $P_{tj}$ a single centrality score can be
 assigned that measures how important topic $t$ was to those who engaged with
 that party leader. This will be higher if it: has a high number of retweets
-and  retweeted by $j$'s \emph{most engaged followers}. Highly engaged users who
+and is retweeted by $j$'s \emph{most engaged followers}. Highly active users who
 rarely engage with that specific party leader are therefore discounted in this
 metric relative to someone who is less engaged, but concentrates their attention
 on that party leader's content. 
@@ -551,7 +552,7 @@ with \textbf{$\overline{T}$} by \textbf{$\overline{P}$}; while Maxime Bernier
 promoted a large number of tweets regarding immigration, free speech and
 diversity as indicated by a high $\hat{P}_{6M}$ -- these tweets gained little
 traction overall in the entire network ($\stackrel{z}{T_{6}}$) as well as
-compared to other topics Bernier tweeted about ()$\stackrel{z}{P}_{6M}$).
+compared to other topics Bernier tweeted about ($\stackrel{z}{P}_{6M}$).
 Additionally, despite the relatively few tweets pertaining to health care and
 pharmacare (topic 7), and the low total network centrality score
 ($\stackrel{z}{T_{7}}$), they were disproportionately important to Justin
@@ -570,11 +571,10 @@ upper left-hand quadrant. The former indicates tweet topics that are more
 important to a party leader's base than to the entire network (topics 7, 4 and
 1). Topic 1 -- campaign dynamics -- intuitively makes sense in this category; it
 is not surprising that messages about the campaign, where rallies are, \etc
-would appeal more to a party leader's base than to the entire network.
-Conversely, tweets in the upper left-hand quadrant indicates tweet topics that
-are more important to the overall network than to the individual network --
-which may be an indication of those topics spanning partisan divides (topics 2
-and 3).
+would  be most important to a party leader's base. Conversely, tweets in the
+upper left-hand quadrant indicates tweet topics that are more important to the
+overall network than to the individual network -- which may be an indication of
+those topics spanning partisan divides (topics 2 and 3).
 
 \begin{figure}
     \centering
@@ -598,7 +598,7 @@ and 3).
       \hline
       Topic                   {\quad}& \textbf{$\hat{T}$} {\quad}& \textbf{$\overline{T}$} {\quad}& \textbf{$\stackrel{z}{T}$} {\quad}& \textbf{$\hat{P}$} {\quad}& \textbf{$\overline{P}$} {\quad}& \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} {\quad}& \textbf{$\overline{P}$} {\quad}& \textbf{$\stackrel{z}{P}$}\\
       \hline
-      1 {\quad}& 0.779  {\quad}& 0.001 {\quad}& -0.486    {\quad}& 0.726     {\quad}& \textbf{0.015}\footnote{Bold figures represent the maxima for that metric.} {\quad}& \textbf{0.438}     {\quad}& \textbf{6.566} {\quad}& \textbf{0.019} {\quad}& 0.216     \\  
+      1 {\quad}& 0.779  {\quad}& 0.001 {\quad}& -0.486    {\quad}& 0.726     {\quad}& \textbf{0.015}\footnote{Bold figures represent the largest value for that metric.} {\quad}& \textbf{0.438}     {\quad}& \textbf{6.566} {\quad}& \textbf{0.019} {\quad}& 0.216     \\  
       \hline
       2 {\quad}& 9.034   {\quad}& \textbf{0.007} {\quad}& 0.395     {\quad}& 8.947     {\quad}& 0.014 {\quad}& -0.024    {\quad}& 1.074 {\quad}& 0.017 {\quad}& -0.110    \\  
       \hline
@@ -611,6 +611,7 @@ and 3).
       6 {\quad}& 0.519   {\quad}& 0.001 {\quad}& -0.580    {\quad}& 0.380     {\quad}& 0.013 {\quad}& -0.703    {\quad}& 1.490 {\quad}& 0.018 {\quad}& -0.082    \\ 
       \hline
       7 {\quad}& 0.153   {\quad}& 0.002 {\quad}& -0.387    {\quad}& 0.145     {\quad}& \textbf{0.015} {\quad}& 0.107     {\quad}& 0.438 {\quad}& \textbf{0.019} {\quad}& \textbf{0.218}     \\ 
+      \hline
       \hline
       \multicolumn{1}{c}{}  & \multicolumn{3}{c}{\specialcell{Jagmeet Singh}} &\multicolumn{3}{c}{\specialcell{Justin Trudeau}} &\multicolumn{3}{c}{\specialcell{Maxime Bernier}} \\\hline
       Topic                   {\quad}& \textbf{$\hat{P}$} {\quad}& \textbf{$\overline{P}$} {\quad}& \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} {\quad}& \textbf{$\overline{P}$} {\quad}& \textbf{$\stackrel{z}{P}$}& \textbf{$\hat{P}$} {\quad}& \textbf{$\overline{P}$} {\quad}& \textbf{$\stackrel{z}{P}$}\\
@@ -635,8 +636,8 @@ and 3).
 \end{table}
 
 The full results for the topic centrality measures are in Figure
-\ref{fig:tab_topic_cent_results}. To ensure that the variability in the topic
-centrality means isn't the result of random variation, the Kruskal-Wallis test
+\ref{fig:tab_topic_cent_results}. To ensure that the variation in the topic
+centrality means isn't the result of random variability, the Kruskal-Wallis test
 was performed on each set of topic centrality scores. In this context, a
 non-parametric test like the Kruskal-Wallis test is desirable compared to an
 Analysis of Variance (ANOVA) as the eigenvector centrality scores for a topic
@@ -651,7 +652,8 @@ impact on the levels of engagement observed, and that this holds true for
 individual party leader's bases as well as the general discourse as a whole. The
 box plots that demonstrate the variability in topic centrality scores, for both
 the total network topic centrality metric and for each party leader's party
-leader topic centrality, are visualized in Figure \ref{fig:topic_cent_box_plots}.
+leader topic centrality, are visualized in Figure
+\ref{fig:topic_cent_box_plots}.
 
 \begin{figure}[h!]
   \centering
@@ -669,19 +671,99 @@ leader topic centrality, are visualized in Figure \ref{fig:topic_cent_box_plots}
   \label{fig:topic_cent_box_plots}
 \end{figure}
 
-% STATISTICAL SIGNIFICANCE
 \section{Discussion}
 
-While not a perfect proxy, topics that are more central to any individual party
-leader than to the overall discourse appear to serve as ``bonding messages''
-which are meant to rally a party leader's base. These tended to be topics that
-were most pertinent to supporters of a party leader (logistical information,
-campaign information, \etc). Conversely, topics that are more central to the
-total network than any party leader tended to be pervasive in the public
-discourse. 
+%! WHAT HAVE WE LEARNED
+%   * Both the party leader and the content affect engagement
+%   * That certain types of messages were important to the overall network, and
+%       certain types were important to the party leader. These don't
+%       necessarily overlap
+%! WHY DOES IT MATTER
+%   * This brings us back to our analogy of social capital. In an era of
+%       heightened political polarization it's helpful to know that things like
+%       the healthcare, while important, did not really span partisan divides.
+%   * Also important to note that while spanning a topic that spans divides
+%       could be a result of multi-partisan communication, it could also be a sign
+%       of debates occurring along party lines. But this is still helpful to know
+%       for people who study political polarization
+    
+The methods and statistics developed in this study are new and warrant further
+refinement and interest -- as even their preliminary uses have uncovered novel
+insights that may be overlooked with existing measures and models of political
+communication. They demonstrate statistically significant results that both the
+producer of the content \emph{and the content itself}, are crucial in
+understanding how social media modulates political discourse and engagement. At
+a more granular level, it allows for the investigation, and confirmation, that
+certain messages are more important to the overall network, and certain messages
+are more important to individual party leaders' bases. The key insight is that
+these two categories do not necessarily overlap.  The topics that informed
+individuals of party events and campaign information, as well as appeals to
+individuals economic worries (topics 1 and 4 respectively) tended to drive
+engagement amongst a party leader's supporters, but had less influence on the
+overall discourse. Conversely, issues that were pervasive in the public
+discourse, like the SNC Lavalin affair and discussion of a carbon tax,
+translated into the digital realm as well -- and tended to be more important to
+the overall discourse. While all party leaders touched on these big ``dinner
+table'' topics, and presumably had differing stances on them, they were not the
+sole preserve of any one party and thus engagement was more likely to cross
+party lines. 
 
-% RELATE BACK TO PUTNAM -> Talk about how bridging topics != hunky dory kind of
-% discourse. Things can bridge party divides in toxic ways.
+Returning back to the loose analogy between bridging and bonding social capital,
+and bridging and bonding messages; in an era that is characterized by a
+heightened sense of political polarization, it is useful to know how different
+types of messaging provoke different forms of political engagement
+\cite{schipper2018political}. It is interesting to note that engagement
+surrounding policy issues like healthcare, while important, were often confined
+to the bubble of a political leader. Bonding social capital reinforces
+identities, and mobilizes solidarity -- from a theoretical standpoint, it stands
+to reason that bonding messages may serve similar purposes
+\cite{putnam2000bowling}. Bridging messages, like bridging social capital, bring
+along weak ties, and diffuse information to a larger network of individuals
+\cite{putnam2000bowling,gil2012social}. These are the topics with a higher total
+network topic centrality score. However, while Putnam argues that "bridging
+social capital can generate broader identities and reciprocity, where as bonding
+social capital bolsters our narrower selves," it remains to be seen if the same
+holds for bridging and bonding messages \cite{putnam2000bowling}. It is very
+well possible that individuals engage with these bridging issues along partisan
+lines, in which case a higher total network topic centrality would be more
+indicative of online arenas where partisans meet and clash. Further research is
+needed to illustrate and understand when and if bridging issues have the ability
+to calm partisan divides or flame them. 
+
+\section{Conclusion}
+
+This study has theoretical and empirical contributions. First, the concept of
+engagement graphs were introduced. This allowed for a more full analysis of the
+online landscape, acknowledging that only looking at connections between users
+does not reflect the full relationship between producers of content and their
+consumers. Engagement graphs were then used in a political media context to
+develop two metrics of topic centrality, one which measures how central a topic
+was to the general discourse, and one which measures how central a topic was to
+a particular voting bloc. These theoretical developments were applied to
+Canada's 2019 federal election, which introduced a new data set of 7,978 tweets
+and 113,293 retweets across 36,450 general users. After the set of tweets was
+modeled and classified via unsupervised topic modeling techniques, metrics
+of topic centrality were then applied and analyzed. In doing so, discrepancies
+in engagement were found, showing that often party leaders ignored topics that
+drove higher levels of engagement amongst their base. Not only this, but often
+topics that were important to the overall discourse were less important to the
+party leader's base and vice versa. Variations in topic centrality were shown to
+be statistically significant and their limitations were discussed, suggesting
+future research opportunities. These metrics provide a new tool for analyzing
+what drives political engagement, how information diffuses across a network, and
+with more work demonstrates potential to analyze how messaging affects political
+polarization.
+
+\paragraph{Acknowledgments:} Special thank you to Dr. Robin Dawes, Dr. Adrienne
+Davidson, Dr. Jonathan Rose and Miranda Dell'Anna for their help, guidance and
+support in this study. 
+
+\paragraph{Funding:} This research received no specific grant from any funding
+agency, commercial or not-for-profit sectors.
+
+\paragraph{Conflicts of Interest:} None.
+
+\pagebreak
 
 \bibliographystyle{nws}
 \bibliography{bibliography}
